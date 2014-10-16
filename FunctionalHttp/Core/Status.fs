@@ -1,132 +1,140 @@
 namespace FunctionalHttp
 
+open System.Runtime.InteropServices
+
 type Status = 
-    private
-        | Status of code:int * msg:string
+    private {
+        code:int
+        msg:string
+    }
 
-    static member ClientErrorBadRequest = Status(400, "Bad Request")
+    static member ClientErrorBadRequest = { code = 400; msg = "Bad Request"}
 
-    static member ClientErrorConflict = Status(409, "Conflict")
+    static member ClientErrorConflict = { code = 409; msg = "Conflict"}
 
-    static member ClientErrorExpectaionFailed = Status(417, "Expectation Failed")
+    static member ClientErrorExpectaionFailed = { code = 417; msg = "Expectation Failed"}
 
-    static member ClientErrorFailedDependency = Status(424, "Failed Dependency")
+    static member ClientErrorFailedDependency = { code = 424; msg = "Failed Dependency"}
 
-    static member ClientErrorForbidden = Status(403, "Forbidden")
+    static member ClientErrorForbidden = { code = 403; msg = "Forbidden"}
 
-    static member ClientErrorGone = Status(410, "Gone")
+    static member ClientErrorGone = { code = 410; msg = "Gone"}
 
-    static member ClientErrorLengthRequired = Status(411, "Length Required")
+    static member ClientErrorLengthRequired = { code = 411; msg = "Length Required"}
 
-    static member ClientErrorLocked = Status(423, "Locked")
+    static member ClientErrorLocked = { code = 423; msg = "Locked"}
 
-    static member ClientErrorMethodNotAllowed = Status(405, "Method Not Allowed")
+    static member ClientErrorMethodNotAllowed = { code = 405; msg = "Method Not Allowed"}
 
-    static member ClientErrorNotAcceptable = Status(406, "Not Acceptable")
+    static member ClientErrorNotAcceptable = { code = 406; msg = "Not Acceptable"}
 
-    static member ClientErrorNotFound = Status(404, "Not Found")
+    static member ClientErrorNotFound = { code = 404; msg = "Not Found"}
 
-    static member ClientErrorPreconditionFailed = Status(412, "Precondition Failed")
+    static member ClientErrorPreconditionFailed = { code = 412; msg = "Precondition Failed"}
 
-    static member ClientErrorProxyAuthenticated = Status(407, "Proxy Authentication Required")
+    static member ClientErrorProxyAuthenticated = { code = 407; msg = "Proxy Authentication Required"}
 
-    static member ClientErrorRequestEntityTooLarge = Status(413, "Request Entity Too Large")
+    static member ClientErrorRequestEntityTooLarge = { code = 413; msg = "Request Entity Too Large"}
 
-    static member ClientErrorRequestTimeout = Status(408, "Request Timeout")
+    static member ClientErrorRequestTimeout = { code = 408; msg = "Request Timeout"}
 
-    static member ClientErrorRequestUriTooLong = Status(414, "Request-URI Too Long")
+    static member ClientErrorRequestUriTooLong = { code = 414; msg = "Request-URI Too Long"}
 
-    static member ClientErrorRequestedRangeNotSatisfiable = Status(416, "Requested Range Not Satisfiable")
+    static member ClientErrorRequestedRangeNotSatisfiable = { code = 416; msg = "Requested Range Not Satisfiable"}
 
-    static member ClientErrorUnauthorized = Status(401, "Unauthorized")
+    static member ClientErrorUnauthorized = { code = 401; msg = "Unauthorized"}
 
-    static member ClientErrorUnprocessableEntity = Status(422, "Unprocessable Entity")
+    static member ClientErrorUnprocessableEntity = { code = 422; msg = "Unprocessable Entity"}
 
-    static member ClientErrorUnsupportedMediaType = Status(415, "Unsupported Media Type")
+    static member ClientErrorUnsupportedMediaType = { code = 415; msg = "Unsupported Media Type"}
 
-    static member ClientErrorUpgradeRequired = Status(426, "Upgrade Required")
+    static member ClientErrorUpgradeRequired = { code = 426; msg = "Upgrade Required"}
 
-    static member InformationalContinue = Status(100, "Continue")
+    static member InformationalContinue = { code = 100; msg = "Continue"}
 
-    static member InformationalProcessing = Status(102, "Processing")
+    static member InformationalProcessing = { code = 102; msg = "Processing"}
     
-    static member InformationalSwitchingProtocols = Status(101, "Switching Protocols")
+    static member InformationalSwitchingProtocols = { code = 101; msg = "Switching Protocols"}
 
-    static member RedirectionFound = Status(302, "Found")
+    static member RedirectionFound = { code = 302; msg = "Found"}
 
-    static member RedirectionMovedPermanently = Status(301, "Moved Permanently")
+    static member RedirectionMovedPermanently = { code = 301; msg = "Moved Permanently"}
 
-    static member RedirectionMultipleChoices = Status(300, "Multiple Choices")
+    static member RedirectionMultipleChoices = { code = 300; msg = "Multiple Choices"}
 
-    static member RedirectionNotModified = Status(304, "Not Modified")
+    static member RedirectionNotModified = { code = 304; msg = "Not Modified"}
 
-    static member RedirectionSeeOther = Status(303, "See Other")
+    static member RedirectionSeeOther = { code = 303; msg = "See Other"}
 
-    static member RedirectionTemporaryRedirect = Status(307, "Temporary Redirect")
+    static member RedirectionTemporaryRedirect = { code = 307; msg = "Temporary Redirect"}
 
-    static member RedirectionUseProxy = Status(305, "Use Proxy")
+    static member RedirectionUseProxy = { code = 305; msg = "Use Proxy"}
 
-    static member ServerErrorBadGateway = Status(502, "Bad Gateway")
+    static member ServerErrorBadGateway = { code = 502; msg = "Bad Gateway"}
 
-    static member ServerErrorGatewayTimeout = Status(504, "Gateway Timeout")
+    static member ServerErrorGatewayTimeout = { code = 504; msg = "Gateway Timeout"}
 
-    static member ServerErrorHttpVersionNotSupported = Status(505, "HTTP Version Not Supported")
+    static member ServerErrorHttpVersionNotSupported = { code = 505; msg = "HTTP Version Not Supported"}
 
-    static member ServerErrorInsufficientStorage = Status(507, "Insufficient Storage")
+    static member ServerErrorInsufficientStorage = { code = 507; msg = "Insufficient Storage"}
 
-    static member ServerErrorInternalServerError = Status(500, "Internal Server Error")
+    static member ServerErrorInternalServerError = { code = 500; msg = "Internal Server Error"}
 
-    static member ServerErrorLoopDetected = Status(508, "Loop Detected")
+    static member ServerErrorLoopDetected = { code = 508; msg = "Loop Detected"}
 
-    static member ServerErrorNotExtended = Status(510, "Not Extended")
+    static member ServerErrorNotExtended = { code = 510; msg = "Not Extended"}
 
-    static member ServerErrorNotImplemented = Status(501, "Not Implemented")
+    static member ServerErrorNotImplemented = { code = 501; msg = "Not Implemented"}
 
-    static member ServerErrorServiceUnavailable = Status(503, "Service Unavailable")
+    static member ServerErrorServiceUnavailable = { code = 503; msg = "Service Unavailable"}
 
-    static member ServerErrorVariantAlsoNegotiates = Status(506, "Variant Also Negotiates")
+    static member ServerErrorVariantAlsoNegotiates = { code = 506; msg = "Variant Also Negotiates"}
 
-    static member SuccessAccepted = Status(202, "Accepted")
+    static member SuccessAccepted = { code = 202; msg = "Accepted"}
 
-    static member SuccessAlreadyReported = Status(208, "Already Reported")
+    static member SuccessAlreadyReported = { code = 208; msg = "Already Reported"}
 
-    static member SuccessCreated = Status(201, "Created")
+    static member SuccessCreated = { code = 201; msg = "Created"}
 
-    static member SuccessImUsed = Status(226, "IM Used")
+    static member SuccessImUsed = { code = 226; msg = "IM Used"}
 
-    static member SuccessMultiStatus = Status(207, "Multi-Status")
+    static member SuccessMultiStatus = { code = 207; msg = "Multi-Status"}
 
-    static member SuccessNoContent = Status(204, "No Content")
+    static member SuccessNoContent = { code = 204; msg = "No Content"}
 
-    static member SuccessNonAuthoritativeInformation = Status(203, "Non-Authoritative Information")
+    static member SuccessNonAuthoritativeInformation = { code = 203; msg = "Non-Authoritative Information"}
 
-    static member SuccessOk = Status(200, "OK")
+    static member SuccessOk = { code = 200; msg = "OK"}
 
-    static member SuccessPartialContent = Status(206, "Partial Content")
+    static member SuccessPartialContent = { code = 206; msg = "Partial Content"}
 
-    static member SuccessResetContent = Status(205, "Reset Content")
+    static member SuccessResetContent = { code = 205; msg = "Reset Content"}
 
-    static member Create code = Status(code, "") 
+    static member Create(code) = { code = code; msg = "" }
 
-    member this.Code = match this with Status(code, _) -> code
+    static member Create(code, msg) = { code = code; msg = msg } 
+
+    member this.Code = this.code
     
-    member this.Message = match this with Status(_, msg) -> msg
+    member this.Message = this.msg
 
     override this.ToString() = this.Message
 
 type StatusClass = 
     | ClientError | Informational | Redirection | ServerError | Success | SystemHttpClientError
     static member From (status:Status) =
-        match status with  
-        | Status(x, _) when x >= 100 && x < 200 -> StatusClass.Informational 
-        | Status (x, _) when x >= 200 && x < 300 -> StatusClass.Success 
-        | Status (x, _) when x >= 300 && x < 400 -> StatusClass.Redirection 
-        | Status (x, _) when x >= 400 && x < 500 -> StatusClass.ClientError
-        | Status (x, _) when x >= 500 && x < 600 -> StatusClass.ServerError 
-        | Status (x, _) when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
+        match status.Code with  
+        | x when x >= 100 && x < 200 -> StatusClass.Informational 
+        | x when x >= 200 && x < 300 -> StatusClass.Success 
+        | x when x >= 300 && x < 400 -> StatusClass.Redirection 
+        | x when x >= 400 && x < 500 -> StatusClass.ClientError
+        | x when x >= 500 && x < 600 -> StatusClass.ServerError 
+        | x when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
         | _ -> failwith "Invalid status code"  
-        
+
+
+[<AutoOpen>]  
 module StatusExtension =
-    type Status with
+    type Status with 
         member this.Class 
             with get() = StatusClass.From(this)

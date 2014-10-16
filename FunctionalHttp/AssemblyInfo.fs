@@ -17,6 +17,7 @@ associated with an assembly. *)
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
 [<assembly: NeutralResourcesLanguage("en")>]
+[<assembly: InternalsVisibleTo("FunctionalHttp.CSharpExtensions")>]
 
 (* Version information for an assembly consists of the following four values:
 

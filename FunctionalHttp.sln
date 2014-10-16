@@ -5,6 +5,10 @@ VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp", "FunctionalHttp\FunctionalHttp.fsproj", "{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "ClassLibrary1\ClassLibrary1.csproj", "{90D86DCA-2F9A-4F85-80BB-BC0EBB3960A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpExtensions", "FunctionalHttp.CSharpExtensions\FunctionalHttp.CSharpExtensions.csproj", "{54EE6398-8473-4A07-A631-490199E100CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90D86DCA-2F9A-4F85-80BB-BC0EBB3960A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D86DCA-2F9A-4F85-80BB-BC0EBB3960A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D86DCA-2F9A-4F85-80BB-BC0EBB3960A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D86DCA-2F9A-4F85-80BB-BC0EBB3960A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54EE6398-8473-4A07-A631-490199E100CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54EE6398-8473-4A07-A631-490199E100CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54EE6398-8473-4A07-A631-490199E100CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54EE6398-8473-4A07-A631-490199E100CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

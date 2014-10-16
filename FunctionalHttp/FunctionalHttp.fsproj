@@ -34,6 +34,26 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\FunctionalHttp.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Data\Charset.fs" />
+    <Compile Include="Data\ChallengeMessage.fs" />
+    <Compile Include="Data\Header.fs" />
+    <Compile Include="Data\CacheDirective.fs" />
+    <Compile Include="Data\MediaRange.fs" />
+    <Compile Include="Core\Method.fs" />
+    <Compile Include="Core\ContentInfo.fs" />
+    <Compile Include="Core\HttpRequest.fs" />
+    <Compile Include="Core\Status.fs" />
+    <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Client\RequestSerializer.fs" />
+    <Compile Include="Client\HttpClient.fs" />
+    <Content Include="packages.config" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
       <Name>FSharp.Core</Name>
@@ -41,22 +61,6 @@
       <HintPath>$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETCore\$(TargetFSharpCoreVersion)\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Core\Method.fs" />
-    <Compile Include="Core\Header.fs" />
-    <Compile Include="Core\ContentInfo.fs" />
-    <Compile Include="Core\HttpRequest.fs" />
-    <Compile Include="Core\Status.fs" />
-    <Compile Include="Core\HttpResponse.fs" />
-    <Compile Include="Client\HttpClient.fs" />
-    <Compile Include="Data\Charset.fs" />
-    <Compile Include="Data\ChallengeMessage.fs" />
-  </ItemGroup>
-  <PropertyGroup>
-    <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">12</MinimumVisualStudioVersion>
-  </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
