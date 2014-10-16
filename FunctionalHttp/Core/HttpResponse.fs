@@ -56,7 +56,7 @@ module HttpResponseExtensions =
     type HttpResponse<'TResp> with
         member this.ToAsyncResponse() = async { return this }
 
-        member this.With<'TResp> (?contentInfo, ?status, ?age, ?cacheDirectives, ?expires,?location) =
+        member this.With<'TResp> (?status, ?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
             new HttpResponse<'TResp>(
                 defaultArg status this.Status,
                 this.Entity,
@@ -67,7 +67,7 @@ module HttpResponseExtensions =
                 (if Option.isSome expires then expires else this.Expires),
                 (if Option.isSome location then location else this.Location))
 
-        member this.With<'TNew> (entity:'TNew, ?contentInfo, ?status:Status, ?age, ?cacheDirectives, ?expires, ?location) =
+        member this.With<'TNew> (entity:'TNew, ?status:Status, ?contentInfo,  ?age, ?cacheDirectives, ?expires, ?location) =
             new HttpResponse<'TNew>(
                 defaultArg status this.Status,
                 Some entity,

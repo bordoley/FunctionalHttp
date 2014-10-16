@@ -1,12 +1,12 @@
-﻿using Microsoft.FSharp.Core;
-using Microsoft.FSharp.Collections;
+﻿using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace FunctionalHttp
 {
-    public static class HttpRequestExtension
+    public static class HttpRequestExtensionsCSharp
     {
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This, 
