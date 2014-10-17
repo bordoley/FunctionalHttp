@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpExtens
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp.HttpClientConnector-Net45", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-Net45.fsproj", "{83BA217B-C304-4216-8F96-208251F70CFE}"
 EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp.HttpClientConnector-Android", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-Android.fsproj", "{81970908-390A-4B5B-A73E-047F2C6EBC65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Release|Any CPU.Build.0 = Release|Any CPU
 		{83BA217B-C304-4216-8F96-208251F70CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{83BA217B-C304-4216-8F96-208251F70CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{83BA217B-C304-4216-8F96-208251F70CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU

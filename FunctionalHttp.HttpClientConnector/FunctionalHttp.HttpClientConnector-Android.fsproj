@@ -3,12 +3,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{83BA217B-C304-4216-8F96-208251F70CFE}</ProjectGuid>
+    <ProjectTypeGuids>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};{F2A71F9B-5D33-465A-A702-920D77279786}</ProjectTypeGuids>
+    <ProjectGuid>{81970908-390A-4B5B-A73E-047F2C6EBC65}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FunctionalHttp</RootNamespace>
+    <RootNamespace>FunctionalHttpClientConnectorAndroid</RootNamespace>
+    <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
+    <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
+    <AndroidResgenClass>Resource</AndroidResgenClass>
+    <AndroidResgenFile>Resources\Resource.designer.fs</AndroidResgenFile>
+    <AndroidUseLatestPlatformSdk>True</AndroidUseLatestPlatformSdk>
     <AssemblyName>FunctionalHttp.HttpClientConnector</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <TargetFrameworkVersion>v4.4</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,6 +22,7 @@
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
+    <AndroidLinkMode>None</AndroidLinkMode>
     <ConsolePause>false</ConsolePause>
     <Tailcalls>false</Tailcalls>
     <PlatformTarget>
@@ -30,27 +36,27 @@
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>
     </PlatformTarget>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>false</ConsolePause>
     <Tailcalls>true</Tailcalls>
   </PropertyGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
-    <Compile Include="AssemblyInfo.fs" />
-    <None Include="packages.config" />
-    <Compile Include="SystemNetExtensions.fs" />
-    <Compile Include="HttpClientConnector.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
     <Reference Include="System" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
+    <Reference Include="mscorlib" />
+    <Reference Include="Mono.Android" />
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.Mono.Signed.3.1.1.27\lib\MonoAndroid\FSharp.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.Mono.Signed.3.1.1.27\lib\net45\FSharp.Core.dll</HintPath>
-    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.FSharp.targets" />
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="SystemNetExtensions.fs" />
+    <Compile Include="HttpClientConnector.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FunctionalHttp\FunctionalHttp.fsproj">
