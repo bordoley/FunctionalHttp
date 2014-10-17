@@ -1,4 +1,4 @@
-﻿using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,7 @@ namespace FunctionalHttp
             this HttpRequest<TReq> This, 
             Method meth = null, 
             Uri uri = null, 
+            Guid? id = null,
             ContentInfo contentInfo = null,
             ChallengeMessage authorizationCredentials = null,
             IEnumerable<CacheDirective> cacheDirectives = null,
@@ -20,8 +21,8 @@ namespace FunctionalHttp
             return new HttpRequest<TReq> (
                 meth != null ? meth : This.Method,
                 uri != null ? uri : This.Uri,
-                FSharpOption<TReq>.None,
-                This.Id,
+                This.Entity,
+                id != null ? id.Value : This.Id,
                 contentInfo != null ? contentInfo : This.ContentInfo,
                 authorizationCredentials != null ? FSharpOption<ChallengeMessage>.Some(authorizationCredentials) : This.AuthorizationCredentials,
                 SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),
@@ -33,6 +34,7 @@ namespace FunctionalHttp
             TNew entity, 
             Method meth = null,
             Uri uri = null,
+            Guid? id = null,
             ContentInfo contentInfo = null,
             ChallengeMessage authorizationCredentials = null,
             IEnumerable<CacheDirective> cacheDirectives = null,
@@ -44,7 +46,7 @@ namespace FunctionalHttp
                 meth != null ? meth : This.Method,
                 uri != null ? uri : This.Uri,
                 FSharpOption<TNew>.Some(entity),
-                This.Id,
+                id != null ? id.Value : This.Id,
                 contentInfo != null ? contentInfo : This.ContentInfo,
                 authorizationCredentials != null ? FSharpOption<ChallengeMessage>.Some(authorizationCredentials) : This.AuthorizationCredentials,
                 SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),

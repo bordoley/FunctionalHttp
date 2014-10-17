@@ -25,7 +25,7 @@ type ContentInfo =
 
     member this.MediaRange = this.mediaRange
 
-module ContentInfoExtensions =
+module ContentInfoMixins =
     type ContentInfo with
         member this.With(?length:int, ?location:Uri, ?mediaRange:MediaRange) =
             ContentInfo.CreateInternal(

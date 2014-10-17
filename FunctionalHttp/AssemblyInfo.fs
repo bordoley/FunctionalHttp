@@ -18,7 +18,7 @@ associated with an assembly. *)
 [<assembly: AssemblyCulture("")>]
 [<assembly: NeutralResourcesLanguage("en")>]
 [<assembly: InternalsVisibleTo("FunctionalHttp.CSharpExtensions")>]
-
+[<assembly: InternalsVisibleTo("FunctionalHttp.HttpClientConnector")>]
 (* Version information for an assembly consists of the following four values:
 
       Major Version

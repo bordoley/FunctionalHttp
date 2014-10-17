@@ -1,6 +1,7 @@
 namespace FunctionalHttp
 
 open System
+open System.Runtime.CompilerServices
 
 [<Sealed>]
 type HttpRequest<'TReq> internal (meth:Method, 
@@ -44,10 +45,11 @@ type HttpRequest<'TReq> internal (meth:Method,
     member this.Uri with get() = uri     
 
 [<AutoOpen>]
-module HttpRequestExtensions =
+module HttpRequestMixins =
     type HttpRequest<'TReq> with
         member this.With<'TReq>(?meth:Method, 
                                 ?uri:Uri, 
+                                ?id: Guid,
                                 ?contentInfo:ContentInfo, 
                                 ?authorizationCredentials:ChallengeMessage,
                                 ?cacheDirectives: CacheDirective seq,
@@ -56,7 +58,7 @@ module HttpRequestExtensions =
                 defaultArg meth this.Method,
                 defaultArg uri this.Uri,
                 this.Entity,
-                this.Id,
+                defaultArg id this.Id,
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome authorizationCredentials then authorizationCredentials else this.AuthorizationCredentials),
                 Set.ofSeq <| defaultArg cacheDirectives this.CacheDirectives,
@@ -65,6 +67,7 @@ module HttpRequestExtensions =
         member this.With<'TNew> (entity:'TNew, 
                                     ?meth:Method, 
                                     ?uri:Uri,
+                                    ?id:Guid,
                                     ?contentInfo:ContentInfo, 
                                     ?authorizationCredentials:ChallengeMessage,
                                     ?cacheDirectives: CacheDirective seq,
@@ -73,7 +76,7 @@ module HttpRequestExtensions =
                 defaultArg meth this.Method,
                 defaultArg uri this.Uri,
                 Some entity,
-                this.Id,
+                defaultArg id this.Id,
                 (defaultArg contentInfo this.ContentInfo),
                 (if Option.isSome authorizationCredentials then authorizationCredentials else this.AuthorizationCredentials),
                 Set.ofSeq <| defaultArg cacheDirectives this.CacheDirectives,
@@ -100,3 +103,8 @@ module HttpRequestExtensions =
                 (if Option.isSome authorizationCredentials then None else  this.AuthorizationCredentials),
                 Set.ofSeq <| (if Option.isSome cacheDirectives then Seq.empty else this.CacheDirectives),
                 (if Option.isSome referer then None else this.Referer))
+
+[<AbstractClass; Sealed; Extension>]
+type HttpRequestExtensions () =
+    [<Extension>]
+    static member WithoutEntityAsync<'TReq> (this:HttpRequest<_>) = async { return this.WithoutEntity<'TReq>() }

@@ -1,7 +1,5 @@
 namespace FunctionalHttp
 
-open System.Runtime.InteropServices
-
 type Status = 
     private {
         code:int
@@ -134,7 +132,7 @@ type StatusClass =
 
 
 [<AutoOpen>]  
-module StatusExtension =
+module StatusMixins =
     type Status with 
         member this.Class 
             with get() = StatusClass.From(this)

@@ -1,6 +1,7 @@
 namespace FunctionalHttp
 
 open System
+open System.IO
 open System.Threading
 
 type HttpClient<'TReq, 'TResp> = HttpRequest<'TReq> -> Async<HttpResponse<'TResp>>
@@ -33,3 +34,25 @@ module HttpClient =
         async {
             return! tryRequest 0
         }
+
+    let Serializing (serialize:RequestSerializer<'TReq>) (deserialize:ResponseDeserializer<'TResp>) (client:HttpClient<Stream,Stream>) (request:HttpRequest<'TReq>)= 
+        async {
+            let streamRequest = serialize request
+            let! streamResponse = client streamRequest
+            // FIXME: Maybe this should be configurable via a provided function
+            // Only deserializer the response when the status class is Success and contains contentInfo
+            return! match (streamResponse.Entity, 
+                           streamResponse.Status.Class, 
+                           streamResponse.ContentInfo, 
+                           streamResponse.ContentInfo.Length) with
+                    | (Some entity, statusClass, contentInfo, Some length) when 
+                            statusClass = StatusClass.Success && 
+                            contentInfo <> ContentInfo.None -> 
+                        deserialize (streamResponse.With(entity))
+                        //deserialize (streamResponse.With(entity = LimitReadStream.Create(entity, length)))
+                    | (Some entity, statusClass, contentInfo, _) when 
+                            statusClass = StatusClass.Success && 
+                            contentInfo <> ContentInfo.None -> 
+                        deserialize streamResponse
+                    | _ -> streamResponse.WithoutEntity<'TResp>().ToAsyncResponse()
+        } 

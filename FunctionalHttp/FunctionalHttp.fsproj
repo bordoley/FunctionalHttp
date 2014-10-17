@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>58a31c98-ea14-4aef-b95a-c064a0d8b9c8</ProjectGuid>
+    <ProjectGuid>{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FunctionalHttp</RootNamespace>
     <AssemblyName>FunctionalHttp</AssemblyName>
@@ -50,15 +49,15 @@
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\Status.fs" />
     <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Client\ClientStatus.fs" />
     <Compile Include="Client\RequestSerializer.fs" />
+    <Compile Include="Client\ResponseDeserializer.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
-      <Name>FSharp.Core</Name>
-      <AssemblyName>FSharp.Core.dll</AssemblyName>
-      <HintPath>$(MSBuildExtensionsPath32)\..\Reference Assemblies\Microsoft\FSharp\.NETCore\$(TargetFSharpCoreVersion)\FSharp.Core.dll</HintPath>
+      <HintPath>..\packages\FSharp.Core.Mono.Signed.3.1.1.27\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\FSharp.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
