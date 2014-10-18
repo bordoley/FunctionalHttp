@@ -130,7 +130,6 @@ type StatusClass =
         | x when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
         | _ -> failwith "Invalid status code"  
 
-
 [<AutoOpen>]  
 module StatusMixins =
     type Status with 

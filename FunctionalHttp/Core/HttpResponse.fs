@@ -4,9 +4,7 @@ open System
 open System.Collections.Generic
 open System.IO
 open System.Linq
-open System.Runtime.CompilerServices
 open System.Text
-open System.Threading.Tasks
 
 [<Sealed>]
 type HttpResponse<'TResp> internal (status:Status,
@@ -106,28 +104,16 @@ module HttpResponseMixins =
                 (if Option.isSome expires then None else this.Expires),
                 (if Option.isSome location then None else this.Location))
 
-[<AbstractClass; Sealed; Extension>]
-type HttpResponseExtensions () =
-    [<Extension>]
-    static member ToResponse(this:Status) = HttpResponse.Create(this)
+        member this.ToAsyncResponse() = async { return this }
 
-    [<Extension>]
-    static member ToAsyncResponse(this:Status) = async { return HttpResponseExtensions.ToResponse(this) }
+        member this.WithoutEntityAsync<'TNew> () = async { return this.WithoutEntity<'TNew>() }
 
-    [<Extension>]
-    static member ToResponseAsync(this:Status) = Task.FromResult(HttpResponseExtensions.ToResponse(this))
+    type Status with
+        member this.ToResponse() = HttpResponse.Create(this)
+        member this.ToAsyncResponse() = async { return this.ToResponse() }
 
-    [<Extension>]
-    static member ToAsyncResponse(this:HttpResponse<'TResp>) = async { return this }
-
-    [<Extension>]
-    static member ToResponseAsync(this:HttpResponse<'TResp>) = Task.FromResult(this)
-
-    [<Extension>]
-    static member WithoutEntityAsyncResponse<'TResp> (this:HttpResponse<_>) = async { return this.WithoutEntity<'TResp>() }
-
-    [<Extension>]
-    static member ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) =
+module HttpStreamResponseDeserializers =
+    let ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) =
         let stream = this.Entity.Value
         async{
             let memStream =
@@ -140,21 +126,19 @@ type HttpResponseExtensions () =
             let! copyResult = stream.CopyToAsync(memStream) |> Async.AwaitIAsyncResult |> Async.Catch
             return match copyResult with
                     | Choice1Of2 unit -> this.With(entity = memStream)
-                    | Choice2Of2 exn -> HttpResponseExtensions.ToResponse(ClientStatus.DeserializationFailed).With(id = this.Id)
+                    | Choice2Of2 exn -> ClientStatus.DeserializationFailed.ToResponse().With(id = this.Id)
         }
 
-    [<Extension>]
-    static member ToAsyncByteArrayResponse(this:HttpResponse<Stream>) =
+    let ToAsyncByteArrayResponse(this:HttpResponse<Stream>) =
         async {
-            let! memResponse = HttpResponseExtensions.ToAsyncMemoryStreamResponse(this)
+            let! memResponse = ToAsyncMemoryStreamResponse(this)
             return
                 match memResponse.Entity with
                 | None -> memResponse.WithoutEntity<byte[]>()
                 | Some stream -> this.With(entity = stream.ToArray())    
         }
 
-    [<Extension>]
-    static member ToAsyncStringResponse (this:HttpResponse<Stream>)  =
+    let ToAsyncStringResponse (this:HttpResponse<Stream>)  =
         let stream = this.Entity.Value
         async {
             let encoding = 
@@ -171,7 +155,7 @@ type HttpResponseExtensions () =
             return 
                 match result with
                 | Choice2Of2 exn ->
-                    HttpResponseExtensions.ToResponse<string>(ClientStatus.DeserializationFailed).With(id = this.Id)
+                    ClientStatus.DeserializationFailed.ToResponse<string>().With(id = this.Id)
                 | Choice1Of2 result ->
                     this.With<string>(result)
         }

@@ -49,6 +49,7 @@
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\Status.fs" />
     <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Core\HttpResponseInterop.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client\HttpClientInterop.fs" />
     <Content Include="packages.config" />

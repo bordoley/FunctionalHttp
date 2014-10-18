@@ -1,7 +1,8 @@
-﻿namespace FunctionalHttp.Interop
+namespace FunctionalHttp.Interop
 
 open FunctionalHttp
 open System
+open System.IO
 open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
@@ -31,9 +32,15 @@ type HttpClientInteropExtensions private () =
         HttpClient.FromFSharpHttpClient(client)
 
     [<Extension>]
-    static member RetryUsingPolicy(this:HttpClient<'TReq, 'TResp>,
+    static member UsingRetryPolicy(this:HttpClient<'TReq, 'TResp>,
                                     policy:Func<HttpResponse<'TResp>, int, RetryResult>) =
         let policyFunc(response, cnt) = policy.Invoke(response, cnt)
 
-        let client = HttpClient.RetryUsingPolicy policyFunc this.FSharpHttpClient
+        let client = HttpClient.UsingRetryPolicy policyFunc this.FSharpHttpClient
+        HttpClient.FromFSharpHttpClient(client)
+
+    [<Extension>]
+    static member UsingConverter(this:HttpClient<Stream,Stream>,
+                                 converter:HttpClientConverter<'TReq,'TResp>) =
+        let client = HttpClient.UsingConverter converter this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)

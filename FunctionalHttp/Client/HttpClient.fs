@@ -27,7 +27,7 @@ module HttpClient =
             return! client request
         }
 
-    let RetryUsingPolicy (policy:RetryPolicy<'TResp>) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
+    let UsingRetryPolicy (policy:RetryPolicy<'TResp>) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
         let rec tryRequest (attempt:int) =
             async {
                 let! response = client request
@@ -43,7 +43,7 @@ module HttpClient =
             return! tryRequest 0
         }
 
-    let Serializing (converter:HttpClientConverter<'TReq,'TResp>) (client:HttpClient<Stream,Stream>) (request:HttpRequest<'TReq>) = 
+    let UsingConverter (converter:HttpClientConverter<'TReq,'TResp>) (client:HttpClient<Stream,Stream>) (request:HttpRequest<'TReq>) = 
         async {
             let streamRequest = converter.SerializeRequest request
             let! streamResponse = client streamRequest
@@ -62,5 +62,5 @@ module HttpClient =
                             statusClass = StatusClass.Success && 
                             contentInfo <> ContentInfo.None -> 
                         converter.DeserializeResponse streamResponse
-                    | _ -> streamResponse.WithoutEntity<'TResp>().ToAsyncResponse()
+                    | _ -> streamResponse.WithoutEntityAsync<'TResp>()
         } 

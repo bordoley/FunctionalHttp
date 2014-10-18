@@ -104,7 +104,4 @@ module HttpRequestMixins =
                 Set.ofSeq <| (if Option.isSome cacheDirectives then Seq.empty else this.CacheDirectives),
                 (if Option.isSome referer then None else this.Referer))
 
-[<AbstractClass; Sealed; Extension>]
-type HttpRequestExtensions () =
-    [<Extension>]
-    static member WithoutEntityAsync<'TReq> (this:HttpRequest<_>) = async { return this.WithoutEntity<'TReq>() }
+        member this.WithoutEntityAsync<'TReq> () = async { return this.WithoutEntity<'TReq>() }

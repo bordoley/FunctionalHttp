@@ -3,9 +3,11 @@ using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 
+using FunctionalHttp;
+
 namespace FunctionalHttp.Interop
 {
-    public static class HttpResponseExtensions
+    public static class HttpResponseExtensionsCSharp
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,
