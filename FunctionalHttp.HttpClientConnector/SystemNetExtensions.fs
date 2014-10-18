@@ -1,4 +1,6 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Net
+
+open FunctionalHttp
 
 open System.IO
 open System.Linq

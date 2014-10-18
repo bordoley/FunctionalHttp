@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp
+namespace FunctionalHttp
 
 open System
 open System.Collections.Generic

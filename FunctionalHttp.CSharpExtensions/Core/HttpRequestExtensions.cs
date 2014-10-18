@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace FunctionalHttp
+namespace FunctionalHttp.Interop
 {
-    public static class HttpRequestExtensionsCSharp
+    public static class HttpRequestExtensions
     {
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This, 
@@ -77,6 +77,43 @@ namespace FunctionalHttp
                 authorizationCredentials ? FSharpOption<ChallengeMessage>.None : This.AuthorizationCredentials,
                 SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
                 referer ? FSharpOption<Uri>.None : This.Referer);
+        }
+
+        public static bool TryGetEntity<TReq>(this HttpRequest<TReq> This, out TReq entity)
+            where TReq:class
+        {
+            if (OptionModule.IsSome(This.Entity))
+            {
+                entity = This.Entity.Value;
+                return true;
+            }
+
+            entity = null;
+            return false;
+        }
+
+        public static bool TryGetAuthorizationCredentials<TReq>(this HttpRequest<TReq> This, out ChallengeMessage authorizationCredentials)
+        {
+            if (OptionModule.IsSome(This.AuthorizationCredentials))
+            {
+                authorizationCredentials = This.AuthorizationCredentials.Value;
+                return true;
+            }
+
+            authorizationCredentials = null;
+            return false;
+        }
+
+        public static bool TryGetReferer<TReq>(this HttpRequest<TReq> This, out Uri referer)
+        {
+            if (OptionModule.IsSome(This.Referer))
+            {
+                referer = This.Referer.Value;
+                return true;
+            }
+
+            referer = null;
+            return false;
         }
     }
 }

@@ -3,9 +3,9 @@ using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 
-namespace FunctionalHttp
+namespace FunctionalHttp.Interop
 {
-    public static class HttpResponseExtensionsCSharp
+    public static class HttpResponseExtensions
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,
@@ -84,6 +84,55 @@ namespace FunctionalHttp
                 SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
                 expires ? FSharpOption<DateTimeOffset>.None : This.Expires,
                 location ? FSharpOption<Uri>.None : This.Location);
+        }
+
+        public static bool TryGetEntity<TResp>(this HttpResponse<TResp> This, out TResp entity)
+            where TResp : class
+        {
+            if (OptionModule.IsSome(This.Entity))
+            {
+                entity = This.Entity.Value;
+                return true;
+            }
+
+            entity = null;
+            return false;
+        }
+
+        public static bool TryGetAge<TResp>(this HttpResponse<TResp> This, out TimeSpan age)
+        {
+            if (OptionModule.IsSome(This.Age))
+            {
+                age = This.Age.Value;
+                return true;
+            }
+
+            age = TimeSpan.MinValue;
+            return false;
+        }
+
+        public static bool TryGetExpires<TResp>(this HttpResponse<TResp> This, out DateTimeOffset expires)
+        {
+            if (OptionModule.IsSome(This.Expires))
+            {
+                expires = This.Expires.Value;
+                return true;
+            }
+
+            expires = DateTimeOffset.MinValue;
+            return false;
+        }
+
+        public static bool TryGetLocation<TResp>(this HttpResponse<TResp> This, out Uri location)
+        {
+            if (OptionModule.IsSome(This.Location))
+            {
+                location = This.Location.Value;
+                return true;
+            }
+
+            location = null;
+            return false;
         }
     }
 }
