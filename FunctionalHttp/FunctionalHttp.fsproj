@@ -53,6 +53,7 @@
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client\HttpClientInterop.fs" />
     <Content Include="packages.config" />
+    <Compile Include="Parsing\CharMatchers.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

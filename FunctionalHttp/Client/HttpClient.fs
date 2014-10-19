@@ -21,13 +21,13 @@ type RetryResult =
 type RetryPolicy<'TResp> = (HttpResponse<'TResp>*int) -> RetryResult
 
 module HttpClient =
-    let UsingContext (context:SynchronizationContext) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
+    let usingContext (context:SynchronizationContext) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
         async {
             do! Async.SwitchToContext context
             return! client request
         }
 
-    let UsingRetryPolicy (policy:RetryPolicy<'TResp>) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
+    let usingRetryPolicy (policy:RetryPolicy<'TResp>) (client:HttpClient<'TReq, 'TResp>) (request:HttpRequest<'TReq>) =
         let rec tryRequest (attempt:int) =
             async {
                 let! response = client request
@@ -43,7 +43,7 @@ module HttpClient =
             return! tryRequest 0
         }
 
-    let UsingConverter (converter:HttpClientConverter<'TReq,'TResp>) (client:HttpClient<Stream,Stream>) (request:HttpRequest<'TReq>) = 
+    let usingConverter (converter:HttpClientConverter<'TReq,'TResp>) (client:HttpClient<Stream,Stream>) (request:HttpRequest<'TReq>) = 
         async {
             let streamRequest = converter.SerializeRequest request
             let! streamResponse = client streamRequest

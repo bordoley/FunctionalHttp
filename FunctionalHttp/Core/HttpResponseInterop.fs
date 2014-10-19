@@ -20,10 +20,10 @@ type HttpResponseExtensions private () =
     static member WithoutEntityAsyncResponse<'TResp> (this:HttpResponse<_>) = this.WithoutEntityAsync<'TResp>()
 
     [<Extension>]
-    static member ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) = ToAsyncMemoryStreamResponse this
+    static member ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) = toAsyncMemoryStreamResponse this
 
     [<Extension>]
-    static member ToAsyncByteArrayResponse(this:HttpResponse<Stream>) = ToAsyncByteArrayResponse this
+    static member ToAsyncByteArrayResponse(this:HttpResponse<Stream>) = toAsyncByteArrayResponse this
 
     [<Extension>]
-    static member ToAsyncStringResponse (this:HttpResponse<Stream>) = ToAsyncStringResponse this
+    static member ToAsyncStringResponse (this:HttpResponse<Stream>) = toAsyncStringResponse this

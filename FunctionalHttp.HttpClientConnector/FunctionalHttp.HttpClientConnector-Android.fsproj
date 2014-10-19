@@ -57,6 +57,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SystemNetExtensions.fs" />
     <Compile Include="HttpClientConnector.fs" />
+    <Compile Include="HttpClientConnectorInterop.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FunctionalHttp\FunctionalHttp.fsproj">

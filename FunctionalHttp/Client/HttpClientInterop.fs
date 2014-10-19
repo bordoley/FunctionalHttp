@@ -28,7 +28,7 @@ type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.HttpClient<'T
 type HttpClientInteropExtensions private () =
     [<Extension>]
     static member UsingContext(this:HttpClient<'TReq, 'TResp>, context:SynchronizationContext) =
-        let client = HttpClient.UsingContext context this.FSharpHttpClient
+        let client = HttpClient.usingContext context this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)
 
     [<Extension>]
@@ -36,11 +36,11 @@ type HttpClientInteropExtensions private () =
                                     policy:Func<HttpResponse<'TResp>, int, RetryResult>) =
         let policyFunc(response, cnt) = policy.Invoke(response, cnt)
 
-        let client = HttpClient.UsingRetryPolicy policyFunc this.FSharpHttpClient
+        let client = HttpClient.usingRetryPolicy policyFunc this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)
 
     [<Extension>]
     static member UsingConverter(this:HttpClient<Stream,Stream>,
                                  converter:HttpClientConverter<'TReq,'TResp>) =
-        let client = HttpClient.UsingConverter converter this.FSharpHttpClient
+        let client = HttpClient.usingConverter converter this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)

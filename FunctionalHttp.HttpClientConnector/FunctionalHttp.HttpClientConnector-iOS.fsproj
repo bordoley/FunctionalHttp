@@ -47,6 +47,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SystemNetExtensions.fs" />
     <Compile Include="HttpClientConnector.fs" />
+    <Compile Include="HttpClientConnectorInterop.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.FSharp.targets" />
   <ItemGroup>

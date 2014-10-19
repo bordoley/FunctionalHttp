@@ -113,7 +113,7 @@ module HttpResponseMixins =
         member this.ToAsyncResponse() = async { return this.ToResponse() }
 
 module HttpStreamResponseDeserializers =
-    let ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) =
+    let toAsyncMemoryStreamResponse (this:HttpResponse<Stream>) =
         let stream = this.Entity.Value
         async{
             let memStream =
@@ -129,16 +129,16 @@ module HttpStreamResponseDeserializers =
                     | Choice2Of2 exn -> ClientStatus.DeserializationFailed.ToResponse().With(id = this.Id)
         }
 
-    let ToAsyncByteArrayResponse(this:HttpResponse<Stream>) =
+    let toAsyncByteArrayResponse (this:HttpResponse<Stream>) =
         async {
-            let! memResponse = ToAsyncMemoryStreamResponse(this)
+            let! memResponse = toAsyncMemoryStreamResponse this
             return
                 match memResponse.Entity with
                 | None -> memResponse.WithoutEntity<byte[]>()
                 | Some stream -> this.With(entity = stream.ToArray())    
         }
 
-    let ToAsyncStringResponse (this:HttpResponse<Stream>)  =
+    let toAsyncStringResponse (this:HttpResponse<Stream>)  =
         let stream = this.Entity.Value
         async {
             let encoding = 

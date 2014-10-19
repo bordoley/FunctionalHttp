@@ -1,6 +1,7 @@
-﻿namespace FunctionalHttp.Net
+﻿namespace FunctionalHttp
 
 open FunctionalHttp
+open FunctionalHttp.ClientStatus
 
 open System.IO
 open System.Linq
@@ -39,31 +40,31 @@ module internal WebExceptionExtensions =
         member this.ToStatus() =
             match this.Status with
             //| WebExceptionStatus.CacheEntryNotFound -> CacheEntryNotFound
-            | WebExceptionStatus.ConnectFailure -> Some ClientStatus.ConnectFailure
-            | WebExceptionStatus.ConnectionClosed -> Some ClientStatus.ConnectionClosed
-            | WebExceptionStatus.KeepAliveFailure -> Some ClientStatus.KeepAliveFailure
-            | WebExceptionStatus.MessageLengthLimitExceeded -> Some ClientStatus.MessageLengthLimitExceeded
-            | WebExceptionStatus.NameResolutionFailure -> Some ClientStatus.NameResolutionFailure
+            | WebExceptionStatus.ConnectFailure -> Some ConnectFailure
+            | WebExceptionStatus.ConnectionClosed -> Some ConnectionClosed
+            | WebExceptionStatus.KeepAliveFailure -> Some KeepAliveFailure
+            | WebExceptionStatus.MessageLengthLimitExceeded -> Some MessageLengthLimitExceeded
+            | WebExceptionStatus.NameResolutionFailure -> Some NameResolutionFailure
             //| WebExceptionStatus.Pending -> HttpResponse<'TResp>.Create(Status.SuccessOk)
-            | WebExceptionStatus.PipelineFailure -> Some ClientStatus.PipelineFailure
+            | WebExceptionStatus.PipelineFailure -> Some PipelineFailure
 
-            | WebExceptionStatus.ProxyNameResolutionFailure -> Some ClientStatus.ProxyNameResolutionFailure
-            | WebExceptionStatus.ReceiveFailure -> Some ClientStatus.ReceiveFailure
-            | WebExceptionStatus.RequestCanceled -> Some ClientStatus.RequestCanceled
+            | WebExceptionStatus.ProxyNameResolutionFailure -> Some ProxyNameResolutionFailure
+            | WebExceptionStatus.ReceiveFailure -> Some ReceiveFailure
+            | WebExceptionStatus.RequestCanceled -> Some RequestCanceled
 
             // FIXME: Should these be handled similarly to ProtocolError?
             //| WebExceptionStatus.RequestProhibitedByCachePolicy -> Some RequestProhibitedByCachePolicy
             //| WebExceptionStatus.RequestProhibitedByProxy -> Some RequestProhibitedByProxy
 
-            | WebExceptionStatus.SecureChannelFailure -> Some ClientStatus.SecureChannelFailure
-            | WebExceptionStatus.SendFailure -> Some ClientStatus.SendFailure
-            | WebExceptionStatus.ServerProtocolViolation -> Some ClientStatus.ServerProtocolViolation
+            | WebExceptionStatus.SecureChannelFailure -> Some SecureChannelFailure
+            | WebExceptionStatus.SendFailure -> Some SendFailure
+            | WebExceptionStatus.ServerProtocolViolation -> Some ServerProtocolViolation
 
             //| WebExceptionStatus.Success -> Some Success
 
-            | WebExceptionStatus.Timeout -> Some ClientStatus.Timeout
-            | WebExceptionStatus.TrustFailure -> Some ClientStatus.TrustFailure
-            | WebExceptionStatus.UnknownError -> Some ClientStatus.UnknownError
+            | WebExceptionStatus.Timeout -> Some Timeout
+            | WebExceptionStatus.TrustFailure -> Some TrustFailure
+            | WebExceptionStatus.UnknownError -> Some UnknownError
             | _ -> None
 
         member this.ToResponse() =
