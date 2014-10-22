@@ -39,6 +39,13 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Parsing\SeqExt.fs" />
+    <Compile Include="Parsing\StringMixins.fs" />
+    <Compile Include="Parsing\Parser.fs" />
+    <Compile Include="Parsing\Combinators.fs" />
+    <Compile Include="Parsing\CharMatchers.fs" />
+    <Compile Include="Parsing\CharInput.fs" />
+    <Compile Include="HttpGrammar.fs" />
     <Compile Include="Data\Charset.fs" />
     <Compile Include="Data\ChallengeMessage.fs" />
     <Compile Include="Data\Header.fs" />
@@ -53,7 +60,6 @@
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client\HttpClientInterop.fs" />
     <Content Include="packages.config" />
-    <Compile Include="Parsing\CharMatchers.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

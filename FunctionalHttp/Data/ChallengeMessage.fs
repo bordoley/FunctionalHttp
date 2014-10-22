@@ -1,14 +1,28 @@
 ﻿namespace FunctionalHttp
 
+type EncodedChallengeMessage =
+    private {
+        scheme:string
+        data: string
+    }
+
+type ParametersChallengeMessage =
+    private {
+        scheme:string
+        parameters:Map<string,string>
+    }
+
+open HttpParsers
+
 type ChallengeMessage = 
-    | Base64 of scheme:string*data:string
-    | Parameters of scheme:string*parameters:Map<string,string>
+    | Encoded of EncodedChallengeMessage
+    | Parameters of ParametersChallengeMessage
 
     static member OAuthToken token = 
         // FIXME: Validate the token is base64 data
-        Base64 ("OAuth", token)
+        Encoded {scheme = "OAuth"; data = token }
 
     override this.ToString() =
         match this with 
-        | Base64 (scheme, data) -> scheme + " " + data
-        | Parameters (scheme, data) -> "fixme"
+        | Encoded challenge -> challenge.scheme + " " + challenge.data
+        | Parameters challenge -> "fixme"
