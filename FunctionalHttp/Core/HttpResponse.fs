@@ -143,7 +143,7 @@ module HttpStreamResponseDeserializers =
         async {
             let encoding = 
                 match 
-                    this.ContentInfo.MediaRange 
+                    this.ContentInfo.MediaType 
                     |> Option.bind (fun mr -> mr.Charset) 
                     |> Option.bind (fun charset -> charset.Encoding)  with
                 | Some enc -> enc

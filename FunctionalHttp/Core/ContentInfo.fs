@@ -6,35 +6,35 @@ type ContentInfo =
     private {
         length:Option<int>
         location: Option<Uri>
-        mediaRange:Option<MediaRange>
+        mediaType:Option<MediaType>
     }
 
-    static member None = { length = None; location = None; mediaRange = None }
+    static member None = { length = None; location = None; mediaType = None }
 
-    static member internal CreateInternal(length, location, mediaRange) =
-        match (length, location, mediaRange)  with
+    static member internal CreateInternal(length, location, mediaType) =
+        match (length, location, mediaType)  with
         |(None, None, None) -> ContentInfo.None
-        | _ -> { length = length; location = location; mediaRange = mediaRange }
+        | _ -> { length = length; location = location; mediaType = mediaType }
 
-    static member Create(?length, ?location, ?mediaRange) =
-        ContentInfo.CreateInternal(length, location, mediaRange)
+    static member Create(?length, ?location, ?mediaType) =
+        ContentInfo.CreateInternal(length, location, mediaType)
 
     member this.Length = this.length
 
     member this.Location = this.Location
 
-    member this.MediaRange = this.mediaRange
+    member this.MediaType = this.mediaType
 
 module ContentInfoMixins =
     type ContentInfo with
-        member this.With(?length:int, ?location:Uri, ?mediaRange:MediaRange) =
+        member this.With(?length:int, ?location:Uri, ?mediaType:MediaType) =
             ContentInfo.CreateInternal(
                 (if Option.isSome length then length else this.Length),
                 (if Option.isSome location then location else this.Location),
-                (if Option.isSome mediaRange then mediaRange else this.MediaRange))
+                (if Option.isSome mediaType then mediaType else this.MediaType))
 
-        member this.Without(?length, ?location, ?mediaRange) =
+        member this.Without(?length, ?location, ?mediaType) =
             ContentInfo.CreateInternal(
                 (if Option.isSome length then  None else this.Length),
                 (if Option.isSome location then None else this.Location),
-                (if Option.isSome mediaRange then None else this.MediaRange))
+                (if Option.isSome mediaType then None else this.MediaType))

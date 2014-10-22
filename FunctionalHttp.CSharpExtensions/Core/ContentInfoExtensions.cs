@@ -5,20 +5,20 @@ namespace FunctionalHttp.Interop
 {
     public static class ContentInfoExtensions
     {
-        public static ContentInfo With(this ContentInfo This,  int? length = null, Uri location = null, MediaRange mediaRange = null)
+        public static ContentInfo With(this ContentInfo This, int? length = null, Uri location = null, MediaType mediaType = null)
         {
             return ContentInfo.CreateInternal(
                 length != null ? FSharpOption<int>.Some(length.Value) : This.length,
                 location != null ? FSharpOption<Uri>.Some(location) : This.Location,
-                mediaRange != null ? FSharpOption<MediaRange>.Some(mediaRange) : This.MediaRange);
+                mediaType != null ? FSharpOption<MediaType>.Some(mediaType) : This.MediaType);
         }
 
-        public static ContentInfo Without(this ContentInfo This, bool length = false, bool location = false, bool mediaRange = false)
+        public static ContentInfo Without(this ContentInfo This, bool length = false, bool location = false, bool mediaType = false)
         {
             return ContentInfo.CreateInternal(
                 length ? FSharpOption<int>.None : This.length,
                 location ? FSharpOption<Uri>.None : This.Location,
-                mediaRange ? FSharpOption<MediaRange>.None : This.MediaRange);
+                mediaType ? FSharpOption<MediaType>.None : This.MediaType);
         }
 
         public static bool TryGetLength(this ContentInfo This, out int length)
@@ -45,15 +45,15 @@ namespace FunctionalHttp.Interop
             return false;
         }
 
-        public static bool TryGetMediaRange(this ContentInfo This, out MediaRange mediaRange)
+        public static bool TryGetMediaType(this ContentInfo This, out MediaType mediaType)
         {
-            if (OptionModule.IsSome(This.MediaRange))
+            if (OptionModule.IsSome(This.MediaType))
             {
-                mediaRange = This.MediaRange.Value;
+                mediaType = This.MediaType.Value;
                 return true;
             }
 
-            mediaRange = null;
+            mediaType = null;
             return false;
         }
     }
