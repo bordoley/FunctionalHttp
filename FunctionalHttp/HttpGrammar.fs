@@ -7,7 +7,7 @@ open CharMatchers
 module internal HttpCharMatchers = 
     let tchar = ALPHA_NUMERIC <||> anyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
-    let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||>  inRange (char 0x5D) (char 0x7E) <||> obs_text
+    let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||> inRange (char 0x5D) (char 0x7E) <||> obs_text
     let quoted_pair_char = (HTAB <||> SP <||> VCHAR <||> obs_text)
 
 open HttpCharMatchers
@@ -24,7 +24,7 @@ module internal HttpParsers =
     
     let token : Parser<char,string> = CharMatchers.many1 tchar
 
-    let token68 : Parser<char,string> = CharMatchers.many1(ALPHA <||> DIGIT <||>  (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
+    let token68 : Parser<char,string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
 
     let private DQUOTE_CHAR = '"'
     let private ESCAPE_CHAR = '\\';

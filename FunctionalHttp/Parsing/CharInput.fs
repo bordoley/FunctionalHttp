@@ -19,10 +19,6 @@ type internal CharInput private (str: string, start:int, length:int) =
 
             Contract.Requires(absoluteIndex < lastIndex)
             str.Chars(absoluteIndex)
-
-        member this.SubSequence newStart =
-            let computedLength = length - newStart  
-            (this :> IInput<char>).SubSequence(newStart, computedLength)
                           
         member this.SubSequence(newStart, newLength) =
             Contract.Requires(newStart >= 0)
