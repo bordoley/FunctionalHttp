@@ -3,17 +3,8 @@ namespace FunctionalHttp
 open System;
 open System.Collections.Generic
 
-type internal Token<'T> =
-    struct
-        val Pos:int
-        val Value: 'T
-
-        new(pos: int, value: 'T) = { Pos = pos; Value = value }
-    end
-
 type internal IInput<'T> = 
-    inherit IEnumerable<Token<'T>>
-
+    abstract Length : int
     abstract Item: int -> 'T
     abstract SubSequence: int -> IInput<'T>
     abstract SubSequence: int*int -> IInput<'T>

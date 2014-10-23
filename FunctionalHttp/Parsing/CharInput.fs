@@ -5,16 +5,13 @@ open System.Collections
 open System.Collections.Generic
 open System.Diagnostics.Contracts
 
-type internal CharInput private (str: string, start:int, length:int) =
-    let _delegate = str.AsEnumerable() |> Seq.skip start |> Seq.take length |> Seq.mapi (fun i v -> new Token<char>(i,v)) 
-    
+type internal CharInput private (str: string, start:int, length:int) =    
     new (str) = CharInput(str, 0, str.Length)
 
     static member Empty = new CharInput("", 0, 0) :> IInput<char>
 
     interface IInput<char> with
-        member this.GetEnumerator() = _delegate.GetEnumerator()
-        member this.GetEnumerator() = (this :> IInput<char>).GetEnumerator() :> IEnumerator
+        member this.Length with get() = length
 
         member this.Item(index:int) =
             let absoluteIndex = start + index

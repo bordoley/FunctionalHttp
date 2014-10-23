@@ -16,14 +16,24 @@ module internal Parser =
             | Eof _ -> Eof input
             | Success (result2, next) -> Success ((result1, result2), next)
      
-    let (<|>) (p1:Parser<'TToken, 'T1>) (p2:Parser<'TToken, 'T2>) (input:IInput<'TToken>) = 
+    let (<^>) (p1:Parser<'TToken, 'T1>) (p2:Parser<'TToken, 'T2>) (input:IInput<'TToken>) = 
         match (p1 input) with 
         | Success (result, next) -> Success ((Choice1Of2 result), next)
         | _ -> 
             match (p2 input) with
-            | Success (next, result) -> Success ((Choice2Of2 result), next)
+            | Success (result, next) -> Success ((Choice2Of2 result), next)
             | Fail _ -> Fail input
             | Eof _ -> Eof input
+
+    let (<|>) (p1:Parser<'TToken, 'T>) (p2:Parser<'TToken, 'T>) = 
+        let p = p1 <^> p2
+        fun (input:IInput<'TToken>) ->
+            match p input with
+            | Fail _ -> Fail input
+            | Eof _ -> Eof input
+            | Success (Choice1Of2 result, next) -> Success (result, next)
+            | Success (Choice2Of2 result, next) -> Success (result, next)
+        
 
     let many (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
         let remainder : IInput<'TToken> ref = ref input
@@ -53,17 +63,13 @@ module internal Parser =
             | _ -> Success (result, next)
 
     let matches (f:'TToken->bool) (input:IInput<'TToken>) =
-        let result = input.GetEnumerator()
-
-        if not (result.MoveNext())
+        if input.Length = 0
         then Eof input
-        else if not (f result.Current.Value)
+        else if not (f (input.Item 0))
         then Fail input
         else 
-            let resultValue = result.Current.Value
-            if result.MoveNext()
-            then Success(resultValue, input.SubSequence(result.Current.Pos))
-            else Success(resultValue, input.SubSequence(0,0))
+            let resultValue = input.Item 0
+            Success(resultValue, input.SubSequence(1))
         
     let map f (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
         let result = p input

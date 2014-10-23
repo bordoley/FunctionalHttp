@@ -17,10 +17,13 @@ module internal CharMatchers =
     let is (arg:char) (c:char) = c = arg
 
     let many (matcher:CharMatcher) (input: IInput<char>) =
-        let result = input |> Seq.takeWhile (fun t -> matcher t.Value) |> SeqExt.lastIfPresent
-        match result with
-        | None -> Success ("", input)
-        | Some token -> Success ((input.SubSequence(0, token.Pos + 1).ToString()), input.SubSequence(token.Pos + 1))
+        let rec findLast index =
+            if matcher (input.Item index)
+            then findLast (index + 1)
+            else index
+        let result = findLast 0
+
+        Success ((input.SubSequence(0, result + 1).ToString()), input.SubSequence(result + 1))
 
     let many1 (matcher:CharMatcher) (input: IInput<char>) =
         let result = many matcher input
@@ -31,7 +34,7 @@ module internal CharMatchers =
 
     let none (c:char) = false
 
-    let not (matcher:CharMatcher) (c:char) = not (matcher c)
+    let notMatch (matcher:CharMatcher) (c:char) = not (matcher c)
 
     let (<&&>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) && m2(c)
 
@@ -47,6 +50,8 @@ module internal CharMatchers =
     let AMPERSAND = is '&'
 
     let ASTERISK = is '*'
+
+    let BACK_SLASH = is '\\'
 
     let BIT = inRange '0' '1'
 
@@ -89,10 +94,10 @@ module internal CharMatchers =
 
     let SEMICOLON = is ';'
 
-    let SPACE = is ' '
+    let SP = is ' '
 
     let VCHAR = inRange (char 0x21) (char 0x7E)
 
-    let WSP = SPACE <||> HTAB
+    let WSP = SP <||> HTAB
 
 

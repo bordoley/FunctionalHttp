@@ -39,7 +39,6 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Parsing\SeqExt.fs" />
     <Compile Include="Parsing\StringMixins.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\Combinators.fs" />
