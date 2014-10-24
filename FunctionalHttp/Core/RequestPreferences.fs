@@ -1,6 +1,6 @@
 namespace FunctionalHttp
 
-type SimplePreference<'T> =
+type Preference<'T> =
     private {
         range:'T
         score:int
@@ -15,9 +15,9 @@ type PreferenceWithParams<'T when 'T : comparison> =
 
 type RequestPreferences =
     private {
-        acceptedCharsets: Set<SimplePreference<Charset>>
-        acceptedEncodings: Set<SimplePreference<Codings>>
-        acceptedLanguages: Set<SimplePreference<LanguageRange>>
+        acceptedCharsets: Set<Preference<Charset>>
+        acceptedEncodings: Set<Preference<Codings>>
+        acceptedLanguages: Set<Preference<LanguageRange>>
         acceptedMediaRanges: Set<PreferenceWithParams<MediaRange>>
         ranges: Option<Range>
     } 
