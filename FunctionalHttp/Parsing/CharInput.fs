@@ -41,5 +41,11 @@ type internal CharInput private (str: string, start:int, length:int) =
 [<AutoOpen>]
 module internal CharInputMixins =
     type String with
-        member this.AsInput() = CharInput(this)
-        
+        member this.AsInput() = CharInput(this) :> IInput<char>
+ 
+ module internal CharParsers =
+    let parse (p:Parser<char,'TResult>) (input:String) =
+        match Parser.parse p (input.AsInput()) with
+        | Fail _ -> None
+        | Eof _ -> None
+        | Success (result,_) -> Some result     

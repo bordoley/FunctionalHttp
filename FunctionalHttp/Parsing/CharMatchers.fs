@@ -29,7 +29,7 @@ module internal CharMatchers =
         let result = many matcher input
         match result with
         | Success (value, next) -> 
-            if value.IsEmpty then Fail input else result
+            if value.Length = 0 then Fail input else result
         | _ -> result
 
     let none (c:char) = false

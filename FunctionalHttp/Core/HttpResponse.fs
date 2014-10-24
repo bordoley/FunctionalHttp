@@ -12,28 +12,28 @@ type HttpResponse<'TResp> internal (status:Status,
                                     id:Guid,
                                     contentInfo:ContentInfo,
                                     age:Option<TimeSpan>,
-                                    cacheDirectives: Set<CacheDirective>,
+                                    cacheControl: Set<CacheDirective>,
                                     expires: Option<DateTimeOffset>,
                                     location:Option<Uri>)=
-    static member Create<'TResp>(status, entity, ?id, ?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
+    static member Create<'TResp>(status, entity, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
         new HttpResponse<'TResp>(
             status,
             (Some entity),
             (defaultArg id (Guid.NewGuid())),
             (defaultArg contentInfo ContentInfo.None),
             age,
-            Set.ofSeq <| defaultArg cacheDirectives Seq.empty,
+            Set.ofSeq <| defaultArg cacheControl Seq.empty,
             expires,
             location)
 
-    static member Create<'TResp>(status, ?id, ?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
+    static member Create<'TResp>(status, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
         new HttpResponse<'TResp>(
             status,
             None,
             (defaultArg id (Guid.NewGuid())),
             (defaultArg contentInfo ContentInfo.None),
             age,
-            Set.ofSeq <| defaultArg cacheDirectives Seq.empty,
+            Set.ofSeq <| defaultArg cacheControl Seq.empty,
             expires,
             location)
 
@@ -44,12 +44,12 @@ type HttpResponse<'TResp> internal (status:Status,
             (defaultArg id (Guid.NewGuid())),
             ContentInfo.None, //ContentInfo.Create(headers),
             None, //age,
-            Set.empty, //cacheDirectives,
+            Set.empty, //cacheControl,
             None, //expires,
             None) //location)
 
     member this.Age with get() = age
-    member this.CacheDirectives with get() = cacheDirectives :> seq<CacheDirective>
+    member this.CacheControl with get() = cacheControl :> seq<CacheDirective>
     member this.ContentInfo with get() = contentInfo
     member this.Entity with get() = entity
     member this.Expires with get() = expires
@@ -60,47 +60,47 @@ type HttpResponse<'TResp> internal (status:Status,
 [<AutoOpen>]
 module HttpResponseMixins =
     type HttpResponse<'TResp> with
-        member this.With<'TResp> (?status, ?id, ?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
+        member this.With<'TResp> (?status, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
             new HttpResponse<'TResp>(
                 defaultArg status this.Status,
                 this.Entity,
                 defaultArg id this.Id,
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome age then age else this.Age),
-                Set.ofSeq <| defaultArg cacheDirectives this.CacheDirectives,
+                Set.ofSeq <| defaultArg cacheControl this.CacheControl,
                 (if Option.isSome expires then expires else this.Expires),
                 (if Option.isSome location then location else this.Location))
 
-        member this.With<'TNew> (entity:'TNew, ?status:Status, ?id, ?contentInfo,  ?age, ?cacheDirectives, ?expires, ?location) =
+        member this.With<'TNew> (entity:'TNew, ?status:Status, ?id, ?contentInfo,  ?age, ?cacheControl, ?expires, ?location) =
             new HttpResponse<'TNew>(
                 defaultArg status this.Status,
                 Some entity,
                 defaultArg id this.Id,
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome age then age else this.Age),
-                Set.ofSeq <| defaultArg cacheDirectives this.CacheDirectives,
+                Set.ofSeq <| defaultArg cacheControl this.CacheControl,
                 (if Option.isSome expires then expires else this.Expires),
                 (if Option.isSome location then location else this.Location))
 
-        member this.Without<'TResp>(?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
+        member this.Without<'TResp>(?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
             new HttpResponse<'TResp>(
                 this.Status,
                 this.Entity,
                 this.Id,
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
                 (if Option.isSome age then None else this.Age),
-                Set.ofSeq <| (if Option.isSome cacheDirectives then Seq.empty else this.CacheDirectives),
+                Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else this.CacheControl),
                 (if Option.isSome expires then None else this.Expires),
                 (if Option.isSome location then None else this.Location))
 
-        member this.WithoutEntity<'TNew>(?contentInfo, ?age, ?cacheDirectives, ?expires, ?location) =
+        member this.WithoutEntity<'TNew>(?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
             new HttpResponse<'TNew>(
                 this.Status,
                 None,
                 this.Id,
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
                 (if Option.isSome age then None else this.Age),
-                Set.ofSeq <| (if Option.isSome cacheDirectives then Seq.empty else this.CacheDirectives),
+                Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else this.CacheControl),
                 (if Option.isSome expires then None else this.Expires),
                 (if Option.isSome location then None else this.Location))
 

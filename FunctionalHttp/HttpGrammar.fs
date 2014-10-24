@@ -20,7 +20,7 @@ module internal HttpParsers =
     
     let RWS : Parser<char,string> = CharMatchers.many1 WSP
 
-    let OWS_SEMICOLON_OWS : Parser<char,string> = OWS <+> (matches SEMICOLON) <+> OWS |> map (fun _ -> ";");
+    let OWS_SEMICOLON_OWS : Parser<char,string> = OWS <+> (token ';') <+> OWS |> map (fun _ -> ";");
     
     let token : Parser<char,string> = CharMatchers.many1 tchar
 
@@ -40,41 +40,61 @@ module internal HttpParsers =
         then retval:= Some (Fail input)
         else 
             index := 1
-            while ((!index < input.Length) && (Option.isNone !retval))
-                do 
-                    let c = input.Item !index
-                    if (qdtext c) 
-                    then match !builder with
-                            | None -> endIndex := !endIndex + 1
-                            | Some x -> x.Append(c) |> ignore
-                    else if c = ESCAPE_CHAR
-                    then 
-                        let strBuild =
-                            match !builder with
-                            | Some builder -> builder
-                            | _ ->
-                                builder := Some (StringBuilder(input.SubSequence(0,!endIndex).ToString()))
-                                (!builder).Value
-
-                        index := !index + 1
-
-                        if not (!index < input.Length)
-                        then retval := Some (Eof input)
-                        else if (quoted_pair_char (input.Item !index))
-                        then strBuild.Append(input.Item !index) |> ignore
-                        else retval := Some (Fail input) 
-                    else if c = DQUOTE_CHAR
-                    then
-                        endIndex := !endIndex + 1
+            while ((!index < input.Length) && (Option.isNone !retval)) do 
+                let c = input.Item !index
+                if (qdtext c) 
+                then match !builder with
+                        | None -> endIndex := !endIndex + 1
+                        | Some x -> x.Append(c) |> ignore
+                else if c = ESCAPE_CHAR
+                then 
+                    let strBuild =
                         match !builder with
-                        | Some buf -> 
-                            retval := Some (Success(buf.ToString(), input.SubSequence(!endIndex + 1)))
-                        | None -> 
-                            retval := Some (Success(input.SubSequence(2, !endIndex + 1).ToString(), input.SubSequence(!endIndex + 1)))
-                    else 
-                        retval := Some (Fail input)
+                        | Some builder -> builder
+                        | _ ->
+                            builder := Some (StringBuilder(input.SubSequence(0,!endIndex).ToString()))
+                            (!builder).Value
 
                     index := !index + 1
+
+                    if not (!index < input.Length)
+                    then retval := Some (Eof input)
+                    else if (quoted_pair_char (input.Item !index))
+                    then strBuild.Append(input.Item !index) |> ignore
+                    else retval := Some (Fail input) 
+                else if c = DQUOTE_CHAR
+                then
+                    endIndex := !endIndex + 1
+                    match !builder with
+                    | Some buf -> 
+                        retval := Some (Success(buf.ToString(), input.SubSequence(!endIndex + 1)))
+                    | None -> 
+                        retval := Some (Success(input.SubSequence(2, !endIndex + 1).ToString(), input.SubSequence(!endIndex + 1)))
+                else 
+                    retval := Some (Fail input)
+
+                index := !index + 1
         match !retval with
         | None -> Eof input
         | Some r -> r
+
+module HttpEncoding =
+    let private DQUOTE_CHAR = '"'
+    let private ESCAPE_CHAR = '\\';
+
+    let asQuotedString (input:string) =
+        let retval = StringBuilder()
+
+        for i = 0 to input.Length do 
+            let c = input.Chars 0
+            if qdtext c
+                then retval.Append c |> ignore
+            else if (c = DQUOTE_CHAR || c = ESCAPE_CHAR)
+                then retval.Append(ESCAPE_CHAR).Append(c) |> ignore
+            else failwith (sprintf "The character %c cannot be included in a quoted string" c)
+        retval.ToString()
+
+    let asTokenOrQuotedString (input:string) =
+        match CharParsers.parse HttpParsers.token input with
+        | Some result -> result
+        | None -> asQuotedString input

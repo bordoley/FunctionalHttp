@@ -14,7 +14,7 @@ namespace FunctionalHttp.Interop
             Status status = null,
             ContentInfo contentInfo = null,
             TimeSpan? age = null,
-            IEnumerable<CacheDirective> cacheDirectives = null,
+            IEnumerable<CacheDirective> cacheControl = null,
             DateTimeOffset? expires = null,
             Uri location = null)
         {
@@ -24,7 +24,7 @@ namespace FunctionalHttp.Interop
                This.Id,
                contentInfo != null ? contentInfo : This.ContentInfo,
                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-               SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),
+               SetModule.OfSeq<CacheDirective>(cacheControl != null ? cacheControl : This.CacheControl),
                expires != null ? FSharpOption<DateTimeOffset>.Some(expires.Value) : This.Expires,
                location != null ? FSharpOption<Uri>.Some(location) : This.Location);
         }
@@ -35,7 +35,7 @@ namespace FunctionalHttp.Interop
             Status status = null,
             ContentInfo contentInfo = null,
             TimeSpan? age = null,
-            IEnumerable<CacheDirective> cacheDirectives = null,
+            IEnumerable<CacheDirective> cacheControl = null,
             DateTimeOffset? expires = null,
             Uri location = null)
         {
@@ -45,7 +45,7 @@ namespace FunctionalHttp.Interop
                This.Id,
                contentInfo != null ? contentInfo : This.ContentInfo,
                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-               SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),
+               SetModule.OfSeq<CacheDirective>(cacheControl != null ? cacheControl : This.CacheControl),
                expires != null ? FSharpOption<DateTimeOffset>.Some(expires.Value) : This.Expires,
                location != null ? FSharpOption<Uri>.Some(location) : This.Location);
         }
@@ -54,7 +54,7 @@ namespace FunctionalHttp.Interop
             this HttpResponse<TResp> This,
             bool contentInfo = false,
             bool age = false,
-            bool cacheDirectives = false,
+            bool cacheControl = false,
             bool expires = false,
             bool location = false)
         {
@@ -64,7 +64,7 @@ namespace FunctionalHttp.Interop
                 This.Id,
                 contentInfo ? ContentInfo.None : This.ContentInfo,
                 age ? FSharpOption<TimeSpan>.None : This.Age,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
+                SetModule.OfSeq<CacheDirective>(cacheControl ? SeqModule.Empty<CacheDirective>() : This.CacheControl),
                 expires ? FSharpOption<DateTimeOffset>.None : This.Expires,
                 location ? FSharpOption<Uri>.None : This.Location);
         }
@@ -73,7 +73,7 @@ namespace FunctionalHttp.Interop
             this HttpResponse<TResp> This,
             bool contentInfo = false,
             bool age = false,
-            bool cacheDirectives = false,
+            bool cacheControl = false,
             bool expires = false,
             bool location = false)
         {
@@ -83,7 +83,7 @@ namespace FunctionalHttp.Interop
                 This.Id,
                 contentInfo ? ContentInfo.None : This.ContentInfo,
                 age ? FSharpOption<TimeSpan>.None : This.Age,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
+                SetModule.OfSeq<CacheDirective>(cacheControl ? SeqModule.Empty<CacheDirective>() : This.CacheControl),
                 expires ? FSharpOption<DateTimeOffset>.None : This.Expires,
                 location ? FSharpOption<Uri>.None : This.Location);
         }

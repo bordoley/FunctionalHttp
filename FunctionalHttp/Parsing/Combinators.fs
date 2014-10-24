@@ -33,7 +33,6 @@ module internal Parser =
             | Eof _ -> Eof input
             | Success (Choice1Of2 result, next) -> Success (result, next)
             | Success (Choice2Of2 result, next) -> Success (result, next)
-        
 
     let many (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
         let remainder : IInput<'TToken> ref = ref input
@@ -50,7 +49,7 @@ module internal Parser =
                 remainder := next
                 []
         
-        let result = doParse input
+        let result = doParse input :> 'TResult seq
         Success (result, !remainder)
      
     let many1 (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =   
@@ -58,9 +57,9 @@ module internal Parser =
        | Fail _ -> Fail input
        | Eof _ -> Eof input
        | Success (result, next) ->
-            match result with
-            | [] -> Fail input
-            | _ -> Success (result, next)
+           if Seq.isEmpty result
+           then Fail input
+           else Success (result, next)
 
     let matches (f:'TToken->bool) (input:IInput<'TToken>) =
         if input.Length = 0
@@ -86,9 +85,18 @@ module internal Parser =
     let orElse (p:Parser<'TToken,'TResult>) (alt:'TResult) =
         p |> optional |> map (fun opt -> match opt with| Some x -> x | _ -> alt)
     
+    let parse (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
+        match p input with
+        | Success (result, next) -> 
+            if next.Length = 0 then  Success (result, next) else Fail input
+        | _ -> Fail input
+
     let sepBy1 (delim:Parser<'TToken, _>) (p:Parser<'TToken,'TResult>) =
         let additional = (delim <+> p) |> map(fun (sep, value) -> value) |> many
-        p <+> additional |> map (fun (fst, additional) -> fst::additional)
+        p <+> additional |> map (fun (fst, additional) -> Seq.append [fst] additional) 
 
     let sepBy (delim:Parser<'TToken, _>) (p:Parser<'TToken,'TResult>) =
-        (sepBy1 delim p |> orElse) []
+        (sepBy1 delim p |> orElse) Seq.empty
+
+    let token t (input:IInput<'TToken>) =
+        matches (fun i -> i = t) input

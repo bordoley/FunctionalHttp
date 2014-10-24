@@ -94,7 +94,7 @@ type internal HttpRequestExtensions private () =
             | m when m.Equals(Method.Delete) -> HttpMethod.Delete
             | _ -> failwith "unsupported method"
 
-        match this.AuthorizationCredentials with
+        match this.Authorization with
         | Some creds -> message.Headers.TryAddWithoutValidation("Authorization", creds.ToString()) |> ignore
         | _ -> ()         
 

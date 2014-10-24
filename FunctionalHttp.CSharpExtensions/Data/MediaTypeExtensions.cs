@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace FunctionalHttp.Interop
 {
-    public static class MediaRangeExtensions
+    public static class MediaTypeExtensions
     {
-        public static bool TryGetCharset(this MediaRange This, out Charset charset)
+        public static bool TryGetCharset(this MediaType This, out Charset charset)
         {
             if (FSharpOption<Charset>.get_IsSome(This.Charset))
             {

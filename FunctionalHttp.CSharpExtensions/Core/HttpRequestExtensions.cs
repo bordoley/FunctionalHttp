@@ -11,22 +11,38 @@ namespace FunctionalHttp.Interop
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This, 
             Method meth = null, 
-            Uri uri = null, 
-            Guid? id = null,
+            Uri uri = null,
+            ChallengeMessage authorization = null,
+            IEnumerable<CacheDirective> cacheControl = null,
             ContentInfo contentInfo = null,
-            ChallengeMessage authorizationCredentials = null,
-            IEnumerable<CacheDirective> cacheDirectives = null,
-            Uri referer = null)
+            bool? expectContinue = null,
+            Guid? id = null,
+            IEnumerable<Tuple<Header, object>> headers = null,
+            IEnumerable<CacheDirective> pragma = null,
+            RequestPreconditions preconditions = null,
+            RequestPreferences preferences = null,
+            ChallengeMessage proxyAuthorization = null,
+            Uri referer = null,
+            UserAgent userAgent = null,
+            HttpVersion version = null)
         {
             return new HttpRequest<TReq> (
                 meth != null ? meth : This.Method,
                 uri != null ? uri : This.Uri,
-                This.Entity,
-                id != null ? id.Value : This.Id,
+                This.Entity, 
+                authorization != null ? FSharpOption<ChallengeMessage>.Some(authorization) : This.Authorization,
+                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
                 contentInfo != null ? contentInfo : This.ContentInfo,
-                authorizationCredentials != null ? FSharpOption<ChallengeMessage>.Some(authorizationCredentials) : This.AuthorizationCredentials,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),
-                referer != null ? FSharpOption<Uri>.Some(referer) : This.Referer);
+                expectContinue != null ? expectContinue.Value : This.ExpectContinue,
+                headers != null ? MapModule.OfSeq<Header, object>(headers) : This.Headers,
+                id != null ? id.Value : This.Id,
+                pragma != null ? SetModule.OfSeq <CacheDirective>(pragma) : This.Pragma,
+                preconditions != null ? preconditions : This.Preconditions,
+                preferences != null ? preferences : This.Preferences,
+                proxyAuthorization != null ? FSharpOption<ChallengeMessage>.Some(proxyAuthorization) : This.ProxyAuthorization,
+                referer != null ? FSharpOption<Uri>.Some(referer) : This.Referer,
+                userAgent != null ? FSharpOption<UserAgent>.Some(userAgent) : This.UserAgent,
+                version != null ? version : This.Version);
         }
 
         public static HttpRequest<TNew> With<TReq, TNew>(
@@ -34,11 +50,19 @@ namespace FunctionalHttp.Interop
             TNew entity, 
             Method meth = null,
             Uri uri = null,
-            Guid? id = null,
+            ChallengeMessage authorization = null,
+            IEnumerable<CacheDirective> cacheControl = null,
             ContentInfo contentInfo = null,
-            ChallengeMessage authorizationCredentials = null,
-            IEnumerable<CacheDirective> cacheDirectives = null,
-            Uri referer = null)
+            bool? expectContinue = null,
+            IEnumerable<Tuple<Header, object>> headers = null,
+            Guid? id = null,
+            IEnumerable<CacheDirective> pragma = null,
+            RequestPreconditions preconditions = null,
+            RequestPreferences preferences = null,
+            ChallengeMessage proxyAuthorization = null,
+            Uri referer = null,
+            UserAgent userAgent = null,
+            HttpVersion version = null)
         {
             Contract.Requires(entity != null);
 
@@ -46,37 +70,83 @@ namespace FunctionalHttp.Interop
                 meth != null ? meth : This.Method,
                 uri != null ? uri : This.Uri,
                 FSharpOption<TNew>.Some(entity),
-                id != null ? id.Value : This.Id,
+                authorization != null ? FSharpOption<ChallengeMessage>.Some(authorization) : This.Authorization,
+                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
                 contentInfo != null ? contentInfo : This.ContentInfo,
-                authorizationCredentials != null ? FSharpOption<ChallengeMessage>.Some(authorizationCredentials) : This.AuthorizationCredentials,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives != null ? cacheDirectives : This.CacheDirectives),
-                referer != null ? FSharpOption<Uri>.Some(referer) : This.Referer);
+                expectContinue != null ? expectContinue.Value : This.ExpectContinue,
+                headers != null ? MapModule.OfSeq<Header, object>(headers) : This.Headers,
+                id != null ? id.Value : This.Id,
+                pragma != null ? SetModule.OfSeq<CacheDirective>(pragma) : This.Pragma,
+                preconditions != null ? preconditions : This.Preconditions,
+                preferences != null ? preferences : This.Preferences,
+                proxyAuthorization != null ? FSharpOption<ChallengeMessage>.Some(proxyAuthorization) : This.ProxyAuthorization,
+                referer != null ? FSharpOption<Uri>.Some(referer) : This.Referer,
+                userAgent != null ? FSharpOption<UserAgent>.Some(userAgent) : This.UserAgent,
+                version != null ? version : This.Version);
         }
 
-        public static HttpRequest<TReq> Without<TReq>(this HttpRequest<TReq> This, bool contentInfo = false, bool authorizationCredentials = false, bool cacheDirectives = false, bool referer = false)
+        public static HttpRequest<TReq> Without<TReq>(
+            this HttpRequest<TReq> This,
+            bool authorization = false,
+            bool cacheControl = false,
+            bool contentInfo = false, 
+            bool headers = false,
+            bool pragma = false,
+            bool preconditions = false,
+            bool preferences = false,
+            bool proxyAuthorization = false,
+            bool referer = false,
+            bool userAgent = false)
         {
             return new HttpRequest<TReq>(
                 This.Method,
                 This.Uri,
                 This.Entity,
-                This.Id,
+                authorization ? FSharpOption<ChallengeMessage>.None : This.Authorization,
+                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl,
                 contentInfo ? ContentInfo.None : This.ContentInfo,
-                authorizationCredentials ? FSharpOption<ChallengeMessage>.None : This.AuthorizationCredentials,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
-                referer ? FSharpOption<Uri>.None : This.Referer);
+                This.ExpectContinue,
+                headers ? MapModule.Empty<Header, object>() : This.Headers,
+                This.Id,
+                pragma ? SetModule.Empty<CacheDirective>() : This.Pragma,
+                preconditions ? RequestPreconditions.None : This.Preconditions,
+                preferences ? RequestPreferences.None : This.Preferences,
+                proxyAuthorization ? FSharpOption<ChallengeMessage>.None : This.ProxyAuthorization,
+                referer ? FSharpOption<Uri>.None : This.Referer,
+                userAgent ? FSharpOption<UserAgent>.None : This.UserAgent,
+                This.Version);
         }
 
-        public static HttpRequest<TNew> WithoutEntity<TReq, TNew>(this HttpRequest<TReq> This, bool contentInfo = false, bool authorizationCredentials = false, bool cacheDirectives = false, bool referer = false)
+        public static HttpRequest<TNew> WithoutEntity<TReq, TNew>(
+            this HttpRequest<TReq> This, 
+            bool authorization = false, 
+            bool cacheControl = false,
+            bool contentInfo = false,
+            bool headers = false,
+            bool pragma = false,
+            bool preconditions = false,
+            bool preferences = false,
+            bool proxyAuthorization = false,
+            bool referer = false,
+            bool userAgent = false)
         {
             return new HttpRequest<TNew>(
                 This.Method,
                 This.Uri,
                 FSharpOption<TNew>.None,
-                This.Id,
+                authorization ? FSharpOption<ChallengeMessage>.None : This.Authorization,
+                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl,
                 contentInfo ? ContentInfo.None : This.ContentInfo,
-                authorizationCredentials ? FSharpOption<ChallengeMessage>.None : This.AuthorizationCredentials,
-                SetModule.OfSeq<CacheDirective>(cacheDirectives ? SeqModule.Empty<CacheDirective>() : This.CacheDirectives),
-                referer ? FSharpOption<Uri>.None : This.Referer);
+                This.ExpectContinue,
+                headers ? MapModule.Empty<Header, object>() : This.Headers,
+                This.Id,
+                pragma ? SetModule.Empty<CacheDirective>() : This.Pragma,
+                preconditions ? RequestPreconditions.None : This.Preconditions,
+                preferences ? RequestPreferences.None : This.Preferences,
+                proxyAuthorization ? FSharpOption<ChallengeMessage>.None : This.ProxyAuthorization,
+                referer ? FSharpOption<Uri>.None : This.Referer,
+                userAgent ? FSharpOption<UserAgent>.None : This.UserAgent,
+                This.Version);
         }
 
         public static bool TryGetEntity<TReq>(this HttpRequest<TReq> This, out TReq entity)
@@ -92,15 +162,27 @@ namespace FunctionalHttp.Interop
             return false;
         }
 
-        public static bool TryGetAuthorizationCredentials<TReq>(this HttpRequest<TReq> This, out ChallengeMessage authorizationCredentials)
+        public static bool TryGetAuthorization<TReq>(this HttpRequest<TReq> This, out ChallengeMessage authorization)
         {
-            if (OptionModule.IsSome(This.AuthorizationCredentials))
+            if (OptionModule.IsSome(This.Authorization))
             {
-                authorizationCredentials = This.AuthorizationCredentials.Value;
+                authorization = This.Authorization.Value;
                 return true;
             }
 
-            authorizationCredentials = null;
+            authorization = null;
+            return false;
+        }
+
+        public static bool TryGetProxyAuthorization<TReq>(this HttpRequest<TReq> This, out ChallengeMessage proxyAuthorization)
+        {
+            if (OptionModule.IsSome(This.ProxyAuthorization))
+            {
+                proxyAuthorization = This.ProxyAuthorization.Value;
+                return true;
+            }
+
+            proxyAuthorization = null;
             return false;
         }
 
@@ -113,6 +195,18 @@ namespace FunctionalHttp.Interop
             }
 
             referer = null;
+            return false;
+        }
+
+        public static bool TryGetUserAgent<TReq>(this HttpRequest<TReq> This, out UserAgent userAgent)
+        {
+            if (OptionModule.IsSome(This.UserAgent))
+            {
+                userAgent = This.UserAgent.Value;
+                return true;
+            }
+
+            userAgent = null;
             return false;
         }
     }
