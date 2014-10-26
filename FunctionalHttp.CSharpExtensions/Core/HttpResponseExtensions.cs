@@ -145,7 +145,7 @@ namespace FunctionalHttp.Interop
                 This.Status,
                 vary ? FSharpOption<Vary>.None : This.Vary,
                 This.Version,
-                warning ? ListModule.Empty<Warning>(), This.Warning);
+                warning ? ListModule.Empty<Warning>() : This.Warning);
         }
 
         public static HttpResponse<TNew> WithoutEntity<TResp, TNew>(
