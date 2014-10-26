@@ -14,8 +14,8 @@ namespace FunctionalHttp.Interop
             IEnumerable<CacheDirective> cacheControl = null,
             ContentInfo contentInfo = null,
             bool? expectContinue = null,
-            Guid? id = null,
             IEnumerable<Tuple<Header, object>> headers = null,
+            Guid? id = null,
             Method meth = null, 
             IEnumerable<CacheDirective> pragma = null,
             RequestPreconditions preconditions = null,
@@ -149,19 +149,6 @@ namespace FunctionalHttp.Interop
                 This.Version);
         }
 
-        public static bool TryGetEntity<TReq>(this HttpRequest<TReq> This, out TReq entity)
-            where TReq:class
-        {
-            if (OptionModule.IsSome(This.Entity))
-            {
-                entity = This.Entity.Value;
-                return true;
-            }
-
-            entity = null;
-            return false;
-        }
-
         public static bool TryGetAuthorization<TReq>(this HttpRequest<TReq> This, out ChallengeMessage authorization)
         {
             if (OptionModule.IsSome(This.Authorization))
@@ -171,6 +158,19 @@ namespace FunctionalHttp.Interop
             }
 
             authorization = null;
+            return false;
+        }
+
+        public static bool TryGetEntity<TReq>(this HttpRequest<TReq> This, out TReq entity)
+            where TReq : class
+        {
+            if (OptionModule.IsSome(This.Entity))
+            {
+                entity = This.Entity.Value;
+                return true;
+            }
+
+            entity = null;
             return false;
         }
 

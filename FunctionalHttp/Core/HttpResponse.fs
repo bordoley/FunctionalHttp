@@ -14,6 +14,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     entity:Option<'TResp>,
                                     etag:Option<EntityTag>,
                                     expires: Option<DateTime>,
+                                    headers:Map<Header,obj>,
                                     id:Guid,
                                     lastModified:Option<DateTime>,
                                     location:Option<Uri>,
@@ -31,6 +32,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     ?entity:'TResp, 
                                     ?etag, 
                                     ?expires, 
+                                    ?headers,
                                     ?id, 
                                     ?lastModified, 
                                     ?location, 
@@ -45,6 +47,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
             entity,
             etag,
             expires,
+            defaultArg headers Map.empty,
             defaultArg id (Guid.NewGuid()),
             lastModified,
             location,
@@ -63,6 +66,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
             Some entity, 
             None,
             None, //expires
+            Map.empty,
             defaultArg id (Guid.NewGuid()),
             None,
             None, //location
@@ -79,6 +83,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
     member this.Entity with get() = entity
     member this.ETag with get() = etag
     member this.Expires with get() = expires
+    member this.Headers with get() = headers
     member this.Id with get() = id
     member this.LastModified with get() = lastModified
     member this.Location with get() = location
@@ -97,6 +102,7 @@ module HttpResponseMixins =
                                     ?date:DateTime,
                                     ?etag:EntityTag,
                                     ?expires:DateTime, 
+                                    ?headers: Map<Header, obj>,
                                     ?id:Guid, 
                                     ?lastModified:DateTime,
                                     ?location:Uri, 
@@ -113,6 +119,7 @@ module HttpResponseMixins =
                 this.Entity,
                 (if Option.isSome etag then etag else this.ETag),
                 (if Option.isSome expires then expires else this.Expires),
+                defaultArg headers this.Headers,
                 defaultArg id this.Id,
                 (if Option.isSome lastModified then lastModified else this.LastModified),
                 (if Option.isSome location then location else this.Location),
@@ -129,6 +136,7 @@ module HttpResponseMixins =
                                     ?date:DateTime,
                                     ?etag:EntityTag,
                                     ?expires:DateTime, 
+                                    ?headers,
                                     ?id:Guid, 
                                     ?lastModified:DateTime,
                                     ?location:Uri, 
@@ -145,6 +153,7 @@ module HttpResponseMixins =
                 Some entity,
                 (if Option.isSome etag then etag else this.ETag),
                 (if Option.isSome expires then expires else this.Expires),
+                defaultArg headers this.Headers,
                 defaultArg id this.Id,
                 (if Option.isSome lastModified then lastModified else this.LastModified),
                 (if Option.isSome location then location else this.Location),
@@ -153,7 +162,7 @@ module HttpResponseMixins =
                 defaultArg status this.Status,
                 defaultArg version this.Version)
 
-        member this.Without<'TResp>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.Without<'TResp>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
             HttpResponse<'TResp>(
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
@@ -163,6 +172,7 @@ module HttpResponseMixins =
                 this.Entity,
                 (if Option.isSome etag then None else this.ETag),
                 (if Option.isSome expires then None else this.Expires),
+                (if Option.isSome headers then Map.empty else this.Headers),
                 this.Id,
                 (if Option.isSome lastModified then None else this.LastModified),
                 (if Option.isSome location then None else this.Location),
@@ -171,7 +181,7 @@ module HttpResponseMixins =
                 this.Status,
                 this.Version)
 
-        member this.WithoutEntity<'TNew>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.WithoutEntity<'TNew>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
             HttpResponse<'TNew>(
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
@@ -181,6 +191,7 @@ module HttpResponseMixins =
                 None,
                 (if Option.isSome etag then None else this.ETag),
                 (if Option.isSome expires then None else this.Expires),
+                (if Option.isSome headers then Map.empty else this.Headers),
                 this.Id,
                 (if Option.isSome lastModified then None else this.LastModified),
                 (if Option.isSome location then None else this.Location),
