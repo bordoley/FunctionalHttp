@@ -14,7 +14,7 @@ type PreferenceWithParams<'T when 'T : comparison> =
 
 type RequestPreferences =
     private {
-        acceptedCharsets: Set<Preference<Charset>>
+        acceptedCharsets: Set<Preference<Charset>> // FIXME: " Certainly wrong as any is not a charset
         acceptedEncodings: Set<Preference<Codings>>
         acceptedLanguages: Set<Preference<LanguageRange>>
         acceptedMediaRanges: Set<PreferenceWithParams<MediaRange>>

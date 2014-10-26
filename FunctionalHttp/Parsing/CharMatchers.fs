@@ -18,7 +18,9 @@ module internal CharMatchers =
 
     let many (matcher:CharMatcher) (input: IInput<char>) =
         let rec findLast index =
-            if matcher (input.Item index)
+            if index = input.Length
+            then index - 1
+            else if matcher (input.Item index)
             then findLast (index + 1)
             else index
         let result = findLast 0

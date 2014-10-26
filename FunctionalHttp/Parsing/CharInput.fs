@@ -32,7 +32,7 @@ type internal CharInput private (str: string, start:int, length:int) =
             Contract.Requires(newAbsoluteLastIndex <= oldAbsoluteLastIndex)
 
             match (newStart, newLength) with
-            | (0,0) -> CharInput.Empty 
+            | (_ ,0) -> CharInput.Empty 
             | _ when newStart = 0 && newLength = length -> this :> IInput<char>
             | _ -> CharInput(str, newAbsoluteStartPos, length) :> IInput<char>
 

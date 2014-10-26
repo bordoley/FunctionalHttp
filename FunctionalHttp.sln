@@ -13,6 +13,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.HttpClientCo
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.HttpClientConnector-iOS", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-iOS.fsproj", "{90AB4B09-3122-421E-B29D-C8D340E15563}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.Tests", "FunctionalHttp.Tests\FunctionalHttp.Tests.fsproj", "{4773457D-4F8B-48C0-A047-AE2A3340C4BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{90AB4B09-3122-421E-B29D-C8D340E15563}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90AB4B09-3122-421E-B29D-C8D340E15563}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90AB4B09-3122-421E-B29D-C8D340E15563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
