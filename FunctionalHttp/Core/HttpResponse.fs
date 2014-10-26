@@ -8,6 +8,7 @@ open System.Text
 [<Sealed>]
 type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     allowed:Set<Method>,
+                                    authenticate:Set<ChallengeMessage>,
                                     cacheControl: Set<CacheDirective>,
                                     contentInfo:ContentInfo,
                                     date:Option<DateTime>,
@@ -26,6 +27,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
     static member Create<'TResp>(status, 
                                     ?age, 
                                     ?allowed, 
+                                    ?authenticate,
                                     ?cacheControl, 
                                     ?contentInfo, 
                                     ?date,
@@ -41,6 +43,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     ?version) =
         HttpResponse<'TResp>(age,
             Set.ofSeq <| defaultArg allowed Seq.empty,
+            Set.ofSeq <| defaultArg authenticate Seq.empty,
             Set.ofSeq <| defaultArg cacheControl Seq.empty,
             defaultArg contentInfo ContentInfo.None,
             date,
@@ -60,6 +63,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
         HttpResponse<'TResp>(   
             None, //age,
             Set.empty, //allowed
+            Set.empty,
             Set.empty, //cacheControl,
             ContentInfo.None, //ContentInfo.Create(headers),
             None,
@@ -77,6 +81,7 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
 
     member this.Age with get() = age
     member this.Allowed with get() = allowed
+    member this.Authenticate with get() = authenticate
     member this.CacheControl with get() = cacheControl
     member this.ContentInfo with get() = contentInfo
     member this.Date with get() = date
@@ -97,6 +102,7 @@ module HttpResponseMixins =
     type HttpResponse<'TResp> with
         member this.With<'TResp> (?age:TimeSpan, 
                                     ?allowed: Method seq,
+                                    ?authenticate:ChallengeMessage seq,
                                     ?cacheControl:CacheDirective seq, 
                                     ?contentInfo:ContentInfo, 
                                     ?date:DateTime,
@@ -113,6 +119,7 @@ module HttpResponseMixins =
             HttpResponse<'TResp>(
                 (if Option.isSome age then age else this.Age),
                 Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
+                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> ChallengeMessage seq),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome date then date else this.Date),
@@ -131,6 +138,7 @@ module HttpResponseMixins =
         member this.With<'TNew> (entity:'TNew,
                                     ?age:TimeSpan, 
                                     ?allowed: Method seq,
+                                    ?authenticate:ChallengeMessage seq,
                                     ?cacheControl:CacheDirective seq, 
                                     ?contentInfo:ContentInfo, 
                                     ?date:DateTime,
@@ -147,6 +155,7 @@ module HttpResponseMixins =
             HttpResponse<'TNew>(
                 (if Option.isSome age then age else this.Age),
                 Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
+                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> ChallengeMessage seq),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome date then date else this.Date),
@@ -162,10 +171,11 @@ module HttpResponseMixins =
                 defaultArg status this.Status,
                 defaultArg version this.Version)
 
-        member this.Without<'TResp>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.Without<'TResp>(?age, ?allowed, ?authenticate, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
             HttpResponse<'TResp>(
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
+                (if Option.isSome authenticate then Set.empty else this.Authenticate),
                 (if Option.isSome cacheControl then Set.empty else this.CacheControl),
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
                 (if Option.isSome date then None else this.Date),
@@ -181,10 +191,11 @@ module HttpResponseMixins =
                 this.Status,
                 this.Version)
 
-        member this.WithoutEntity<'TNew>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.WithoutEntity<'TNew>(?age, ?allowed, ?authenticate, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
             HttpResponse<'TNew>(
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
+                (if Option.isSome authenticate then Set.empty else this.Authenticate),
                 (if Option.isSome cacheControl then Set.empty else this.CacheControl),
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
                 (if Option.isSome date then None else this.Date),

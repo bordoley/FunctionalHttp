@@ -13,6 +13,7 @@ namespace FunctionalHttp.Interop
             this HttpResponse<TResp> This,
             TimeSpan? age = null,
             IEnumerable<Method> allowed = null,
+            IEnumerable<ChallengeMessage> authenticate = null,
             IEnumerable<CacheDirective> cacheControl = null,
             ContentInfo contentInfo = null,
             DateTime? date = null,
@@ -29,7 +30,8 @@ namespace FunctionalHttp.Interop
         {
             return new HttpResponse<TResp>(
                 age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-                allowed != null? SetModule.OfSeq<Method>(allowed) : This.Allowed,
+                allowed != null ? SetModule.OfSeq<Method>(allowed) : This.Allowed,
+                authenticate != null ? SetModule.OfSeq<ChallengeMessage>(authenticate) : This.Authenticate,
                 cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
                 contentInfo != null ? contentInfo : This.ContentInfo,
                 date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
@@ -51,6 +53,7 @@ namespace FunctionalHttp.Interop
             TNew entity,
             TimeSpan? age = null,
             IEnumerable<Method> allowed = null,
+            IEnumerable<ChallengeMessage> authenticate = null,
             IEnumerable<CacheDirective> cacheControl = null,
             ContentInfo contentInfo = null,
             DateTime? date = null,
@@ -68,6 +71,7 @@ namespace FunctionalHttp.Interop
             return new HttpResponse<TNew>(
                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
                allowed != null ? SetModule.OfSeq<Method>(allowed) : This.Allowed,
+               authenticate != null ? SetModule.OfSeq<ChallengeMessage>(authenticate) : This.Authenticate,
                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
                contentInfo != null ? contentInfo : This.ContentInfo,
                date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
@@ -88,6 +92,7 @@ namespace FunctionalHttp.Interop
             this HttpResponse<TResp> This,
             bool age = false,
             bool allowed = false,
+            bool authenticate = false,
             bool cacheControl = false,
             bool contentInfo = false,
             bool date = false,
@@ -102,6 +107,7 @@ namespace FunctionalHttp.Interop
             return new HttpResponse<TResp>(
                 age ? FSharpOption<TimeSpan>.None : This.Age,
                 allowed ? SetModule.Empty<Method>() : This.Allowed,
+                authenticate ? SetModule.Empty<ChallengeMessage>() : This.Authenticate,
                 cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl, 
                 contentInfo ? ContentInfo.None : This.ContentInfo,
                 date ? FSharpOption<DateTime>.None : This.Date,
@@ -122,6 +128,7 @@ namespace FunctionalHttp.Interop
             this HttpResponse<TResp> This,
             bool age = false,
             bool allowed = false,
+            bool authenticate = false,
             bool cacheControl = false,
             bool contentInfo = false,
             bool date = false,
@@ -136,6 +143,7 @@ namespace FunctionalHttp.Interop
             return new HttpResponse<TNew>(
                 age ? FSharpOption<TimeSpan>.None : This.Age,
                 allowed ? SetModule.Empty<Method>() : This.Allowed,
+                authenticate ? SetModule.Empty<ChallengeMessage>() : This.Authenticate,
                 cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl,
                 contentInfo ? ContentInfo.None : This.ContentInfo,
                 date ? FSharpOption<DateTime>.None : This.Date,
