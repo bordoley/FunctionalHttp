@@ -4,7 +4,7 @@ open System
 open System.Runtime.CompilerServices
 
 [<Sealed>]
-type HttpRequest<'TReq> internal (authorization:Option<ChallengeMessage>,
+type HttpRequest<'TReq> internal (authorization:Option<Challenge>,
                                     cacheControl: Set<CacheDirective>,
                                     contentInfo: ContentInfo, 
                                     entity:Option<'TReq>,
@@ -15,7 +15,7 @@ type HttpRequest<'TReq> internal (authorization:Option<ChallengeMessage>,
                                     pragma: Set<CacheDirective>,
                                     preconditions:RequestPreconditions,
                                     preferences:RequestPreferences,
-                                    proxyAuthorization:Option<ChallengeMessage>,
+                                    proxyAuthorization:Option<Challenge>,
                                     referer:Option<Uri>,
                                     uri:Uri, 
                                     userAgent:Option<UserAgent>,
@@ -75,7 +75,7 @@ type HttpRequest<'TReq> internal (authorization:Option<ChallengeMessage>,
 [<AutoOpen>]
 module HttpRequestMixins =
     type HttpRequest<'TReq> with
-        member this.With<'TReq>(?authorization:ChallengeMessage,
+        member this.With<'TReq>(?authorization:Challenge,
                                 ?cacheControl: CacheDirective seq,
                                 ?contentInfo:ContentInfo, 
                                 ?expectContinue: bool,
@@ -85,7 +85,7 @@ module HttpRequestMixins =
                                 ?pragma : CacheDirective seq,
                                 ?preconditions: RequestPreconditions, 
                                 ?preferences: RequestPreferences,
-                                ?proxyAuthorization:ChallengeMessage,
+                                ?proxyAuthorization:Challenge,
                                 ?referer:Uri,
                                 ?uri:Uri, 
                                 ?userAgent:UserAgent,
@@ -109,7 +109,7 @@ module HttpRequestMixins =
                 defaultArg version this.Version)
 
         member this.With<'TNew> (entity:'TNew, 
-                                    ?authorization:ChallengeMessage,
+                                    ?authorization:Challenge,
                                     ?cacheControl: CacheDirective seq,
                                     ?contentInfo:ContentInfo, 
                                     ?expectContinue: bool,
@@ -119,7 +119,7 @@ module HttpRequestMixins =
                                     ?pragma: CacheDirective seq,
                                     ?preconditions: RequestPreconditions, 
                                     ?preferences: RequestPreferences,
-                                    ?proxyAuthorization:ChallengeMessage,
+                                    ?proxyAuthorization:Challenge,
                                     ?referer:Uri,
                                     ?uri:Uri,
                                     ?userAgent:UserAgent,

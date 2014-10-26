@@ -14,7 +14,15 @@ type ParametersChallengeMessage =
 
 open HttpParsers
 
-type ChallengeMessage = 
+type Credentials =
+    private {
+        scheme:string
+        data: Choice<string, Map<string,string>>
+    }
+
+
+
+type Challenge = 
     | Encoded of EncodedChallengeMessage
     | Parameters of ParametersChallengeMessage
 

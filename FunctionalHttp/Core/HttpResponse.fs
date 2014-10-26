@@ -5,10 +5,15 @@ open System.Collections.Generic
 open System.IO
 open System.Text
 
+type Vary =
+    | Headers of Header seq
+    | Any
+
 [<Sealed>]
-type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
+type HttpResponse<'TResp> internal (acceptedRanges:Option<AcceptableRanges>,
+                                    age:Option<TimeSpan>,
                                     allowed:Set<Method>,
-                                    authenticate:Set<ChallengeMessage>,
+                                    authenticate:Set<Challenge>,
                                     cacheControl: Set<CacheDirective>,
                                     contentInfo:ContentInfo,
                                     date:Option<DateTime>,
@@ -19,12 +24,16 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     id:Guid,
                                     lastModified:Option<DateTime>,
                                     location:Option<Uri>,
+                                    proxyAuthenticate:Set<Challenge>,
                                     retryAfter:Option<DateTime>,
                                     server:Option<Server>,
                                     status:Status,
-                                    version:HttpVersion) =
+                                    vary:Option<Vary>,
+                                    version:HttpVersion,
+                                    warning:Warning list) =
 
     static member Create<'TResp>(status, 
+                                    ?acceptedRanges,
                                     ?age, 
                                     ?allowed, 
                                     ?authenticate,
@@ -38,10 +47,14 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
                                     ?id, 
                                     ?lastModified, 
                                     ?location, 
+                                    ?proxyAuthenticate,
                                     ?retryAfter,
                                     ?server,
-                                    ?version) =
+                                    ?vary,
+                                    ?version,
+                                    ?warning) =
         HttpResponse<'TResp>(age,
+            acceptedRanges,
             Set.ofSeq <| defaultArg allowed Seq.empty,
             Set.ofSeq <| defaultArg authenticate Seq.empty,
             Set.ofSeq <| defaultArg cacheControl Seq.empty,
@@ -54,13 +67,17 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
             defaultArg id (Guid.NewGuid()),
             lastModified,
             location,
+            Set.ofSeq <| defaultArg proxyAuthenticate Seq.empty,
             retryAfter,
             server,
             status,
-            defaultArg version HttpVersion.Http1_1)
+            vary,
+            defaultArg version HttpVersion.Http1_1,
+            List.ofSeq <| defaultArg warning Seq.empty)
 
     static member internal Create<'TResp>(status, entity, headers:IEnumerable<String*String>, ?id) =
         HttpResponse<'TResp>(   
+            None,
             None, //age,
             Set.empty, //allowed
             Set.empty,
@@ -74,11 +91,15 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
             defaultArg id (Guid.NewGuid()),
             None,
             None, //location
+            Set.empty,
             None,
             None,
             status,
-            HttpVersion.Http1_1) 
+            None,
+            HttpVersion.Http1_1,
+            []) 
 
+    member this.AcceptedRanges with get() = acceptedRanges
     member this.Age with get() = age
     member this.Allowed with get() = allowed
     member this.Authenticate with get() = authenticate
@@ -92,17 +113,21 @@ type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
     member this.Id with get() = id
     member this.LastModified with get() = lastModified
     member this.Location with get() = location
+    member this.ProxyAuthenticate with get() = proxyAuthenticate
     member this.RetryAfter with get() = retryAfter
     member this.Server with get() = server
     member this.Status with get() = status
+    member this.Vary with get() = vary
     member this.Version with get() = version
+    member this.Warning with get() = warning
 
 [<AutoOpen>]
 module HttpResponseMixins =
     type HttpResponse<'TResp> with
-        member this.With<'TResp> (?age:TimeSpan, 
+        member this.With<'TResp> (?acceptedRanges:AcceptableRanges,
+                                    ?age:TimeSpan, 
                                     ?allowed: Method seq,
-                                    ?authenticate:ChallengeMessage seq,
+                                    ?authenticate:Challenge seq,
                                     ?cacheControl:CacheDirective seq, 
                                     ?contentInfo:ContentInfo, 
                                     ?date:DateTime,
@@ -112,14 +137,18 @@ module HttpResponseMixins =
                                     ?id:Guid, 
                                     ?lastModified:DateTime,
                                     ?location:Uri, 
+                                    ?proxyAuthenticate:Challenge seq,
                                     ?retryAfter:DateTime,
                                     ?server:Server,
                                     ?status:Status,
-                                    ?version:HttpVersion) =
+                                    ?vary: Vary,
+                                    ?version:HttpVersion,
+                                    ?warning: Warning seq) =
             HttpResponse<'TResp>(
+                (if Option.isSome acceptedRanges then acceptedRanges else this.AcceptedRanges),
                 (if Option.isSome age then age else this.Age),
                 Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
-                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> ChallengeMessage seq),
+                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> Challenge seq),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome date then date else this.Date),
@@ -130,15 +159,19 @@ module HttpResponseMixins =
                 defaultArg id this.Id,
                 (if Option.isSome lastModified then lastModified else this.LastModified),
                 (if Option.isSome location then location else this.Location),
+                Set.ofSeq <| defaultArg proxyAuthenticate (this.ProxyAuthenticate :> Challenge seq),
                 (if Option.isSome retryAfter then retryAfter else this.RetryAfter),
                 (if Option.isSome server then server else this.Server),
                 defaultArg status this.Status,
-                defaultArg version this.Version)
+                (if Option.isSome vary then vary else this.Vary),
+                defaultArg version this.Version,
+                List.ofSeq <| defaultArg warning (this.Warning :> Warning seq))
 
         member this.With<'TNew> (entity:'TNew,
+                                    ?acceptedRanges:AcceptableRanges,
                                     ?age:TimeSpan, 
                                     ?allowed: Method seq,
-                                    ?authenticate:ChallengeMessage seq,
+                                    ?authenticate:Challenge seq,
                                     ?cacheControl:CacheDirective seq, 
                                     ?contentInfo:ContentInfo, 
                                     ?date:DateTime,
@@ -148,14 +181,18 @@ module HttpResponseMixins =
                                     ?id:Guid, 
                                     ?lastModified:DateTime,
                                     ?location:Uri, 
+                                    ?proxyAuthenticate:Challenge seq,
                                     ?retryAfter:DateTime,
                                     ?server:Server,
                                     ?status:Status,
-                                    ?version:HttpVersion) =
+                                    ?vary: Vary,
+                                    ?version:HttpVersion,
+                                    ?warning: Warning seq) =
             HttpResponse<'TNew>(
+                (if Option.isSome acceptedRanges then acceptedRanges else this.AcceptedRanges),
                 (if Option.isSome age then age else this.Age),
                 Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
-                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> ChallengeMessage seq),
+                Set.ofSeq <| defaultArg authenticate (this.Authenticate :> Challenge seq),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 (if Option.isSome date then date else this.Date),
@@ -166,13 +203,33 @@ module HttpResponseMixins =
                 defaultArg id this.Id,
                 (if Option.isSome lastModified then lastModified else this.LastModified),
                 (if Option.isSome location then location else this.Location),
+                Set.ofSeq <| defaultArg proxyAuthenticate (this.ProxyAuthenticate :> Challenge seq),
                 (if Option.isSome retryAfter then retryAfter else this.RetryAfter),
                 (if Option.isSome server then server else this.Server),
                 defaultArg status this.Status,
-                defaultArg version this.Version)
+                (if Option.isSome vary then vary else this.Vary),
+                defaultArg version this.Version,
+                List.ofSeq <| defaultArg warning (this.Warning :> Warning seq))
 
-        member this.Without<'TResp>(?age, ?allowed, ?authenticate, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.Without<'TResp>(?acceptedRanges,
+                                    ?age, 
+                                    ?allowed, 
+                                    ?authenticate, 
+                                    ?cacheControl, 
+                                    ?contentInfo, 
+                                    ?date, 
+                                    ?etag, 
+                                    ?expires, 
+                                    ?headers, 
+                                    ?lastModified, 
+                                    ?location,
+                                    ?proxyAuthenticate,
+                                    ?retryAfter, 
+                                    ?server,
+                                    ?vary,
+                                    ?warning) =
             HttpResponse<'TResp>(
+                (if Option.isSome acceptedRanges then None else this.AcceptedRanges),
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
                 (if Option.isSome authenticate then Set.empty else this.Authenticate),
@@ -186,13 +243,33 @@ module HttpResponseMixins =
                 this.Id,
                 (if Option.isSome lastModified then None else this.LastModified),
                 (if Option.isSome location then None else this.Location),
+                (if Option.isSome proxyAuthenticate then Set.empty else this.ProxyAuthenticate),
                 (if Option.isSome retryAfter then None else this.RetryAfter),
                 (if Option.isSome server then None else this.Server),
                 this.Status,
-                this.Version)
+                (if Option.isSome vary then None else this.Vary),
+                this.Version,
+                (if Option.isSome warning then [] else this.Warning))
 
-        member this.WithoutEntity<'TNew>(?age, ?allowed, ?authenticate, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?headers, ?lastModified, ?location, ?retryAfter, ?server) =
+        member this.WithoutEntity<'TNew>(?acceptedRanges,
+                                            ?age, 
+                                            ?allowed,
+                                            ?authenticate, 
+                                            ?cacheControl, 
+                                            ?contentInfo, 
+                                            ?date, 
+                                            ?etag, 
+                                            ?expires, 
+                                            ?headers, 
+                                            ?lastModified, 
+                                            ?location, 
+                                            ?proxyAuthenticate,
+                                            ?retryAfter,
+                                            ?server,
+                                            ?vary,
+                                            ?warning) =
             HttpResponse<'TNew>(
+                (if Option.isSome acceptedRanges then None else this.AcceptedRanges),
                 (if Option.isSome age then None else this.Age),
                 (if Option.isSome allowed then Set.empty else this.Allowed),
                 (if Option.isSome authenticate then Set.empty else this.Authenticate),
@@ -206,10 +283,13 @@ module HttpResponseMixins =
                 this.Id,
                 (if Option.isSome lastModified then None else this.LastModified),
                 (if Option.isSome location then None else this.Location),
+                (if Option.isSome proxyAuthenticate then Set.empty else this.ProxyAuthenticate),
                 (if Option.isSome retryAfter then None else this.RetryAfter),
                 (if Option.isSome server then None else this.Server),
                 this.Status,
-                this.Version)
+                (if Option.isSome vary then None else this.Vary),
+                this.Version,
+                (if Option.isSome warning then [] else this.Warning))
 
         member this.ToAsyncResponse() = async { return this }
 
