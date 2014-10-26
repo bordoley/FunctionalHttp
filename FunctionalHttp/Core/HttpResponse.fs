@@ -3,106 +3,191 @@ namespace FunctionalHttp
 open System
 open System.Collections.Generic
 open System.IO
-open System.Linq
 open System.Text
 
 [<Sealed>]
-type HttpResponse<'TResp> internal (status:Status,
-                                    entity:Option<'TResp>,
-                                    id:Guid,
-                                    contentInfo:ContentInfo,
-                                    age:Option<TimeSpan>,
+type HttpResponse<'TResp> internal (age:Option<TimeSpan>,
+                                    allowed:Set<Method>,
                                     cacheControl: Set<CacheDirective>,
-                                    expires: Option<DateTimeOffset>,
-                                    location:Option<Uri>)=
-    static member Create<'TResp>(status, entity, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
-        new HttpResponse<'TResp>(
-            status,
-            (Some entity),
-            (defaultArg id (Guid.NewGuid())),
-            (defaultArg contentInfo ContentInfo.None),
-            age,
-            Set.ofSeq <| defaultArg cacheControl Seq.empty,
-            expires,
-            location)
+                                    contentInfo:ContentInfo,
+                                    date:Option<DateTime>,
+                                    entity:Option<'TResp>,
+                                    etag:Option<EntityTag>,
+                                    expires: Option<DateTime>,
+                                    id:Guid,
+                                    lastModified:Option<DateTime>,
+                                    location:Option<Uri>,
+                                    retryAfter:Option<DateTime>,
+                                    server:Option<Server>,
+                                    status:Status,
+                                    version:HttpVersion) =
 
-    static member Create<'TResp>(status, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
-        new HttpResponse<'TResp>(
-            status,
-            None,
-            (defaultArg id (Guid.NewGuid())),
-            (defaultArg contentInfo ContentInfo.None),
-            age,
+    static member Create<'TResp>(status, 
+                                    ?age, 
+                                    ?allowed, 
+                                    ?cacheControl, 
+                                    ?contentInfo, 
+                                    ?date,
+                                    ?entity:'TResp, 
+                                    ?etag, 
+                                    ?expires, 
+                                    ?id, 
+                                    ?lastModified, 
+                                    ?location, 
+                                    ?retryAfter,
+                                    ?server,
+                                    ?version) =
+        HttpResponse<'TResp>(age,
+            Set.ofSeq <| defaultArg allowed Seq.empty,
             Set.ofSeq <| defaultArg cacheControl Seq.empty,
+            defaultArg contentInfo ContentInfo.None,
+            date,
+            entity,
+            etag,
             expires,
-            location)
+            defaultArg id (Guid.NewGuid()),
+            lastModified,
+            location,
+            retryAfter,
+            server,
+            status,
+            defaultArg version HttpVersion.Http1_1)
 
     static member internal Create<'TResp>(status, entity, headers:IEnumerable<String*String>, ?id) =
-        new HttpResponse<'TResp>(
-            status, 
-            Some entity, 
-            (defaultArg id (Guid.NewGuid())),
-            ContentInfo.None, //ContentInfo.Create(headers),
+        HttpResponse<'TResp>(   
             None, //age,
+            Set.empty, //allowed
             Set.empty, //cacheControl,
-            None, //expires,
-            None) //location)
+            ContentInfo.None, //ContentInfo.Create(headers),
+            None,
+            Some entity, 
+            None,
+            None, //expires
+            defaultArg id (Guid.NewGuid()),
+            None,
+            None, //location
+            None,
+            None,
+            status,
+            HttpVersion.Http1_1) 
 
     member this.Age with get() = age
-    member this.CacheControl with get() = cacheControl :> seq<CacheDirective>
+    member this.Allowed with get() = allowed
+    member this.CacheControl with get() = cacheControl
     member this.ContentInfo with get() = contentInfo
+    member this.Date with get() = date
     member this.Entity with get() = entity
+    member this.ETag with get() = etag
     member this.Expires with get() = expires
     member this.Id with get() = id
+    member this.LastModified with get() = lastModified
     member this.Location with get() = location
-    member this.Status with get()= status
+    member this.RetryAfter with get() = retryAfter
+    member this.Server with get() = server
+    member this.Status with get() = status
+    member this.Version with get() = version
 
 [<AutoOpen>]
 module HttpResponseMixins =
     type HttpResponse<'TResp> with
-        member this.With<'TResp> (?status, ?id, ?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
-            new HttpResponse<'TResp>(
-                defaultArg status this.Status,
-                this.Entity,
-                defaultArg id this.Id,
-                defaultArg contentInfo this.ContentInfo,
+        member this.With<'TResp> (?age:TimeSpan, 
+                                    ?allowed: Method seq,
+                                    ?cacheControl:CacheDirective seq, 
+                                    ?contentInfo:ContentInfo, 
+                                    ?date:DateTime,
+                                    ?etag:EntityTag,
+                                    ?expires:DateTime, 
+                                    ?id:Guid, 
+                                    ?lastModified:DateTime,
+                                    ?location:Uri, 
+                                    ?retryAfter:DateTime,
+                                    ?server:Server,
+                                    ?status:Status,
+                                    ?version:HttpVersion) =
+            HttpResponse<'TResp>(
                 (if Option.isSome age then age else this.Age),
-                Set.ofSeq <| defaultArg cacheControl this.CacheControl,
+                Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
+                Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
+                defaultArg contentInfo this.ContentInfo,
+                (if Option.isSome date then date else this.Date),
+                this.Entity,
+                (if Option.isSome etag then etag else this.ETag),
                 (if Option.isSome expires then expires else this.Expires),
-                (if Option.isSome location then location else this.Location))
-
-        member this.With<'TNew> (entity:'TNew, ?status:Status, ?id, ?contentInfo,  ?age, ?cacheControl, ?expires, ?location) =
-            new HttpResponse<'TNew>(
+                defaultArg id this.Id,
+                (if Option.isSome lastModified then lastModified else this.LastModified),
+                (if Option.isSome location then location else this.Location),
+                (if Option.isSome retryAfter then retryAfter else this.RetryAfter),
+                (if Option.isSome server then server else this.Server),
                 defaultArg status this.Status,
+                defaultArg version this.Version)
+
+        member this.With<'TNew> (entity:'TNew,
+                                    ?age:TimeSpan, 
+                                    ?allowed: Method seq,
+                                    ?cacheControl:CacheDirective seq, 
+                                    ?contentInfo:ContentInfo, 
+                                    ?date:DateTime,
+                                    ?etag:EntityTag,
+                                    ?expires:DateTime, 
+                                    ?id:Guid, 
+                                    ?lastModified:DateTime,
+                                    ?location:Uri, 
+                                    ?retryAfter:DateTime,
+                                    ?server:Server,
+                                    ?status:Status,
+                                    ?version:HttpVersion) =
+            HttpResponse<'TNew>(
+                (if Option.isSome age then age else this.Age),
+                Set.ofSeq <| defaultArg allowed (this.Allowed :> Method seq),
+                Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
+                defaultArg contentInfo this.ContentInfo,
+                (if Option.isSome date then date else this.Date),
                 Some entity,
-                defaultArg id this.Id,
-                defaultArg contentInfo this.ContentInfo,
-                (if Option.isSome age then age else this.Age),
-                Set.ofSeq <| defaultArg cacheControl this.CacheControl,
+                (if Option.isSome etag then etag else this.ETag),
                 (if Option.isSome expires then expires else this.Expires),
-                (if Option.isSome location then location else this.Location))
+                defaultArg id this.Id,
+                (if Option.isSome lastModified then lastModified else this.LastModified),
+                (if Option.isSome location then location else this.Location),
+                (if Option.isSome retryAfter then retryAfter else this.RetryAfter),
+                (if Option.isSome server then server else this.Server),
+                defaultArg status this.Status,
+                defaultArg version this.Version)
 
-        member this.Without<'TResp>(?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
-            new HttpResponse<'TResp>(
-                this.Status,
+        member this.Without<'TResp>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?lastModified, ?location, ?retryAfter, ?server) =
+            HttpResponse<'TResp>(
+                (if Option.isSome age then None else this.Age),
+                (if Option.isSome allowed then Set.empty else this.Allowed),
+                (if Option.isSome cacheControl then Set.empty else this.CacheControl),
+                (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
+                (if Option.isSome date then None else this.Date),
                 this.Entity,
-                this.Id,
-                (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
-                (if Option.isSome age then None else this.Age),
-                Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else this.CacheControl),
+                (if Option.isSome etag then None else this.ETag),
                 (if Option.isSome expires then None else this.Expires),
-                (if Option.isSome location then None else this.Location))
-
-        member this.WithoutEntity<'TNew>(?contentInfo, ?age, ?cacheControl, ?expires, ?location) =
-            new HttpResponse<'TNew>(
+                this.Id,
+                (if Option.isSome lastModified then None else this.LastModified),
+                (if Option.isSome location then None else this.Location),
+                (if Option.isSome retryAfter then None else this.RetryAfter),
+                (if Option.isSome server then None else this.Server),
                 this.Status,
-                None,
-                this.Id,
-                (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
+                this.Version)
+
+        member this.WithoutEntity<'TNew>(?age, ?allowed, ?cacheControl, ?contentInfo, ?date, ?etag, ?expires, ?lastModified, ?location, ?retryAfter, ?server) =
+            HttpResponse<'TNew>(
                 (if Option.isSome age then None else this.Age),
-                Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else this.CacheControl),
+                (if Option.isSome allowed then Set.empty else this.Allowed),
+                (if Option.isSome cacheControl then Set.empty else this.CacheControl),
+                (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
+                (if Option.isSome date then None else this.Date),
+                None,
+                (if Option.isSome etag then None else this.ETag),
                 (if Option.isSome expires then None else this.Expires),
-                (if Option.isSome location then None else this.Location))
+                this.Id,
+                (if Option.isSome lastModified then None else this.LastModified),
+                (if Option.isSome location then None else this.Location),
+                (if Option.isSome retryAfter then None else this.RetryAfter),
+                (if Option.isSome server then None else this.Server),
+                this.Status,
+                this.Version)
 
         member this.ToAsyncResponse() = async { return this }
 

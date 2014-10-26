@@ -6,11 +6,11 @@ type AnyTag = |AnyTag
 
 type RequestPreconditions =
     private {
-        ifMatch: Choice<AnyTag, Set<ETag>> option
+        ifMatch: Choice<AnyTag, Set<EntityTag>> option
         ifModifiedSince: DateTime option
-        ifNoneMatch: Choice<AnyTag, Set<ETag>> option
+        ifNoneMatch: Choice<AnyTag, Set<EntityTag>> option
         ifUnmodifiedSince: DateTime option
-        ifRange: Choice<ETag, DateTime> option
+        ifRange: Choice<EntityTag, DateTime> option
     }
     
     static member None = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }

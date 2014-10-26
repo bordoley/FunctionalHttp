@@ -8,8 +8,7 @@ type Preference<'T> =
 
 type PreferenceWithParams<'T when 'T : comparison> =
     private {
-        range:'T
-        score:int
+        preference:Preference<'T>
         parameters:List<string*string>
     }
 
@@ -29,3 +28,9 @@ type RequestPreferences =
             acceptedMediaRanges = Set.empty 
             ranges = None
         }
+
+    member this.AcceptedCharset = this.acceptedCharsets
+    member this.AcceptedEncodings = this.acceptedEncodings
+    member this.AcceptedLanguages = this.acceptedLanguages
+    member this.AcceptedMediaRanges = this.acceptedMediaRanges
+    member this.Ranges = this.ranges

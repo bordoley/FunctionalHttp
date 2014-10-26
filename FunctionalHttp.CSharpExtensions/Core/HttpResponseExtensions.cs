@@ -1,4 +1,4 @@
-﻿using Microsoft.FSharp.Collections;
+using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
@@ -11,81 +11,159 @@ namespace FunctionalHttp.Interop
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,
-            Status status = null,
-            ContentInfo contentInfo = null,
             TimeSpan? age = null,
+            IEnumerable<Method> allowed = null,
             IEnumerable<CacheDirective> cacheControl = null,
-            DateTimeOffset? expires = null,
-            Uri location = null)
+            ContentInfo contentInfo = null,
+            DateTime? date = null,
+            EntityTag etag = null,
+            DateTime? expires = null,
+            DateTime? lastModified = null,
+            Uri location = null,
+            DateTime? retryAfter = null,
+            Server server = null,
+            Status status = null,
+            HttpVersion version = null)
         {
             return new HttpResponse<TResp>(
-               status != null ? status : This.Status,
-               This.Entity,
-               This.Id,
-               contentInfo != null ? contentInfo : This.ContentInfo,
-               age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-               SetModule.OfSeq<CacheDirective>(cacheControl != null ? cacheControl : This.CacheControl),
-               expires != null ? FSharpOption<DateTimeOffset>.Some(expires.Value) : This.Expires,
-               location != null ? FSharpOption<Uri>.Some(location) : This.Location);
+                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
+                allowed != null? SetModule.OfSeq<Method>(allowed) : This.Allowed,
+                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
+                contentInfo != null ? contentInfo : This.ContentInfo,
+                date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
+                This.Entity,
+                etag != null ? FSharpOption<EntityTag>.Some(etag) : This.ETag,
+                expires != null ? FSharpOption<DateTime>.Some(expires.Value) : This.Expires,
+                This.Id,
+                lastModified != null ? FSharpOption<DateTime>.Some(lastModified.Value) : This.LastModified,
+                location != null ? FSharpOption<Uri>.Some(location) : This.Location,
+                retryAfter != null ? FSharpOption<DateTime>.Some(retryAfter.Value) : This.RetryAfter,
+                server != null ? FSharpOption<Server>.Some(server) : This.Server,
+                status != null ? status : This.Status,
+                version != null ? version : This.Version);
         }
 
         public static HttpResponse<TNew> With<TResp, TNew>(
             this HttpResponse<TResp> This,
-            TNew entity, 
-            Status status = null,
-            ContentInfo contentInfo = null,
+            TNew entity,
             TimeSpan? age = null,
+            IEnumerable<Method> allowed = null,
             IEnumerable<CacheDirective> cacheControl = null,
-            DateTimeOffset? expires = null,
-            Uri location = null)
+            ContentInfo contentInfo = null,
+            DateTime? date = null,
+            EntityTag etag = null,
+            DateTime? expires = null,
+            DateTime? lastModified = null, 
+            Uri location = null,
+            DateTime? retryAfter = null,
+            Server server = null,
+            Status status = null,
+            HttpVersion version = null)
         {
             return new HttpResponse<TNew>(
-               status != null ? status : This.Status,
-               FSharpOption<TNew>.Some(entity),
-               This.Id,
-               contentInfo != null ? contentInfo : This.ContentInfo,
                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-               SetModule.OfSeq<CacheDirective>(cacheControl != null ? cacheControl : This.CacheControl),
-               expires != null ? FSharpOption<DateTimeOffset>.Some(expires.Value) : This.Expires,
-               location != null ? FSharpOption<Uri>.Some(location) : This.Location);
+               allowed != null ? SetModule.OfSeq<Method>(allowed) : This.Allowed,
+               cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
+               contentInfo != null ? contentInfo : This.ContentInfo,
+               date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
+               FSharpOption<TNew>.Some(entity),
+               etag != null ? FSharpOption<EntityTag>.Some(etag) : This.ETag,
+               expires != null ? FSharpOption<DateTime>.Some(expires.Value) : This.Expires,
+               This.Id,
+               lastModified != null ? FSharpOption<DateTime>.Some(lastModified.Value) : This.LastModified,
+               location != null ? FSharpOption<Uri>.Some(location) : This.Location,
+               retryAfter != null ? FSharpOption<DateTime>.Some(retryAfter.Value) : This.RetryAfter,
+               server != null ? FSharpOption<Server>.Some(server) : This.Server,
+               status != null ? status : This.Status,
+               version != null ? version : This.Version);
         }
 
         public static HttpResponse<TResp> Without<TResp>(
             this HttpResponse<TResp> This,
-            bool contentInfo = false,
             bool age = false,
+            bool allowed = false,
             bool cacheControl = false,
+            bool contentInfo = false,
+            bool date = false,
+            bool etag = false,
             bool expires = false,
-            bool location = false)
+            bool lastModified = false,
+            bool location = false,
+            bool retryAfter = false,
+            bool server = false)
         {
             return new HttpResponse<TResp>(
-                This.Status,
-                This.Entity,
-                This.Id,
-                contentInfo ? ContentInfo.None : This.ContentInfo,
                 age ? FSharpOption<TimeSpan>.None : This.Age,
-                SetModule.OfSeq<CacheDirective>(cacheControl ? SeqModule.Empty<CacheDirective>() : This.CacheControl),
-                expires ? FSharpOption<DateTimeOffset>.None : This.Expires,
-                location ? FSharpOption<Uri>.None : This.Location);
+                allowed ? SetModule.Empty<Method>() : This.Allowed,
+                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl, 
+                contentInfo ? ContentInfo.None : This.ContentInfo,
+                date ? FSharpOption<DateTime>.None : This.Date,
+                This.Entity,
+                etag ? FSharpOption<EntityTag>.None : This.ETag,
+                expires ? FSharpOption<DateTime>.None : This.Expires,
+                This.Id,
+                lastModified ? FSharpOption<DateTime>.None : This.LastModified,
+                location ? FSharpOption<Uri>.None : This.Location,
+                retryAfter ? FSharpOption<DateTime>.None : This.RetryAfter,
+                server ? FSharpOption<Server>.None : This.Server,
+                This.Status,
+                This.Version);
         }
 
         public static HttpResponse<TNew> WithoutEntity<TResp, TNew>(
             this HttpResponse<TResp> This,
-            bool contentInfo = false,
             bool age = false,
+            bool allowed = false,
             bool cacheControl = false,
+            bool contentInfo = false,
+            bool date = false,
+            bool etag = false,
             bool expires = false,
-            bool location = false)
+            bool lastModified = false,
+            bool location = false,
+            bool retryAfter = false,
+            bool server = false)
         {
             return new HttpResponse<TNew>(
-                This.Status,
-                FSharpOption<TNew>.None,
-                This.Id,
-                contentInfo ? ContentInfo.None : This.ContentInfo,
                 age ? FSharpOption<TimeSpan>.None : This.Age,
-                SetModule.OfSeq<CacheDirective>(cacheControl ? SeqModule.Empty<CacheDirective>() : This.CacheControl),
-                expires ? FSharpOption<DateTimeOffset>.None : This.Expires,
-                location ? FSharpOption<Uri>.None : This.Location);
+                allowed ? SetModule.Empty<Method>() : This.Allowed,
+                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl,
+                contentInfo ? ContentInfo.None : This.ContentInfo,
+                date ? FSharpOption<DateTime>.None : This.Date,
+                FSharpOption<TNew>.None,
+                etag ? FSharpOption<EntityTag>.None : This.ETag,
+                expires ? FSharpOption<DateTime>.None : This.Expires,
+                This.Id,
+                lastModified ? FSharpOption<DateTime>.None : This.LastModified,
+                location ? FSharpOption<Uri>.None : This.Location,
+                retryAfter ? FSharpOption<DateTime>.None : This.RetryAfter,
+                server ? FSharpOption<Server>.None : This.Server,
+                This.Status,
+                This.Version);
+        }
+
+        public static bool TryGetAge<TResp>(this HttpResponse<TResp> This, out TimeSpan age)
+        {
+            if (OptionModule.IsSome(This.Age))
+            {
+                age = This.Age.Value;
+                return true;
+            }
+
+            age = TimeSpan.MinValue;
+            return false;
+        }
+
+        public static bool TryGetDate<TResp>(this HttpResponse<TResp> This, out DateTime date)
+        {
+            if (OptionModule.IsSome(This.Date))
+            {
+                date = This.Date.Value;
+                return true;
+            }
+
+            date = DateTime.MinValue;
+            return false;
         }
 
         public static bool TryGetEntity<TResp>(this HttpResponse<TResp> This, out TResp entity)
@@ -101,19 +179,19 @@ namespace FunctionalHttp.Interop
             return false;
         }
 
-        public static bool TryGetAge<TResp>(this HttpResponse<TResp> This, out TimeSpan age)
+        public static bool TryGetETag<TResp>(this HttpResponse<TResp> This, out EntityTag etag)
         {
-            if (OptionModule.IsSome(This.Age))
+            if (OptionModule.IsSome(This.ETag))
             {
-                age = This.Age.Value;
+                etag = This.ETag.Value;
                 return true;
             }
 
-            age = TimeSpan.MinValue;
+            etag = null;
             return false;
         }
 
-        public static bool TryGetExpires<TResp>(this HttpResponse<TResp> This, out DateTimeOffset expires)
+        public static bool TryGetExpires<TResp>(this HttpResponse<TResp> This, out DateTime expires)
         {
             if (OptionModule.IsSome(This.Expires))
             {
@@ -121,7 +199,19 @@ namespace FunctionalHttp.Interop
                 return true;
             }
 
-            expires = DateTimeOffset.MinValue;
+            expires = DateTime.MinValue;
+            return false;
+        }
+
+        public static bool TryGetLastModified<TResp>(this HttpResponse<TResp> This, out DateTime lastModified)
+        {
+            if (OptionModule.IsSome(This.Expires))
+            {
+                lastModified = This.LastModified.Value;
+                return true;
+            }
+
+            lastModified = DateTime.MinValue;
             return false;
         }
 
@@ -134,6 +224,30 @@ namespace FunctionalHttp.Interop
             }
 
             location = null;
+            return false;
+        }
+
+        public static bool TryGetRetryAfter<TResp>(this HttpResponse<TResp> This, out DateTime retryAfter)
+        {
+            if (OptionModule.IsSome(This.RetryAfter))
+            {
+                retryAfter = This.RetryAfter.Value;
+                return true;
+            }
+
+            retryAfter = DateTime.MinValue;
+            return false;
+        }
+
+        public static bool TryGetServer<TResp>(this HttpResponse<TResp> This, out Server server)
+        {
+            if (OptionModule.IsSome(This.Server))
+            {
+                server = This.Server.Value;
+                return true;
+            }
+
+            server = null;
             return false;
         }
     }

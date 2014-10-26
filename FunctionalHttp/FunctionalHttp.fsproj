@@ -58,7 +58,7 @@
     <Compile Include="Data\UserAgent.fs" />
     <Compile Include="Data\Server.fs" />
     <Compile Include="Data\Range.fs" />
-    <Compile Include="Data\ETag.fs" />
+    <Compile Include="Data\EntityTag.fs" />
     <Compile Include="Core\Method.fs" />
     <Compile Include="Core\ContentInfo.fs" />
     <Compile Include="Core\RequestPreconditions.fs" />

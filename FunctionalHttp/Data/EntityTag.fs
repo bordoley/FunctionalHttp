@@ -1,5 +1,5 @@
 namespace FunctionalHttp
 
-type ETag =
+type EntityTag =
     | Weak
     | Strong
