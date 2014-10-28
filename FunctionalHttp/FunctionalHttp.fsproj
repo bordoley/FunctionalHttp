@@ -46,7 +46,9 @@
     <Compile Include="HttpGrammar.fs" />
     <Compile Include="Multimap.fs" />
     <Compile Include="Data\Charset.fs" />
-    <Compile Include="Data\ChallengeMessage.fs" />
+    <Compile Include="Data\CharsetInterop.fs" />
+    <Compile Include="Data\Challenge.fs" />
+    <Compile Include="Data\ChallengeInterop.fs" />
     <Compile Include="Data\ContentCoding.fs" />
     <Compile Include="Data\Header.fs" />
     <Compile Include="Data\CacheDirective.fs" />

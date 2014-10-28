@@ -22,6 +22,8 @@ module internal HttpParsers =
 
     let OWS_SEMICOLON_OWS : Parser<char,string> = OWS <+> (token ';') <+> OWS |> map (fun _ -> ";");
     
+    let OWS_COMMA_OWS : Parser<char,string> = OWS <+> (token ',') <+> OWS |> map (fun _ -> ",");
+    
     let token : Parser<char,string> = CharMatchers.many1 tchar
 
     let token68 : Parser<char,string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
@@ -78,7 +80,7 @@ module internal HttpParsers =
         | None -> Eof input
         | Some r -> r
 
-module HttpEncoding =
+module internal HttpEncoding =
     let private DQUOTE_CHAR = '"'
     let private ESCAPE_CHAR = '\\';
 

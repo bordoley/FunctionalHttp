@@ -19,13 +19,14 @@ module internal CharMatchers =
     let many (matcher:CharMatcher) (input: IInput<char>) =
         let rec findLast index =
             if index = input.Length
-            then index - 1
+            then index
             else if matcher (input.Item index)
             then findLast (index + 1)
             else index
+
         let result = findLast 0
 
-        Success ((input.SubSequence(0, result + 1).ToString()), input.SubSequence(result + 1))
+        Success ((input.SubSequence(0, result).ToString()), input.SubSequence(result))
 
     let many1 (matcher:CharMatcher) (input: IInput<char>) =
         let result = many matcher input

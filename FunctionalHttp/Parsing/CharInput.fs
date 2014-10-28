@@ -8,7 +8,7 @@ open System.Diagnostics.Contracts
 type internal CharInput private (str: string, start:int, length:int) =    
     new (str) = CharInput(str, 0, str.Length)
 
-    static member Empty = new CharInput("", 0, 0) :> IInput<char>
+    static member val Empty = new CharInput("", 0, 0) :> IInput<char>
 
     interface IInput<char> with
         member this.Length with get() = length
@@ -34,7 +34,7 @@ type internal CharInput private (str: string, start:int, length:int) =
             match (newStart, newLength) with
             | (_ ,0) -> CharInput.Empty 
             | _ when newStart = 0 && newLength = length -> this :> IInput<char>
-            | _ -> CharInput(str, newAbsoluteStartPos, length) :> IInput<char>
+            | _ -> CharInput(str, newAbsoluteStartPos, newLength) :> IInput<char>
 
     override this.ToString() = str.Substring(start,length)
 
