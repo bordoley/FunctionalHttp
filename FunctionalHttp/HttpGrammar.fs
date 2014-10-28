@@ -31,54 +31,38 @@ module internal HttpParsers =
     let private DQUOTE_CHAR = '"'
     let private ESCAPE_CHAR = '\\';
 
-    let quoted_string (input:IInput<char>) =    
-        let retval: IParseResult<char, string> option ref = ref None
-        let builder:Option<StringBuilder> ref = ref Option.None
+    let quoted_string (input:IInput<char>) = 
+        let builder:StringBuilder ref = ref null
 
-        let endIndex = ref 0
-        let index = ref 0
+        let rec doParse index =
+            if index = input.Length
+                then Eof input
+            else 
+                match input.Item index with
+                | c when c = ESCAPE_CHAR -> 
+                    if !builder = null 
+                        then builder := StringBuilder(input.SubSequence(1, index - 1).ToString())
 
-        if (input.Length = 0 || (input.Item !index) <> DQUOTE_CHAR)
-        then retval:= Some (Fail input)
-        else 
-            index := 1
-            while ((!index < input.Length) && (Option.isNone !retval)) do 
-                let c = input.Item !index
-                if (qdtext c) 
-                then match !builder with
-                        | None -> endIndex := !endIndex + 1
-                        | Some x -> x.Append(c) |> ignore
-                else if c = ESCAPE_CHAR
-                then 
-                    let strBuild =
-                        match !builder with
-                        | Some builder -> builder
-                        | _ ->
-                            builder := Some (StringBuilder(input.SubSequence(0,!endIndex).ToString()))
-                            (!builder).Value
-
-                    index := !index + 1
-
-                    if not (!index < input.Length)
-                    then retval := Some (Eof input)
-                    else if (quoted_pair_char (input.Item !index))
-                    then strBuild.Append(input.Item !index) |> ignore
-                    else retval := Some (Fail input) 
-                else if c = DQUOTE_CHAR
-                then
-                    endIndex := !endIndex + 1
+                    match index + 1 with
+                    | index when index = input.Length -> Eof input
+                    | index when quoted_pair_char (input.Item index) ->
+                        (!builder).Append(input.Item index) |> ignore
+                        doParse (index+1)      
+                    | _ -> Fail input
+                | c when c = DQUOTE_CHAR -> 
                     match !builder with
-                    | Some buf -> 
-                        retval := Some (Success(buf.ToString(), input.SubSequence(!endIndex + 1)))
-                    | None -> 
-                        retval := Some (Success(input.SubSequence(2, !endIndex + 1).ToString(), input.SubSequence(!endIndex + 1)))
-                else 
-                    retval := Some (Fail input)
-
-                index := !index + 1
-        match !retval with
-        | None -> Eof input
-        | Some r -> r
+                    | null -> Success(input.SubSequence(1, index - 1).ToString(), input.SubSequence(index + 1))
+                    | builder -> Success(builder.ToString(), input.SubSequence(index+1))
+                | c when qdtext c ->
+                    if !builder <> null then (!builder).Append(c) |> ignore
+                    doParse (index + 1)      
+                | _ -> Fail input
+    
+        if (input.Length = 0)
+            then Eof input
+        else if (input.Item 0) <> DQUOTE_CHAR
+            then Fail input
+        else doParse 1
 
 module internal HttpEncoding =
     let private DQUOTE_CHAR = '"'

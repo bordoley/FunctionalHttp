@@ -23,10 +23,12 @@ type Challenge =
                 |> Seq.filter (fun pair -> Option.isSome pair)
                 |> Seq.map (fun pair -> pair.Value))
              |> Parser.map (fun pairs -> Map.ofSeq pairs)
-        
-        auth_scheme <+> (CharMatchers.many1 CharMatchers.SP) <+> (token68 <^> auth_params)
+
+        let data = token68 |> Parser.followedBy (Parser.eof <^> (OWS <+> Parser.token ','))
+
+        auth_scheme <+> (CharMatchers.many1 CharMatchers.SP) <+> ( data  <^> auth_params )
         |> Parser.map (fun ((scheme, _), dataOrParameters) -> 
-            { scheme = scheme; dataOrParameters = dataOrParameters; } )
+            { scheme = scheme; dataOrParameters = dataOrParameters; })
         
     static member OAuthToken token = 
         // FIXME: Validate the token is base64 data

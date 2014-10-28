@@ -34,6 +34,20 @@ module internal Parser =
             | Success (Choice1Of2 result, next) -> Success (result, next)
             | Success (Choice2Of2 result, next) -> Success (result, next)
 
+    let eof (input:IInput<'TToken>) =
+        if input.Length = 0 
+        then Success((), input)
+        else Fail input
+
+    let followedBy (pnext:Parser<'TToken, _>) (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
+        match p input with
+        | Success (_, next) as result ->
+            match pnext next with
+            | Success _ -> result
+            | Eof _ -> Eof input
+            | Fail _ -> Fail input
+        | x as result -> result
+
     let many (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
         let remainder : IInput<'TToken> ref = ref input
 
