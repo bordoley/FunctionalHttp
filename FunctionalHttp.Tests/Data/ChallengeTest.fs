@@ -20,15 +20,26 @@ module ChallengeTests =
 
     [<Test>]
     let  ``test parting with parameters`` () =
-        let tests = [("Basic realm=\"foo\"", [("realm", "foo")]) ;
-                     ("Basic realm=foo",     [("realm", "foo")]) ;
-                     ("Basic realm = \"\\f\\o\\o\"", [("realm", "foo")])]
-
-
-        for (test, expected) in tests do
+        let tests = [("Basic realm=\"foo\"",                                "Basic",   [("realm", "foo")]);
+                     ("Basic realm=foo",                                    "Basic",   [("realm", "foo")]);
+                     ("Basic , realm=\"foo\"",                              "Basic",   [("realm", "foo")]);
+                     ("Basic realm = \"\\f\\o\\o\"",                        "Basic",   [("realm", "foo")]);
+                     ("Basic realm = \"foo\"",                              "Basic",   [("realm", "foo")]);
+                     ("Basic realm=\"\\\"foo\\\"\"",                        "Basic",   [("realm", "\"foo\"")]);
+                     ("Basic realm=\"foo\", bar=\"xyz\",, a=b,,,c=d",       "Basic",   [("realm", "foo"); ("bar", "xyz"); ("a", "b"); ("c", "d")]);
+                     ("Basic bar=\"xyz\", realm=\"foo\"",                   "Basic",   [("realm", "foo"); ("bar", "xyz")]);
+                     ("Basic realm=\"foo-\u00E4\"",                         "Basic",   [("realm", "foo-\u00E4")]);
+                     ("Basic realm=\"foo-\u00A4\"",                         "Basic",   [("realm", "foo-\u00A4")]);
+                     ("Basic realm=\"=?ISO-8859-1?Q?foo-=E4?=\"",           "Basic",   [("realm", "=?ISO-8859-1?Q?foo-=E4?=")]);
+                     ("Newauth realm=\"newauth\"",                          "Newauth", [("realm", "newauth")]);
+                     ("Basic foo=\"realm=nottherealm\", realm=\"basic\"",   "Basic",   [("foo", "realm=nottherealm"); ("realm", "basic")]);
+                     ("Basic nottherealm=\"nottherealm\", realm=\"basic\"", "Basic",   [("nottherealm", "nottherealm"); ("realm", "basic")]);]
+                     
+        for (test, expectedScheme, expectedParams) in tests do
             match Parser.parse Challenge.Parser (test.AsInput()) with
             | Success (result, next) -> 
+                result.Scheme |> should equal expectedScheme
                 match result.DataOrParameters with
-                | Choice2Of2 parameters-> parameters |> should equal (expected |> Map.ofSeq)
+                | Choice2Of2 parameters-> parameters |> should equal (expectedParams |> Map.ofSeq)
                 | _ -> failwith ("Parse failed for test: " + test)
             | _ -> failwith ("Parse failed for test: " + test)
