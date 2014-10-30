@@ -53,6 +53,7 @@
     <Compile Include="Parsing\CharInputTest.fs" />
     <Compile Include="Data\CharsetTest.fs" />
     <Compile Include="Data\ChallengeTest.fs" />
+    <Compile Include="Data\EntityTagTest.fs" />
     <Content Include="packages.config" />
     <Content Include="app.config" />
   </ItemGroup>

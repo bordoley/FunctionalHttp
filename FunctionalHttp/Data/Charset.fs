@@ -27,7 +27,7 @@ type Charset =
             | x when x = Charset.US_ASCII.ToString() -> Charset.US_ASCII
             | x -> { charset = x })
 
-    override this.ToString() = this.charset
+    override this.ToString() = this.charset    
 
 [<AutoOpen>]
 module CharsetMixins =

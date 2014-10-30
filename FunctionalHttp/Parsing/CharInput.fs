@@ -48,4 +48,17 @@ module internal CharInputMixins =
         match Parser.parse p (input.AsInput()) with
         | Fail _ -> None
         | Eof _ -> None
-        | Success (result,_) -> Some result     
+        | Success (result,_) -> Some result   
+        
+    let pstring (str:string) (input:IInput<char>) =
+        if input.Length < str.Length
+            then Eof input
+        else
+            let rec doParse i =
+                if i = str.Length
+                    then Success (str, input.SubSequence(i))
+                else if (str.Chars i) = (input.Item i)
+                    then doParse (i + 1)
+                else Fail input
+
+            doParse 0
