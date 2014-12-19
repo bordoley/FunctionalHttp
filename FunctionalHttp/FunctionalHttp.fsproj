@@ -50,9 +50,9 @@
     <Compile Include="Data\Challenge.fs" />
     <Compile Include="Data\ChallengeInterop.fs" />
     <Compile Include="Data\EntityTag.fs" />
-    <Compile Include="Data\ContentCoding.fs" />
     <Compile Include="Data\Header.fs" />
     <Compile Include="Data\CacheDirective.fs" />
+    <Compile Include="Data\ContentCoding.fs" />
     <Compile Include="Data\MediaType.fs" />
     <Compile Include="Data\MediaRange.fs" />
     <Compile Include="Data\LanguageTag.fs" />

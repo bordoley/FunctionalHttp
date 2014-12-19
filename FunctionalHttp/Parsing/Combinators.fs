@@ -48,6 +48,11 @@ module internal Parser =
             | Fail _ -> Fail input
         | x as result -> result
 
+    let forwardedToRef () =
+        let dummy (input:IInput<'TToken>) = failwith "a parser created with forwardedToRef was not initialized"
+        let r = ref dummy
+        (fun input -> !r input), r : Parser<'TToken,'TResult> * Parser<'TToken,'TResult> ref
+
     let many (p:Parser<'TToken,'TResult>) (input:IInput<'TToken>) =
         let remainder : IInput<'TToken> ref = ref input
 

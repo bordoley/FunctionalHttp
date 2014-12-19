@@ -10,6 +10,14 @@ module internal HttpCharMatchers =
     let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||> inRange (char 0x5D) (char 0x7E) <||> obs_text
     let quoted_pair_char = (HTAB <||> SP <||> VCHAR <||> obs_text)
 
+    let ctext = 
+        HTAB <||> 
+        SP <||> 
+        inRange (char 0x21) (char 0x5B) <||> 
+        inRange (char 0x2A) (char 0x5B) <||> 
+        inRange (char 0x5D) (char 0x7E) <||> 
+        obs_text
+
 open HttpCharMatchers
 open Parser
 
@@ -23,7 +31,7 @@ module internal HttpParsers =
     let OWS_SEMICOLON_OWS : Parser<char,string> = OWS <+> (token ';') <+> OWS |> map (fun _ -> ";");
     
     let OWS_COMMA_OWS : Parser<char,string> = OWS <+> (token ',') <+> OWS |> map (fun _ -> ",");
-    
+
     let token : Parser<char,string> = CharMatchers.many1 tchar
 
     let token68 : Parser<char,string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)

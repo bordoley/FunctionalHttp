@@ -6,6 +6,8 @@ type Header private (header:string) =
     // FIXME: need to validate the string is a valid header using a contract
     static member Create(header) = Header(header)
 
+    static member internal Parser = HttpParsers.token |> Parser.map (fun header -> Header(header))
+
     static member val Accept = Header("Accept")
     static member val AcceptCharset = Header("Accept-Charset")
     static member val AcceptEncoding = Header("Accept-Encoding")

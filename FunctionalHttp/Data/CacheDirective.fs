@@ -4,45 +4,60 @@ open System
 open System.Collections.Generic
 
 type CacheDirective =
-    | MaxAge of value:TimeSpan
-    | MaxStale of value:TimeSpan
-    | MinFresh of value:TimeSpan
-    | NoCache of value:(Header Set) 
-    | Private of value:(Header Set)   
-    | SharedMaxAge of value:TimeSpan  
-    | NoStore
-    | NoTransform
-    | OnlyIfCached
-    | MustRevalidate
-    | Public
-    | ProxyRevalidate
-    | Extension of key:string*value:string // FIXME: Should key:Token*value:Word to be absolutely correct
+    private {
+        directive:String
+        value:String
+    }
 
-    static member private maxAge = "max-age"
-    static member private maxStale = "max-stale"
-    static member private minFresh = "min-fresh"
-    static member private noCache = "no-cache"
-    static member private private_ = "private"
-    static member private sharedMaxAge = "s-maxage"
-    static member private noStore = "no-store"
-    static member private noTransform = "no-transform"
-    static member private onlyIfCached = "only-if-cached"
-    static member private mustRevalidate = "must-revalidate"
-    static member private public_ = "public"
-    static member private proxyRevalidate = "proxy-revalidate"
+    static member NoStore = { directive = "no-store"; value  ="" }
+    static member NoTransform = { directive = "no-transform"; value ="" }
+    static member OnlyIfCached = { directive = "only-if-cached"; value ="" }
+    static member MustRevalidate = { directive = "must-revalidate"; value ="" }
+    static member Public = { directive = "public"; value ="" }
+    static member ProxyRevalidate = { directive = "proxy-revalidate"; value ="" }
+
+    static member MaxAge (value:TimeSpan) =
+        { directive = "max-age"; value = (int value.TotalSeconds).ToString() }
+
+    static member MaxStale (value:TimeSpan) =
+        { directive = "max-stale"; value = (int value.TotalSeconds).ToString() }
+    
+    static member MinFresh (value:TimeSpan) =
+        { directive = "min-fresh"; value = (int value.TotalSeconds).ToString() }
+
+    static member SharedMaxAge (value:TimeSpan) =
+        { directive = "s-maxage"; value = (int value.TotalSeconds).ToString() }
+
+    static member NoCache (value: seq<Header>) =
+        let headers = Set.ofSeq value
+        { directive = "no-cache"; value = String.Join(", ", headers) }
+
+    static member Private(value: seq<Header>) =
+        let headers = Set.ofSeq value
+        { directive = "private"; value = String.Join(", ", headers) }  
+
+    member this.Directive with get() = this.Directive
+    member this.Value with get() = this.value
 
     override this.ToString() =
-        match this with
-        | MaxAge value  -> CacheDirective.maxAge + "=" + (int32 value.TotalSeconds).ToString()
-        | MaxStale value -> CacheDirective.maxStale + "=" + (int32 value.TotalSeconds).ToString()
-        | MinFresh value -> CacheDirective.minFresh + "=" + (int32 value.TotalSeconds).ToString()
-        | NoCache value -> CacheDirective.noCache + if value.IsEmpty then "" else "=" + String.Join(", ", value)  
-        | Private value -> CacheDirective.private_ + if value.IsEmpty then "" else "=" + String.Join(", ", value)
-        | SharedMaxAge value -> CacheDirective.sharedMaxAge + "=" + (int32 value.TotalSeconds).ToString()
-        | NoStore -> CacheDirective.noStore
-        | NoTransform -> CacheDirective.noTransform
-        | OnlyIfCached -> CacheDirective.onlyIfCached
-        | MustRevalidate -> CacheDirective.mustRevalidate
-        | Public -> CacheDirective.public_
-        | ProxyRevalidate -> CacheDirective.proxyRevalidate
-        | Extension (key,value) -> key + if value.Length = 0 then "" else "=" + value
+        if this.value.Length = 0
+            then this.Directive
+        else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
+
+[<AutoOpen>]
+module CacheDirectiveMixins =
+    let private deltaSecondsParser = 
+        CharMatchers.many1 CharMatchers.DIGIT 
+        |> Parser.map (fun d -> 
+            match System.Int32.TryParse(d) with
+            | (true, int) -> Some(int)
+            | _ -> None)
+
+    type CacheDirective with
+        member this.ValueAsDeltaSeconds 
+            with get() = 
+                match CharParsers.parse deltaSecondsParser this.Value with
+                | Some result -> result
+                | _ -> None
+        //member this.ValueAsHeaders
+            
