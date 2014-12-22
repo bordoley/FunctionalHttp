@@ -36,7 +36,6 @@
     <Compile Include="Core\ContentInfoExtensions.cs" />
     <Compile Include="Core\HttpRequestExtensions.cs" />
     <Compile Include="Core\HttpResponseExtensions.cs" />
-    <Compile Include="Data\MediaTypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FunctionalHttp.Interop
 {
-    public static class ContentInfoExtensions
+    public static class ContentInfoExtensionsCSharp
     {
         public static ContentInfo With(
             this ContentInfo This, 
@@ -37,42 +37,6 @@ namespace FunctionalHttp.Interop
                 length ? FSharpOption<int>.None : This.length,
                 location ? FSharpOption<Uri>.None : This.Location,
                 mediaType ? FSharpOption<MediaType>.None : This.MediaType);
-        }
-
-        public static bool TryGetLength(this ContentInfo This, out int length)
-        {
-            if(OptionModule.IsSome(This.Length))
-            {
-                length = This.Length.Value;
-                return true;
-            }
-
-            length = -1;
-            return false;
-        }
-
-        public static bool TryGetLocation(this ContentInfo This, out Uri location)
-        {
-            if (OptionModule.IsSome(This.Location))
-            {
-                location = This.Location.Value;
-                return true;
-            }
-
-            location = null;
-            return false;
-        }
-
-        public static bool TryGetMediaType(this ContentInfo This, out MediaType mediaType)
-        {
-            if (OptionModule.IsSome(This.MediaType))
-            {
-                mediaType = This.MediaType.Value;
-                return true;
-            }
-
-            mediaType = null;
-            return false;
         }
     }
 }

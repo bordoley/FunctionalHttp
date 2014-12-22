@@ -8,7 +8,7 @@ using FunctionalHttp;
 
 namespace FunctionalHttp.Interop
 {
-    public static class HttpRequestExtensions
+    public static class HttpRequestExtensionsCSharp
     {
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This,    
@@ -149,67 +149,6 @@ namespace FunctionalHttp.Interop
                 This.Uri,
                 userAgent ? FSharpOption<UserAgent>.None : This.UserAgent,
                 This.Version);
-        }
-
-        public static bool TryGetAuthorization<TReq>(this HttpRequest<TReq> This, out Challenge authorization)
-        {
-            if (OptionModule.IsSome(This.Authorization))
-            {
-                authorization = This.Authorization.Value;
-                return true;
-            }
-
-            authorization = null;
-            return false;
-        }
-
-        public static bool TryGetEntity<TReq>(this HttpRequest<TReq> This, out TReq entity)
-            where TReq : class
-        {
-            if (OptionModule.IsSome(This.Entity))
-            {
-                entity = This.Entity.Value;
-                return true;
-            }
-
-            entity = null;
-            return false;
-        }
-
-        public static bool TryGetProxyAuthorization<TReq>(this HttpRequest<TReq> This, out Challenge proxyAuthorization)
-        {
-            if (OptionModule.IsSome(This.ProxyAuthorization))
-            {
-                proxyAuthorization = This.ProxyAuthorization.Value;
-                return true;
-            }
-
-            proxyAuthorization = null;
-            return false;
-        }
-
-        public static bool TryGetReferer<TReq>(this HttpRequest<TReq> This, out Uri referer)
-        {
-            if (OptionModule.IsSome(This.Referer))
-            {
-                referer = This.Referer.Value;
-                return true;
-            }
-
-            referer = null;
-            return false;
-        }
-
-        public static bool TryGetUserAgent<TReq>(this HttpRequest<TReq> This, out UserAgent userAgent)
-        {
-            if (OptionModule.IsSome(This.UserAgent))
-            {
-                userAgent = This.UserAgent.Value;
-                return true;
-            }
-
-            userAgent = null;
-            return false;
         }
     }
 }
