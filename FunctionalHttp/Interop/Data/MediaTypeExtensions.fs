@@ -7,9 +7,5 @@ open System.Runtime.CompilerServices
 type MediaTypeExtensions private () =
     [<Extension>]
     static member TryGetCharset(this:MediaType, charset : byref<Charset>) = 
-        match this.Charset with
-        | None -> false
-        | Some retval ->
-            charset <- retval
-            true
+        Option.tryGetValue this.Charset &charset
 

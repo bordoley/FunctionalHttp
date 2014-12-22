@@ -8,10 +8,4 @@ open System.Text
 type CharsetExtensions private () =
     [<Extension>]
     static member TryGetEncoding(this:Charset, encoding : byref<Encoding>) = 
-        match this.Encoding with
-        | None ->
-            encoding <- null
-            false
-        | Some enc ->
-            encoding <- enc
-            true
+        Option.tryGetValue this.Encoding &encoding

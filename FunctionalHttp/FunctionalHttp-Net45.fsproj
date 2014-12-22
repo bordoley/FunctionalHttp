@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Multimap.fs" />
+    <Compile Include="Option.fs" />
     <Compile Include="Parsing\CharStream.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
@@ -80,6 +81,7 @@
     <Compile Include="Interop\Core\HttpResponseExtensions.fs" />
     <Compile Include="Interop\Client\HttpClientExtensions.fs" />
     <Compile Include="Interop\Client\HttpClientConnectorExtensions.fs" />
+
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>

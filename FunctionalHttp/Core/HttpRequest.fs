@@ -128,8 +128,8 @@ module HttpRequestMixins =
                                 ?uri:Uri, 
                                 ?userAgent:UserAgent,
                                 ?version:HttpVersion) =
-             HttpRequest<'TReq>.Create(
-                (if Option.isSome authorization then authorization else this.Authorization),
+            HttpRequest<'TReq>.Create(
+                Option.orElse this.Authorization authorization,
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 this.Entity,
@@ -140,10 +140,10 @@ module HttpRequestMixins =
                 Set.ofSeq <| defaultArg pragma (this.Pragma :> CacheDirective seq),
                 defaultArg preconditions this.Preconditions,
                 defaultArg preferences this.Preferences,
-                (if Option.isSome proxyAuthorization then proxyAuthorization else this.ProxyAuthorization),
-                (if Option.isSome referer then referer else this.Referer),
+                Option.orElse this.ProxyAuthorization proxyAuthorization,
+                Option.orElse this.Referer referer,
                 defaultArg uri this.Uri,
-                (if Option.isSome userAgent then userAgent else this.UserAgent),
+                Option.orElse this.UserAgent userAgent,
                 defaultArg version this.Version)
 
         member this.With<'TNew> (entity:'TNew, 
@@ -163,7 +163,7 @@ module HttpRequestMixins =
                                     ?userAgent:UserAgent,
                                     ?version:HttpVersion) =
             HttpRequest<'TNew>.Create(
-                (if Option.isSome authorization then authorization else this.Authorization),
+                Option.orElse this.Authorization authorization,
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
                 Some entity,
@@ -174,10 +174,10 @@ module HttpRequestMixins =
                 Set.ofSeq <| defaultArg pragma (this.Pragma :> CacheDirective seq),
                 defaultArg preconditions this.Preconditions,
                 defaultArg preferences this.Preferences,
-                (if Option.isSome proxyAuthorization then proxyAuthorization else this.ProxyAuthorization),
-                (if Option.isSome referer then referer else this.Referer),
+                Option.orElse this.ProxyAuthorization proxyAuthorization,
+                Option.orElse this.Referer referer,
                 defaultArg uri this.Uri,
-                (if Option.isSome userAgent then userAgent else this.UserAgent),
+                Option.orElse this.UserAgent userAgent,
                 defaultArg version this.Version)
         
         member this.Without<'TReq>(?authorization, 

@@ -31,90 +31,44 @@ type HttpResponseExtensions private () =
 
     [<Extension>]
     static member TryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<AcceptableRanges>) = 
-        match this.AcceptedRanges with
-        | None -> false
-        | Some retval ->
-            acceptedRanges <- retval
-            true
+        Option.tryGetValue this.AcceptedRanges &acceptedRanges
 
     [<Extension>]
     static member TryGetAge(this:HttpResponse<'TResp>, age : byref<TimeSpan>) = 
-        match this.Age with
-        | None -> false
-        | Some retval ->
-            age <- retval
-            true
+        Option.tryGetValue this.Age &age
 
     [<Extension>]
     static member TryGetDate(this:HttpResponse<'TResp>, date : byref<DateTime>) = 
-        match this.Date with
-        | None -> false
-        | Some retval ->
-            date <- retval
-            true
+        Option.tryGetValue this.Date &date
 
     [<Extension>]
     static member TryGetEntity(this:HttpResponse<'TResp>, entity : byref<'TResp>) = 
-        match this.Entity with
-        | None -> false
-        | Some retval ->
-            entity <- retval
-            true
+        Option.tryGetValue this.Entity &entity
 
     [<Extension>]
     static member TryGetETag(this:HttpResponse<'TResp>, etag : byref<EntityTag>) = 
-        match this.ETag with
-        | None -> false
-        | Some retval ->
-            etag <- retval
-            true
+        Option.tryGetValue this.ETag &etag
 
     [<Extension>]
     static member TryGetExpires(this:HttpResponse<'TResp>, expires : byref<DateTime>) = 
-        match this.Expires with
-        | None -> false
-        | Some retval ->
-            expires <- retval
-            true
+        Option.tryGetValue this.Expires &expires
 
     [<Extension>]
     static member TryGetLastModified(this:HttpResponse<'TResp>, lastModified : byref<DateTime>) = 
-        match this.Expires with
-        | None -> false
-        | Some retval ->
-            lastModified <- retval
-            true
+        Option.tryGetValue this.Expires &lastModified
          
     [<Extension>]
     static member TryGetLocation(this:HttpResponse<'TResp>, location : byref<Uri>) = 
-        match this.Location with
-        | None -> false
-        | Some retval ->
-            location <- retval
-            true
+        Option.tryGetValue this.Location &location
 
     [<Extension>]
     static member TryGetRetryAfter(this:HttpResponse<'TResp>, retryAfter : byref<DateTime>) = 
-        match this.RetryAfter with
-        | None -> false
-        | Some retval ->
-            retryAfter <- retval
-            true
+        Option.tryGetValue this.RetryAfter &retryAfter
 
     [<Extension>]
     static member TryGetServer(this:HttpResponse<'TResp>, server : byref<Server>) = 
-        match this.Server with
-        | None -> false
-        | Some retval ->
-            server <- retval
-            true
+        Option.tryGetValue this.Server &server
            
     [<Extension>]
     static member TryGetVary(this:HttpResponse<'TResp>, vary : byref<Vary>) = 
-        match this.Vary with
-        | None -> false
-        | Some retval ->
-            vary <- retval
-            true
-           
-   
+        Option.tryGetValue (this.Vary) &vary       
