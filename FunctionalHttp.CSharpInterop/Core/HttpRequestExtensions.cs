@@ -39,7 +39,7 @@ namespace FunctionalHttp.Interop
                 meth ?? This.Method,
                 pragma != null ? SetModule.OfSeq <CacheDirective>(pragma) : This.Pragma,
                 preconditions ?? This.Preconditions,
-                preferences ?? : This.Preferences,
+                preferences ?? This.Preferences,
                 proxyAuthorization != null ? FSharpOption<Challenge>.Some(proxyAuthorization) : This.ProxyAuthorization,
                 referer != null ? FSharpOption<Uri>.Some(referer) : This.Referer,
                 uri ?? This.Uri,
