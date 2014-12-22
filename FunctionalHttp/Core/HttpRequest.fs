@@ -126,23 +126,23 @@ module HttpRequest =
                                         uri,
                                         userAgent,
                                         version) =
-            HttpRequest<'TNew>.Create(
-                Option.orElse request.Authorization authorization,
-                Set.ofSeq <| defaultArg cacheControl (request.CacheControl :> CacheDirective seq),
-                defaultArg contentInfo request.ContentInfo,
-                entity,
-                defaultArg expectContinue request.ExpectContinue,
-                defaultArg headers request.Headers,
-                defaultArg id request.Id,
-                defaultArg meth request.Method,
-                Set.ofSeq <| defaultArg pragma (request.Pragma :> CacheDirective seq),
-                defaultArg preconditions request.Preconditions,
-                defaultArg preferences request.Preferences,
-                Option.orElse request.ProxyAuthorization proxyAuthorization,
-                Option.orElse request.Referer referer,
-                defaultArg uri request.Uri,
-                Option.orElse request.UserAgent userAgent,
-                defaultArg version request.Version)
+        HttpRequest<'TNew>.Create(
+            Option.orElse request.Authorization authorization,
+            Set.ofSeq <| defaultArg cacheControl (request.CacheControl :> CacheDirective seq),
+            defaultArg contentInfo request.ContentInfo,
+            entity,
+            defaultArg expectContinue request.ExpectContinue,
+            defaultArg headers request.Headers,
+            defaultArg id request.Id,
+            defaultArg meth request.Method,
+            Set.ofSeq <| defaultArg pragma (request.Pragma :> CacheDirective seq),
+            defaultArg preconditions request.Preconditions,
+            defaultArg preferences request.Preferences,
+            Option.orElse request.ProxyAuthorization proxyAuthorization,
+            Option.orElse request.Referer referer,
+            defaultArg uri request.Uri,
+            Option.orElse request.UserAgent userAgent,
+            defaultArg version request.Version)
 
     let without (request:HttpRequest<_>) (entity:Option<'TNew>) (   authorization, 
                                                                     cacheControl, 
@@ -154,23 +154,23 @@ module HttpRequest =
                                                                     proxyAuthorization, 
                                                                     referer, 
                                                                     userAgent) =
-            HttpRequest<'TNew>.Create(  
-                (if authorization then None else request.Authorization),
-                Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else (request.CacheControl :> CacheDirective seq)),
-                (if contentInfo then ContentInfo.None else request.ContentInfo),
-                entity,
-                request.ExpectContinue,
-                (if headers then Map.empty else request.Headers),
-                request.Id,
-                request.Method,
-                Set.ofSeq <| (if Option.isSome pragma then Seq.empty else (request.Pragma :> CacheDirective seq)),
-                (if preconditions then RequestPreconditions.None else request.Preconditions),
-                (if preferences then RequestPreferences.None else request.Preferences),
-                (if proxyAuthorization then None else  request.ProxyAuthorization),
-                (if referer then None else request.Referer),
-                request.Uri,
-                (if userAgent then None else request.UserAgent),
-                request.Version)
+        HttpRequest<'TNew>.Create(  
+            (if authorization then None else request.Authorization),
+            Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else (request.CacheControl :> CacheDirective seq)),
+            (if contentInfo then ContentInfo.None else request.ContentInfo),
+            entity,
+            request.ExpectContinue,
+            (if headers then Map.empty else request.Headers),
+            request.Id,
+            request.Method,
+            Set.ofSeq <| (if Option.isSome pragma then Seq.empty else (request.Pragma :> CacheDirective seq)),
+            (if preconditions then RequestPreconditions.None else request.Preconditions),
+            (if preferences then RequestPreferences.None else request.Preferences),
+            (if proxyAuthorization then None else  request.ProxyAuthorization),
+            (if referer then None else request.Referer),
+            request.Uri,
+            (if userAgent then None else request.UserAgent),
+            request.Version)
 
 [<AutoOpen>]
 module HttpRequestMixins =
@@ -271,15 +271,15 @@ module HttpRequestMixins =
                                             ?proxyAuthorization, 
                                             ?referer,
                                             ?userAgent) =
-            HttpRequest.without this None ( Option.isSome authorization, 
-                                            cacheControl, 
-                                            Option.isSome contentInfo, 
-                                            Option.isSome headers,
-                                            pragma, 
-                                            Option.isSome preconditions, 
-                                            Option.isSome preferences, 
-                                            Option.isSome proxyAuthorization, 
-                                            Option.isSome referer, 
-                                            Option.isSome userAgent)
+            HttpRequest.without this (None:Option<'TNew>) ( Option.isSome authorization, 
+                                                            cacheControl, 
+                                                            Option.isSome contentInfo, 
+                                                            Option.isSome headers,
+                                                            pragma, 
+                                                            Option.isSome preconditions, 
+                                                            Option.isSome preferences, 
+                                                            Option.isSome proxyAuthorization, 
+                                                            Option.isSome referer, 
+                                                            Option.isSome userAgent)
 
         member this.WithoutEntityAsync<'TNew> () = async { return this.WithoutEntity<'TNew>() }
