@@ -16,8 +16,8 @@ namespace FunctionalHttp.Interop
             MediaType mediaType = null)
         {
             return ContentInfo.CreateInternal(
-                encodings != null ? encodings : This.Encodings,
-                languages != null ? languages : This.Languages,
+                encodings ?? This.Encodings,
+                languages ?? This.Languages,
                 length != null ? FSharpOption<int>.Some(length.Value) : This.length,
                 location != null ? FSharpOption<Uri>.Some(location) : This.Location,
                 mediaType != null ? FSharpOption<MediaType>.Some(mediaType) : This.MediaType);

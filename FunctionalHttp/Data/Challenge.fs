@@ -1,7 +1,8 @@
 ﻿namespace FunctionalHttp
+open FunctionalHttp.Parsing
 
-open FunctionalHttp.Parser
 open FunctionalHttp.HttpParsers
+open FunctionalHttp.Parsing.Parser
 
 type Challenge = 
     private {
@@ -17,14 +18,14 @@ type Challenge =
         
         let auth_params =
              (optional auth_param) 
-             |> Parser.sepBy1 OWS_COMMA_OWS
-             |> Parser.map (fun pairs -> 
+             |> sepBy1 OWS_COMMA_OWS
+             |> map (fun pairs -> 
                 pairs 
                 |> Seq.filter (fun pair -> Option.isSome pair)
                 |> Seq.map (fun pair -> pair.Value))
              |> Parser.map (fun pairs -> Map.ofSeq pairs)
 
-        let data = token68 |> Parser.followedBy (Parser.eof <^> (OWS <+> Parser.token ','))
+        let data = token68 |> followedBy (Parser.eof <^> (OWS <+> parseChar ','))
 
         auth_scheme <+> (CharMatchers.many1 CharMatchers.SP) <+> ( data  <^> auth_params )
         |> Parser.map (fun ((scheme, _), dataOrParameters) -> 

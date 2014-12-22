@@ -1,7 +1,9 @@
 namespace FunctionalHttp
 
-open FunctionalHttp.CharMatchers
-open FunctionalHttp.Parser
+open FunctionalHttp.Parsing
+
+open FunctionalHttp.Parsing.CharMatchers
+open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.HttpParsers
 
 type EntityTag = 
@@ -13,9 +15,9 @@ type EntityTag =
     static member internal Parser =
         let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> HttpCharMatchers.obs_text
         let opaque_tag = 
-            (Parser.token '"') <+> (CharMatchers.many etagc) <+> (Parser.token '"')
+            (parseChar '"') <+> (CharMatchers.many etagc) <+> (parseChar '"')
             |> Parser.map(fun ((_, token), _) -> token)
-        let weak = CharParsers.pstring "W/"
+        let weak = pstring "W/"
 
         (optional weak) <+> opaque_tag
         |> map (fun (w, tag) ->

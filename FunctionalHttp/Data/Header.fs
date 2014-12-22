@@ -1,6 +1,7 @@
 namespace FunctionalHttp
 
 open System
+open FunctionalHttp.Parsing
 
 type Header private (header:string) = 
     // FIXME: need to validate the string is a valid header using a contract

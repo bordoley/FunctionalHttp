@@ -1,5 +1,6 @@
 namespace FunctionalHttp
 
+open FunctionalHttp.Parsing
 open System
 open System.Text
 
@@ -18,7 +19,7 @@ type Charset =
     static member UTF_16LE = { charset = "UTF-16LE" }
     static member UTF_8 = { charset =  "UTF-8" }
 
-    static member internal Parser : Parser<char, Charset> = 
+    static member internal Parser : Parser<Charset> = 
         token |> Parser.map (fun parsed -> 
             match parsed.ToUpperInvariant() with
             | x when x = Charset.Any.ToString() -> Charset.Any

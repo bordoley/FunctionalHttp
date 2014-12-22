@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{47D7AB35-56C2-4BB6-8596-81C9EA368540}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FunctionalHttp</RootNamespace>
+    <AssemblyName>FunctionalHttp</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Net45\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>false</Tailcalls>
+    <PlatformTarget>
+    </PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Net45\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>
+    </PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Multimap.fs" />
+    <Compile Include="Parsing\CharStream.fs" />
+    <Compile Include="Parsing\Parser.fs" />
+    <Compile Include="Parsing\CharMatchers.fs" />
+    <Compile Include="HttpGrammar.fs" />
+    <Compile Include="Data\Header.fs" />
+    <Compile Include="Data\CacheDirective.fs" />
+    <Compile Include="Data\Challenge.fs" />
+    <Compile Include="Data\Charset.fs" />
+    <Compile Include="Data\Comment.fs" />
+    <Compile Include="Data\ContentCoding.fs" />
+    <Compile Include="Data\EntityTag.fs" />
+    <Compile Include="Data\LanguageTag.fs" />
+    <Compile Include="Data\MediaRange.fs" />
+    <Compile Include="Data\MediaType.fs" />
+    <Compile Include="Data\Product.fs" />
+    <Compile Include="Data\Range.fs" />
+    <Compile Include="Data\Server.fs" />
+    <Compile Include="Data\UserAgent.fs" />
+    <Compile Include="Data\Warning.fs" />
+    <Compile Include="Core\ContentInfo.fs" />
+    <Compile Include="Core\HttpVersion.fs" />
+    <Compile Include="Core\Method.fs" />
+    <Compile Include="Core\RequestPreconditions.fs" />
+    <Compile Include="Core\RequestPreferences.fs" />
+    <Compile Include="Core\Status.fs" />
+    <Compile Include="Core\HttpRequest.fs" />
+    <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Client\HttpClient.fs" />
+    <Compile Include="Client\SystemNetExtensions.fs" />
+    <Compile Include="Client\HttpClientConnector.fs" />
+    <Compile Include="Interop\Data\ChallengeInterop.fs" />
+    <Compile Include="Interop\Data\CharsetInterop.fs" />
+    <Compile Include="Interop\Core\HttpResponseInterop.fs" />
+    <Compile Include="Interop\Client\HttpClientInterop.fs" />
+    <Compile Include="Interop\Client\HttpClientConnectorInterop.fs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <ItemGroup>
+    <Folder Include="Parsing\" />
+    <Folder Include="Core\" />
+    <Folder Include="Client\" />
+    <Folder Include="Data\" />
+    <Folder Include="Interop\" />
+    <Folder Include="Interop\Data\" />
+    <Folder Include="Interop\Core\" />
+    <Folder Include="Interop\Client\" />
+  </ItemGroup>
+</Project>

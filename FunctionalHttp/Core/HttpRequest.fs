@@ -3,41 +3,95 @@ namespace FunctionalHttp
 open System
 open System.Runtime.CompilerServices
 
-[<Sealed>]
-type HttpRequest<'TReq> internal (authorization:Option<Credentials>,
-                                    cacheControl: Set<CacheDirective>,
-                                    contentInfo: ContentInfo, 
-                                    entity:Option<'TReq>,
-                                    expectContinue: bool,
-                                    headers:Map<Header,obj>,
-                                    id:Guid,
-                                    meth:Method, 
-                                    pragma: Set<CacheDirective>,
-                                    preconditions:RequestPreconditions,
-                                    preferences:RequestPreferences,
-                                    proxyAuthorization:Option<Credentials>,
-                                    referer:Option<Uri>,
-                                    uri:Uri, 
-                                    userAgent:Option<UserAgent>,
-                                    version:HttpVersion) =  
+type HttpRequest<'TReq> = 
+    private {  
+        authorization:Option<Credentials>
+        cacheControl:Set<CacheDirective>
+        contentInfo:ContentInfo
+        entity:Option<'TReq>
+        expectContinue:bool
+        headers:Map<Header,obj>
+        id:Guid
+        meth:Method 
+        pragma:Set<CacheDirective>
+        preconditions:RequestPreconditions
+        preferences:RequestPreferences
+        proxyAuthorization:Option<Credentials>
+        referer:Option<Uri>
+        uri:Uri
+        userAgent:Option<UserAgent>
+        version:HttpVersion 
+    }
+
+    member this.Authorization with get() = this.authorization
+    member this.CacheControl with get() = this.cacheControl
+    member this.ContentInfo with get() = this.contentInfo
+    member this.Entity with get() = this.entity
+    member this.ExpectContinue with get() = this.expectContinue
+    member this.Id with get() = this.id
+    member this.Headers with get() = this.headers
+    member this.Method with get() = this.meth
+    member this.Pragma with get() = this.pragma
+    member this.Preconditions with get() = this.preconditions
+    member this.Preferences with get() = this.preferences
+    member this.ProxyAuthorization with get() = this.proxyAuthorization
+    member this.Referer with get() = this.referer
+    member this.Uri with get() = this.uri     
+    member this.UserAgent with get() = this.userAgent
+    member this.Version with get() = this.version
+
+    static member internal Create(  authorization,
+                                    cacheControl,
+                                    contentInfo,
+                                    entity,
+                                    expectContinue,
+                                    headers,
+                                    id,
+                                    meth,
+                                    pragma,
+                                    preconditions,
+                                    preferences,
+                                    proxyAuthorization,
+                                    referer,
+                                    uri,
+                                    userAgent,
+                                    version) =
+        {
+            authorization = authorization
+            cacheControl = cacheControl
+            contentInfo = contentInfo
+            entity = entity
+            expectContinue = expectContinue
+            headers = headers
+            id = id
+            meth = meth 
+            pragma = pragma
+            preconditions = preconditions
+            preferences = preferences
+            proxyAuthorization = proxyAuthorization
+            referer = referer
+            uri = uri
+            userAgent = userAgent
+            version = version
+        }
                                    
-    static member Create<'TReq> (meth, 
-                                    uri,                            
-                                    ?authorization, 
-                                    ?cacheControl, 
-                                    ?contentInfo, 
-                                    ?entity:'TReq, 
-                                    ?expectContinue, 
-                                    ?headers,
-                                    ?id, 
-                                    ?pragma, 
-                                    ?preconditions, 
-                                    ?preferences, 
-                                    ?proxyAuthorization,
-                                    ?referer, 
-                                    ?userAgent, 
-                                    ?version) =
-        HttpRequest<'TReq> (
+    static member Create (  meth:Method, 
+                            uri:Uri,                            
+                            ?authorization:Credentials, 
+                            ?cacheControl:seq<CacheDirective>, 
+                            ?contentInfo:ContentInfo, 
+                            ?entity:'TReq, 
+                            ?expectContinue:bool, 
+                            ?headers:Map<Header,obj>,
+                            ?id:Guid, 
+                            ?pragma:seq<CacheDirective>, 
+                            ?preconditions:RequestPreconditions, 
+                            ?preferences:RequestPreferences, 
+                            ?proxyAuthorization:Credentials,
+                            ?referer:Uri, 
+                            ?userAgent:UserAgent, 
+                            ?version:HttpVersion) =
+        HttpRequest<'TReq>.Create (
             authorization,
             Set.ofSeq <| defaultArg cacheControl Seq.empty,
             defaultArg contentInfo ContentInfo.None,
@@ -55,22 +109,6 @@ type HttpRequest<'TReq> internal (authorization:Option<Credentials>,
             userAgent,
             defaultArg version HttpVersion.Http1_1)
 
-    member this.Authorization with get() = authorization
-    member this.CacheControl with get() = cacheControl
-    member this.ContentInfo with get() = contentInfo
-    member this.Entity with get() = entity
-    member this.ExpectContinue with get() = expectContinue
-    member this.Id with get() = id
-    member this.Headers with get() = headers
-    member this.Method with get() = meth
-    member this.Pragma with get() = pragma
-    member this.Preconditions with get() = preconditions
-    member this.Preferences with get() = preferences
-    member this.ProxyAuthorization with get() = proxyAuthorization
-    member this.Referer with get() = referer
-    member this.Uri with get() = uri     
-    member this.UserAgent with get() = userAgent
-    member this.Version with get() = version
 
 [<AutoOpen>]
 module HttpRequestMixins =
@@ -90,7 +128,7 @@ module HttpRequestMixins =
                                 ?uri:Uri, 
                                 ?userAgent:UserAgent,
                                 ?version:HttpVersion) =
-             HttpRequest<'TReq>(
+             HttpRequest<'TReq>.Create(
                 (if Option.isSome authorization then authorization else this.Authorization),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
@@ -124,7 +162,7 @@ module HttpRequestMixins =
                                     ?uri:Uri,
                                     ?userAgent:UserAgent,
                                     ?version:HttpVersion) =
-            HttpRequest<'TNew>(
+            HttpRequest<'TNew>.Create(
                 (if Option.isSome authorization then authorization else this.Authorization),
                 Set.ofSeq <| defaultArg cacheControl (this.CacheControl :> CacheDirective seq),
                 defaultArg contentInfo this.ContentInfo,
@@ -152,8 +190,8 @@ module HttpRequestMixins =
                                     ?proxyAuthorization, 
                                     ?referer, 
                                     ?userAgent) =
-            new HttpRequest<'TReq>(  
-                (if Option.isSome authorization then None else  this.Authorization),
+            HttpRequest<'TReq>.Create(  
+                (if Option.isSome authorization then None else this.Authorization),
                 Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else (this.CacheControl :> CacheDirective seq)),
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),
                 this.Entity,
@@ -180,7 +218,7 @@ module HttpRequestMixins =
                                             ?proxyAuthorization, 
                                             ?referer,
                                             ?userAgent) =
-            new HttpRequest<'TNew>(
+            HttpRequest<'TNew>.Create(
                 (if Option.isSome authorization then None else  this.Authorization),
                 Set.ofSeq <| (if Option.isSome cacheControl then Seq.empty else (this.CacheControl :> CacheDirective seq)),
                 (if Option.isSome contentInfo then ContentInfo.None else this.ContentInfo),

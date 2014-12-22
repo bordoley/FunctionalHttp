@@ -1,9 +1,11 @@
 namespace FunctionalHttp
 
-open FunctionalHttp.CharMatchers
-open FunctionalHttp.Parser
-open FunctionalHttp.HttpCharMatchers
+open FunctionalHttp.Parsing
 open System.Text
+
+open FunctionalHttp.Parsing.CharMatchers
+open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.HttpCharMatchers
 
 type Comment =
     private | Comment of list<Choice<string,Comment>>
@@ -11,7 +13,7 @@ type Comment =
     static member internal Parser =
         let ESCAPE_CHAR = '\\';
 
-        let comment_text (input:IInput<char>) = 
+        let comment_text (input:CharStream) = 
             let builder:StringBuilder ref = ref null
 
             let rec doParse index =
@@ -44,7 +46,7 @@ type Comment =
         let (comment_segment, comment_segment_impl)  = forwardedToRef ()
 
         let comment =
-            (token '(') <+> (many comment_segment) <+> (token ')') 
+            (parseChar '(') <+> (many comment_segment) <+> (parseChar ')') 
             |> Parser.map(fun ((_, segments),_) -> Comment (List.ofSeq segments))
 
         comment_segment_impl := comment_text <^> comment

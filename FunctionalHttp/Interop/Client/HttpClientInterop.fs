@@ -31,6 +31,7 @@ type HttpClientInteropExtensions private () =
         let client = HttpClient.usingContext context this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)
 
+(*
     [<Extension>]
     static member UsingRetryPolicy(this:HttpClient<'TReq, 'TResp>,
                                     policy:Func<HttpResponse<'TResp>, int, RetryResult>) =
@@ -44,3 +45,4 @@ type HttpClientInteropExtensions private () =
                                  converter:HttpClientConverter<'TReq,'TResp>) =
         let client = HttpClient.usingConverter converter this.FSharpHttpClient
         HttpClient.FromFSharpHttpClient(client)
+        *)

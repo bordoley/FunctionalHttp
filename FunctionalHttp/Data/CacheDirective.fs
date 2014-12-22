@@ -1,5 +1,6 @@
 ﻿namespace FunctionalHttp
 
+open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 
@@ -56,7 +57,7 @@ module CacheDirectiveMixins =
     type CacheDirective with
         member this.ValueAsDeltaSeconds 
             with get() = 
-                match CharParsers.parse deltaSecondsParser this.Value with
+                match Parser.parse deltaSecondsParser this.Value with
                 | Some result -> result
                 | _ -> None
         //member this.ValueAsHeaders

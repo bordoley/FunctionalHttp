@@ -1,6 +1,8 @@
 namespace FunctionalHttp
 
-open FunctionalHttp.Parser
+open FunctionalHttp.Parsing
+
+open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.HttpParsers
 
 type Product =
@@ -10,7 +12,7 @@ type Product =
     }
 
     static member internal Parser =
-        token <+> optional (Parser.token '/' <+> token)
+        token <+> optional (parseChar '/' <+> token)
         |> map (fun result ->
             match result with
             | (name, Some(_, version)) -> { name = name; version = version; }

@@ -1,11 +1,12 @@
 ﻿namespace FunctionalHttp
 
+open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 open System.Linq
 
-open FunctionalHttp.CharMatchers
-open FunctionalHttp.Parser
+open FunctionalHttp.Parsing.CharMatchers
+open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.HttpParsers
 
 type MediaType = 
@@ -17,14 +18,14 @@ type MediaType =
     }
 
     static member internal Parser = 
-        let parameter = token <+> (Parser.token '=') <+> (token <|> quoted_string) |> map (fun x ->
+        let parameter = token <+> (parseChar '=') <+> (token <|> quoted_string) |> map (fun x ->
             // The type, subtype, and parameter name tokens are case-insensitive.
             match x with | (key, _), value -> (key.ToLowerInvariant(), value))
 
         let parameters = OWS_SEMICOLON_OWS <+> parameter |> map (fun x -> 
             match x with | (_, pair) -> pair) |> many
 
-        token <+> (Parser.token '/') <+> token <+> parameters |>  map (fun x ->
+        token <+> (parseChar '/') <+> token <+> parameters |>  map (fun x ->
             match x with 
             | (((_type, _), subType), parameters) ->  
                 let charset = ref None
@@ -34,7 +35,7 @@ type MediaType =
                     |> Seq.filter (fun (k,v) ->
                         match (k, !charset) with
                         | ("charset", None) ->
-                            match CharParsers.parse Charset.Parser v with
+                            match parse Charset.Parser v with
                             | Some result ->
                                 charset := Some result
                                 false

@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Parsing
 
 open System
 
@@ -12,11 +12,13 @@ module internal CharMatchers =
         Array.sortInPlace chars
         fun c -> Array.BinarySearch(chars, c) > 0
 
-    let inRange (start:char) (last:char) (c:char) = c >= start && c <= last
+    let inRange (start:char) (last:char) (c:char) = 
+        c >= start && c <= last
     
-    let is (arg:char) (c:char) = c = arg
+    let is (arg:char) (c:char) = 
+        c = arg
 
-    let many (matcher:CharMatcher) (input: IInput<char>) =
+    let many (matcher:CharMatcher) (input: CharStream) =
         let rec findLast index =
             if index = input.Length
             then index
@@ -28,7 +30,7 @@ module internal CharMatchers =
 
         Success ((input.SubSequence(0, result).ToString()), input.SubSequence(result))
 
-    let many1 (matcher:CharMatcher) (input: IInput<char>) =
+    let many1 (matcher:CharMatcher) (input: CharStream) =
         let result = many matcher input
         match result with
         | Success (value, next) -> 
@@ -74,9 +76,9 @@ module internal CharMatchers =
 
     let DASH = is '-'
 
-    let DQUOTE = is '"'
+    let DQUOTE = is (char 22)
 
-    let FORWARD_SLASH = is '/'
+    let FORWARD_SLASH = '/'
 
     // HEXDIG as defined in HTTP. Major difference from standard ABNF is that alpha characters are case insensitive
     let HEXDIG = (inRange '0' '9') <||> (inRange 'a' 'f')
@@ -102,5 +104,3 @@ module internal CharMatchers =
     let VCHAR = inRange (char 0x21) (char 0x7E)
 
     let WSP = SP <||> HTAB
-
-

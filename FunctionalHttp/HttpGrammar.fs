@@ -1,8 +1,9 @@
 namespace FunctionalHttp
 
+open FunctionalHttp.Parsing
 open System.Text
 
-open CharMatchers
+open FunctionalHttp.Parsing.CharMatchers
 
 module internal HttpCharMatchers = 
     let tchar = ALPHA_NUMERIC <||> anyOf "!#\$%&'*+-.^_`|~"
@@ -19,27 +20,27 @@ module internal HttpCharMatchers =
         obs_text
 
 open HttpCharMatchers
-open Parser
+open FunctionalHttp.Parsing.Parser
 
 module internal HttpParsers =
-    let OWS : Parser<char,string> = CharMatchers.many WSP
+    let OWS : Parser<string> = CharMatchers.many WSP
 
     let BWS = OWS
     
-    let RWS : Parser<char,string> = CharMatchers.many1 WSP
+    let RWS : Parser<string> = CharMatchers.many1 WSP
 
-    let OWS_SEMICOLON_OWS : Parser<char,string> = OWS <+> (token ';') <+> OWS |> map (fun _ -> ";");
+    let OWS_SEMICOLON_OWS : Parser<string> = OWS <+> (parseChar ';') <+> OWS |> map (fun _ -> ";");
     
-    let OWS_COMMA_OWS : Parser<char,string> = OWS <+> (token ',') <+> OWS |> map (fun _ -> ",");
+    let OWS_COMMA_OWS : Parser<string> = OWS <+> (parseChar ',') <+> OWS |> map (fun _ -> ",");
 
-    let token : Parser<char,string> = CharMatchers.many1 tchar
+    let token : Parser<string> = CharMatchers.many1 tchar
 
-    let token68 : Parser<char,string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
+    let token68 : Parser<string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
 
-    let private DQUOTE_CHAR = '"'
+    let private DQUOTE_CHAR = (char 22)
     let private ESCAPE_CHAR = '\\';
 
-    let quoted_string (input:IInput<char>) = 
+    let quoted_string (input:CharStream) = 
         let builder:StringBuilder ref = ref null
 
         let rec doParse index =
@@ -73,7 +74,7 @@ module internal HttpParsers =
         else doParse 1
 
 module internal HttpEncoding =
-    let private DQUOTE_CHAR = '"'
+    let private DQUOTE_CHAR = (char 22)
     let private ESCAPE_CHAR = '\\';
 
     let asQuotedString (input:string) =
@@ -89,6 +90,6 @@ module internal HttpEncoding =
         retval.ToString()
 
     let asTokenOrQuotedString (input:string) =
-        match CharParsers.parse HttpParsers.token input with
+        match Parser.parse HttpParsers.token input with
         | Some result -> result
         | None -> asQuotedString input

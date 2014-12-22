@@ -1,19 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp", "FunctionalHttp\FunctionalHttp.fsproj", "{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}"
+# Visual Studio 2012
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp-Net45", "FunctionalHttp\FunctionalHttp-Net45.fsproj", "{47D7AB35-56C2-4BB6-8596-81C9EA368540}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpExtensions", "FunctionalHttp.CSharpExtensions\FunctionalHttp.CSharpExtensions.csproj", "{54EE6398-8473-4A07-A631-490199E100CD}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp.Tests-Net45", "FunctionalHttp.Tests\FunctionalHttp.Tests-Net45.fsproj", "{D0B51276-953B-45F3-88D5-7B44AF114780}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.HttpClientConnector-Net45", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-Net45.fsproj", "{83BA217B-C304-4216-8F96-208251F70CFE}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.HttpClientConnector-Android", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-Android.fsproj", "{81970908-390A-4B5B-A73E-047F2C6EBC65}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.HttpClientConnector-iOS", "FunctionalHttp.HttpClientConnector\FunctionalHttp.HttpClientConnector-iOS.fsproj", "{90AB4B09-3122-421E-B29D-C8D340E15563}"
-EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FunctionalHttp.Tests", "FunctionalHttp.Tests\FunctionalHttp.Tests.fsproj", "{4773457D-4F8B-48C0-A047-AE2A3340C4BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpInterop-Net45", "FunctionalHttp.CSharpInterop\FunctionalHttp.CSharpInterop-Net45.csproj", "{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,35 +13,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58A31C98-EA14-4AEF-B95A-C064A0D8B9C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54EE6398-8473-4A07-A631-490199E100CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54EE6398-8473-4A07-A631-490199E100CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54EE6398-8473-4A07-A631-490199E100CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54EE6398-8473-4A07-A631-490199E100CD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83BA217B-C304-4216-8F96-208251F70CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83BA217B-C304-4216-8F96-208251F70CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83BA217B-C304-4216-8F96-208251F70CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83BA217B-C304-4216-8F96-208251F70CFE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81970908-390A-4B5B-A73E-047F2C6EBC65}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90AB4B09-3122-421E-B29D-C8D340E15563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90AB4B09-3122-421E-B29D-C8D340E15563}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90AB4B09-3122-421E-B29D-C8D340E15563}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90AB4B09-3122-421E-B29D-C8D340E15563}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4773457D-4F8B-48C0-A047-AE2A3340C4BB}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = FunctionalHttp\FunctionalHttp.fsproj
+		{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47D7AB35-56C2-4BB6-8596-81C9EA368540}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47D7AB35-56C2-4BB6-8596-81C9EA368540}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47D7AB35-56C2-4BB6-8596-81C9EA368540}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47D7AB35-56C2-4BB6-8596-81C9EA368540}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0B51276-953B-45F3-88D5-7B44AF114780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0B51276-953B-45F3-88D5-7B44AF114780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0B51276-953B-45F3-88D5-7B44AF114780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0B51276-953B-45F3-88D5-7B44AF114780}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
