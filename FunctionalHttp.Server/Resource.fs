@@ -17,4 +17,4 @@ type IResource<'TReq> =
      inherit IResource<'TReq>
 
      abstract Parse: HttpRequest<Stream> -> Async<HttpRequest<'TReq>>
-     abstract Serialize: (HttpRequest<_>, HttpResponse<_>) -> Stream -> Async unit
+     abstract Serialize: HttpRequest<_>*HttpResponse<_> -> Stream -> Async

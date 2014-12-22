@@ -15,16 +15,15 @@ module HttpServer =
                 ()
             }
         
-        listener.Start();
+        listener.Start ()
 
         let retval = new CompositeDisposable()
         retval.Add(
-            Observable.Defer(System.Func<_>(fun () -> 
-                    listener.GetContextAsync().ToObservable()))
+            Observable.Defer(fun () -> 
+                    listener.GetContextAsync().ToObservable())
                 .Repeat()
-                .Do(System.Action<_>(fun ctx -> 
-                    listenAndProcessRequest ctx |> Async.StartImmediate))
+                .Do(fun ctx -> 
+                    listenAndProcessRequest ctx |> Async.StartImmediate)
                 .Subscribe())
         retval.Add (Disposable.Create (fun () -> listener.Stop()))
         retval :> IDisposable
-             
