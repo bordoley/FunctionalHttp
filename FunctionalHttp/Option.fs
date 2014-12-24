@@ -41,7 +41,9 @@ type internal FSharpOptionExtensions private () =
     static member ToFSharpOption v = 
         match box v with
         | null -> None
+#if NET45
         | :? DBNull -> None
+#endif
         | _ -> Some v
 
     [<Extension>]
