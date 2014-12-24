@@ -21,7 +21,7 @@ type internal CharStream private (str: string, start:int, length:int) =
     member this.SubSequence(newStart, newLength) =
         if (newStart < 0) then raise (ArgumentOutOfRangeException "newStart")
         if (newLength < 0) then raise (ArgumentOutOfRangeException "newLength")
-        if (length > newStart + newLength) then raise (ArgumentException ())
+        if (length < start + newStart + newLength) then raise (ArgumentException ())
         Contract.EndContractBlock()
 
         match (newStart, newLength) with

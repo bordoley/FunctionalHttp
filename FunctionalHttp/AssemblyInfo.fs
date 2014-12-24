@@ -10,6 +10,7 @@ open System.Runtime.CompilerServices
 [<assembly: AssemblyCopyright("")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: InternalsVisibleTo("FunctionalHttp.CSharpInterop")>]
+[<assembly: InternalsVisibleTo("FunctionalHttp.Tests")>]
 
 // The assembly version has the format {Major}.{Minor}.{Build}.{Revision}
 
