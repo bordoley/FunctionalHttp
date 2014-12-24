@@ -110,7 +110,7 @@ type HttpRequest<'TReq> =
             defaultArg version HttpVersion.Http1_1)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module HttpRequest =
+module internal HttpRequest =
     [<CompiledName("With")>]
     let with_ (request:HttpRequest<'TReq>) (authorization,
                                             cacheControl,

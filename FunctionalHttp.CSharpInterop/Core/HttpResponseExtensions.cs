@@ -32,28 +32,29 @@ namespace FunctionalHttp.Interop
             HttpVersion version = null,
             IEnumerable<Warning> warning = null)
         {
-            return new HttpResponse<TResp>(
-                acceptedRanges != null ? FSharpOption<AcceptableRanges>.Some(acceptedRanges) : This.AcceptedRanges,
-                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-                allowed != null ? SetModule.OfSeq<Method>(allowed) : This.Allowed,
-                authenticate != null ? SetModule.OfSeq<Challenge>(authenticate) : This.Authenticate,
-                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
-                contentInfo != null ? contentInfo : This.ContentInfo,
-                date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
+            return HttpResponseModule.With<TResp, TResp>(
+                This,
+                acceptedRanges.ToFSharpOption(),
+                age.ToFSharpOption(),
+                allowed.ToFSharpOption(),
+                authenticate.ToFSharpOption(),
+                cacheControl.ToFSharpOption(), 
+                contentInfo.ToFSharpOption(), 
+                date.ToFSharpOption(),
                 This.Entity,
-                etag != null ? FSharpOption<EntityTag>.Some(etag) : This.ETag,
-                expires != null ? FSharpOption<DateTime>.Some(expires.Value) : This.Expires,
-                headers != null ? MapModule.OfSeq<Header, object>(headers) : This.Headers,
-                id != null ? id.Value : This.Id,
-                lastModified != null ? FSharpOption<DateTime>.Some(lastModified.Value) : This.LastModified,
-                location != null ? FSharpOption<Uri>.Some(location) : This.Location,
-                proxyAuthenticate != null ? SetModule.OfSeq<Challenge>(proxyAuthenticate) : This.ProxyAuthenticate,
-                retryAfter != null ? FSharpOption<DateTime>.Some(retryAfter.Value) : This.RetryAfter,
-                server != null ? FSharpOption<Server>.Some(server) : This.Server,
-                status != null ? status : This.Status,
-                vary != null ? FSharpOption<Vary>.Some(vary) : This.Vary,
-                version != null ? version : This.Version,
-                warning != null ? ListModule.OfSeq(warning) : This.Warning);
+                etag.ToFSharpOption(),
+                expires.ToFSharpOption(), 
+                headers.ToFSharpOption().Select(MapModule.OfSeq),
+                id.ToFSharpOption(),
+                lastModified.ToFSharpOption(),
+                location.ToFSharpOption(), 
+                proxyAuthenticate.ToFSharpOption(),
+                retryAfter.ToFSharpOption(),
+                server.ToFSharpOption(),
+                status.ToFSharpOption(),
+                vary.ToFSharpOption(),
+                version.ToFSharpOption(),
+                warning.ToFSharpOption());
         }
 
         public static HttpResponse<TNew> With<TResp, TNew>(
@@ -80,28 +81,29 @@ namespace FunctionalHttp.Interop
             HttpVersion version = null,
             IEnumerable<Warning> warning = null)
         {
-            return new HttpResponse<TNew>(
-                acceptedRanges != null ? FSharpOption<AcceptableRanges>.Some(acceptedRanges) : This.AcceptedRanges,
-                age != null ? FSharpOption<TimeSpan>.Some(age.Value) : This.Age,
-                allowed != null ? SetModule.OfSeq<Method>(allowed) : This.Allowed,
-                authenticate != null ? SetModule.OfSeq<Challenge>(authenticate) : This.Authenticate,
-                cacheControl != null ? SetModule.OfSeq<CacheDirective>(cacheControl) : This.CacheControl,
-                contentInfo != null ? contentInfo : This.ContentInfo,
-                date != null ? FSharpOption<DateTime>.Some(date.Value) : This.Date,
-                FSharpOption<TNew>.Some(entity),
-                etag != null ? FSharpOption<EntityTag>.Some(etag) : This.ETag,
-                expires != null ? FSharpOption<DateTime>.Some(expires.Value) : This.Expires,
-                headers != null ? MapModule.OfSeq<Header, object>(headers) : This.Headers,
-                id != null ? id.Value : This.Id,
-                lastModified != null ? FSharpOption<DateTime>.Some(lastModified.Value) : This.LastModified,
-                location != null ? FSharpOption<Uri>.Some(location) : This.Location,
-                proxyAuthenticate != null ? SetModule.OfSeq<Challenge>(proxyAuthenticate) : This.ProxyAuthenticate,
-                retryAfter != null ? FSharpOption<DateTime>.Some(retryAfter.Value) : This.RetryAfter,
-                server != null ? FSharpOption<Server>.Some(server) : This.Server,
-                status != null ? status : This.Status,
-                vary != null ? FSharpOption<Vary>.Some(vary) : This.Vary,
-                version != null ? version : This.Version,
-                warning != null ? ListModule.OfSeq(warning) : This.Warning);
+            return HttpResponseModule.With<TResp, TNew>(
+                This,
+                acceptedRanges.ToFSharpOption(),
+                age.ToFSharpOption(), 
+                allowed.ToFSharpOption(),
+                authenticate.ToFSharpOption(),
+                cacheControl.ToFSharpOption(),
+                contentInfo.ToFSharpOption(),
+                date.ToFSharpOption(),
+                entity.ToFSharpOption(),
+                etag.ToFSharpOption(),
+                expires.ToFSharpOption(),
+                headers.ToFSharpOption().Select(MapModule.OfSeq),
+                id.ToFSharpOption(),
+                lastModified.ToFSharpOption(),
+                location.ToFSharpOption(),
+                proxyAuthenticate.ToFSharpOption(),
+                retryAfter.ToFSharpOption(),
+                server.ToFSharpOption(),
+                status.ToFSharpOption(),
+                vary.ToFSharpOption(),
+                version.ToFSharpOption(),
+                warning.ToFSharpOption());
         }
 
         public static HttpResponse<TResp> Without<TResp>(
@@ -124,28 +126,26 @@ namespace FunctionalHttp.Interop
             bool vary = false,
             bool warning = false)
         {
-            return new HttpResponse<TResp>(
-                acceptedRanges ?  FSharpOption<AcceptableRanges>.None : This.AcceptedRanges,
-                age ? FSharpOption<TimeSpan>.None : This.Age,
-                allowed ? SetModule.Empty<Method>() : This.Allowed,
-                authenticate ? SetModule.Empty<Challenge>() : This.Authenticate,
-                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl, 
-                contentInfo ? ContentInfo.None : This.ContentInfo,
-                date ? FSharpOption<DateTime>.None : This.Date,
+            return HttpResponseModule.Without<TResp, TResp>(
+                This,
                 This.Entity,
-                etag ? FSharpOption<EntityTag>.None : This.ETag,
-                expires ? FSharpOption<DateTime>.None : This.Expires,
-                headers ? MapModule.Empty<Header, object>() : This.Headers,
-                This.Id,
-                lastModified ? FSharpOption<DateTime>.None : This.LastModified,
-                location ? FSharpOption<Uri>.None : This.Location,
-                proxyAuthenticate ? SetModule.Empty<Challenge>() : This.ProxyAuthenticate,
-                retryAfter ? FSharpOption<DateTime>.None : This.RetryAfter,
-                server ? FSharpOption<Server>.None : This.Server,
-                This.Status,
-                vary ? FSharpOption<Vary>.None : This.Vary,
-                This.Version,
-                warning ? ListModule.Empty<Warning>() : This.Warning);
+                acceptedRanges,
+                age, 
+                allowed,
+                authenticate, 
+                cacheControl, 
+                contentInfo, 
+                date, 
+                etag, 
+                expires, 
+                headers, 
+                lastModified, 
+                location, 
+                proxyAuthenticate,
+                retryAfter,
+                server,
+                vary,
+                warning);
         }
 
         public static HttpResponse<TNew> WithoutEntity<TResp, TNew>(
@@ -168,28 +168,26 @@ namespace FunctionalHttp.Interop
             bool vary = false,
             bool warning = false)
         {
-            return new HttpResponse<TNew>(
-                acceptedRanges ? FSharpOption<AcceptableRanges>.None : This.AcceptedRanges,
-                age ? FSharpOption<TimeSpan>.None : This.Age,
-                allowed ? SetModule.Empty<Method>() : This.Allowed,
-                authenticate ? SetModule.Empty<Challenge>() : This.Authenticate,
-                cacheControl ? SetModule.Empty<CacheDirective>() : This.CacheControl,
-                contentInfo ? ContentInfo.None : This.ContentInfo,
-                date ? FSharpOption<DateTime>.None : This.Date,
+            return HttpResponseModule.Without<TResp, TNew>(
+                This,
                 FSharpOption<TNew>.None,
-                etag ? FSharpOption<EntityTag>.None : This.ETag,
-                expires ? FSharpOption<DateTime>.None : This.Expires,
-                headers ? MapModule.Empty<Header, object>() : This.Headers,
-                This.Id,
-                lastModified ? FSharpOption<DateTime>.None : This.LastModified,
-                location ? FSharpOption<Uri>.None : This.Location,
-                proxyAuthenticate ? SetModule.Empty<Challenge>() : This.ProxyAuthenticate,
-                retryAfter ? FSharpOption<DateTime>.None : This.RetryAfter,
-                server ? FSharpOption<Server>.None : This.Server,
-                This.Status,
-                vary ? FSharpOption<Vary>.None : This.Vary,
-                This.Version,
-                warning ? ListModule.Empty<Warning>() : This.Warning);
+                acceptedRanges,
+                age, 
+                allowed,
+                authenticate, 
+                cacheControl, 
+                contentInfo, 
+                date, 
+                etag, 
+                expires, 
+                headers, 
+                lastModified, 
+                location, 
+                proxyAuthenticate,
+                retryAfter,
+                server,
+                vary,
+                warning);
         }
     }
 }

@@ -30,24 +30,22 @@ namespace FunctionalHttp.Interop
         {
             return HttpRequestModule.With<TReq, TReq>(
                 This,
-                OptionModule.OfNull(authorization),
-                OptionModule.OfNull(cacheControl),
-                OptionModule.OfNull(contentInfo),
+                authorization.ToFSharpOption(),
+                cacheControl.ToFSharpOption(),
+                contentInfo.ToFSharpOption(),
                 This.Entity,
-                OptionModule.OfNullable(expectContinue),
-                headers != null ? 
-                    FSharpOption<FSharpMap<Header,object>>.Some(MapModule.OfSeq<Header, object>(headers)) : 
-                    FSharpOption<FSharpMap<Header,object>>.None,
-                OptionModule.OfNullable(id),
-                OptionModule.OfNull(meth), 
-                OptionModule.OfNull(pragma),
-                OptionModule.OfNull(preconditions), 
-                OptionModule.OfNull(preferences),
-                OptionModule.OfNull(proxyAuthorization),
-                OptionModule.OfNull(referer),
-                OptionModule.OfNull(uri),
-                OptionModule.OfNull(userAgent),
-                OptionModule.OfNull(version));
+                expectContinue.ToFSharpOption(),
+                headers.ToFSharpOption().Select(MapModule.OfSeq),
+                id.ToFSharpOption(),
+                meth.ToFSharpOption(), 
+                pragma.ToFSharpOption(),
+                preconditions.ToFSharpOption(), 
+                preferences.ToFSharpOption(),
+                proxyAuthorization.ToFSharpOption(),
+                referer.ToFSharpOption(),
+                uri.ToFSharpOption(),
+                userAgent.ToFSharpOption(),
+                version.ToFSharpOption());
         }
 
         public static HttpRequest<TNew> With<TReq, TNew>(
@@ -71,24 +69,22 @@ namespace FunctionalHttp.Interop
         {
             return HttpRequestModule.With<TReq, TNew>(
                 This,
-                OptionModule.OfNull(authorization),
-                OptionModule.OfNull(cacheControl),
-                OptionModule.OfNull(contentInfo),
-                OptionModule.OfNull(entity),
-                OptionModule.OfNullable(expectContinue),
-                headers != null ? 
-                FSharpOption<FSharpMap<Header,object>>.Some(MapModule.OfSeq<Header, object>(headers)) : 
-                FSharpOption<FSharpMap<Header,object>>.None,
-                OptionModule.OfNullable(id),
-                OptionModule.OfNull(meth), 
-                OptionModule.OfNull(pragma),
-                OptionModule.OfNull(preconditions), 
-                OptionModule.OfNull(preferences),
-                OptionModule.OfNull(proxyAuthorization),
-                OptionModule.OfNull(referer),
-                OptionModule.OfNull(uri),
-                OptionModule.OfNull(userAgent),
-                OptionModule.OfNull(version));
+                authorization.ToFSharpOption(),
+                cacheControl.ToFSharpOption(),
+                contentInfo.ToFSharpOption(),
+                entity.ToFSharpOption(),
+                expectContinue.ToFSharpOption(),
+                headers.ToFSharpOption().Select(MapModule.OfSeq),
+                id.ToFSharpOption(),
+                meth.ToFSharpOption(), 
+                pragma.ToFSharpOption(),
+                preconditions.ToFSharpOption(), 
+                preferences.ToFSharpOption(),
+                proxyAuthorization.ToFSharpOption(),
+                referer.ToFSharpOption(),
+                uri.ToFSharpOption(),
+                userAgent.ToFSharpOption(),
+                version.ToFSharpOption());
         }
 
         public static HttpRequest<TReq> Without<TReq>(

@@ -169,28 +169,30 @@ type HttpResponse<'TResp> =
             HttpVersion.Http1_1,
             []) 
 
-module HttpResponse =
-    let with_ (response:HttpResponse<_>) (  acceptedRanges,
-                                            age, 
-                                            allowed,
-                                            authenticate,
-                                            cacheControl, 
-                                            contentInfo, 
-                                            date,
-                                            entity:Option<'TNew>,
-                                            etag,
-                                            expires, 
-                                            headers,
-                                            id, 
-                                            lastModified,
-                                            location, 
-                                            proxyAuthenticate,
-                                            retryAfter,
-                                            server,
-                                            status,
-                                            vary,
-                                            version,
-                                            warning) =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal HttpResponse =
+    [<CompiledName("With")>]
+    let with_ (response:HttpResponse<'TResp>) ( acceptedRanges,
+                                                age, 
+                                                allowed,
+                                                authenticate,
+                                                cacheControl, 
+                                                contentInfo, 
+                                                date,
+                                                entity:Option<'TNew>,
+                                                etag,
+                                                expires, 
+                                                headers,
+                                                id, 
+                                                lastModified,
+                                                location, 
+                                                proxyAuthenticate,
+                                                retryAfter,
+                                                server,
+                                                status,
+                                                vary,
+                                                version,
+                                                warning) =
         HttpResponse<'TNew>.Create(
             Option.orElse response.AcceptedRanges acceptedRanges,
             Option.orElse response.Age age,
@@ -214,6 +216,7 @@ module HttpResponse =
             defaultArg version response.Version,
             List.ofSeq <| defaultArg warning (response.Warning :> Warning seq))
 
+    [<CompiledName("Without")>]
     let without (response:HttpResponse<_>) (entity:Option<'TNew>) ( acceptedRanges,
                                                                     age, 
                                                                     allowed,
