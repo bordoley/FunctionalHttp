@@ -48,8 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="Multimap.fs" />
-    <Compile Include="Option.fs" />
+    <Compile Include="Collections\Multimap.fs" />
+    <Compile Include="Collections\Option.fs" />
     <Compile Include="Parsing\CharStream.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
@@ -95,6 +95,7 @@
     <Compile Include="Server\HttpListenerServer.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Collections\" />
     <Folder Include="Parsing\" />
     <Folder Include="Core\" />
     <Folder Include="Core.Interop\" />
