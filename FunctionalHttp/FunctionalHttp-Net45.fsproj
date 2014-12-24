@@ -73,15 +73,15 @@
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client\SystemNetExtensions.fs" />
     <Compile Include="Client\HttpClientConnector.fs" />
-    <Compile Include="Interop\Data\ChallengeExtensions.fs" />
-    <Compile Include="Interop\Data\CharsetExtensions.fs" />
-    <Compile Include="Interop\Data\MediaTypeExtensions.fs" />
-    <Compile Include="Interop\Core\ContentInfoExtensions.fs" />
-    <Compile Include="Interop\Core\HttpRequestExtensions.fs" />
-    <Compile Include="Interop\Core\HttpResponseExtensions.fs" />
-    <Compile Include="Interop\Client\StatusExtensions.fs" />
-    <Compile Include="Interop\Client\HttpClientExtensions.fs" />
-    <Compile Include="Interop\Client\HttpClientConnectorExtensions.fs" />
+    <Compile Include="Interop\ChallengeExtensions.fs" />
+    <Compile Include="Interop\CharsetExtensions.fs" />
+    <Compile Include="Interop\MediaTypeExtensions.fs" />
+    <Compile Include="Interop\ContentInfoExtensions.fs" />
+    <Compile Include="Interop\HttpRequestExtensions.fs" />
+    <Compile Include="Interop\HttpResponseExtensions.fs" />
+    <Compile Include="Interop\StatusExtensions.fs" />
+    <Compile Include="Interop\HttpClientExtensions.fs" />
+    <Compile Include="Interop\HttpClientConnectorExtensions.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
@@ -90,8 +90,5 @@
     <Folder Include="Client\" />
     <Folder Include="Data\" />
     <Folder Include="Interop\" />
-    <Folder Include="Interop\Data\" />
-    <Folder Include="Interop\Core\" />
-    <Folder Include="Interop\Client\" />
   </ItemGroup>
 </Project>
