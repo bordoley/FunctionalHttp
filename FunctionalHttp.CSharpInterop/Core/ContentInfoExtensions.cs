@@ -15,12 +15,13 @@ namespace FunctionalHttp.Interop
             Uri location = null, 
             MediaType mediaType = null)
         {
-            return ContentInfo.CreateInternal(
-                encodings ?? This.Encodings,
-                languages ?? This.Languages,
-                length != null ? FSharpOption<int>.Some(length.Value) : This.length,
-                location != null ? FSharpOption<Uri>.Some(location) : This.Location,
-                mediaType != null ? FSharpOption<MediaType>.Some(mediaType) : This.MediaType);
+            return ContentInfoModule.With(
+                This,
+                encodings.ToFSharpOption(),
+                languages.ToFSharpOption(),
+                length.ToFSharpOption(),
+                location.ToFSharpOption(),
+                mediaType.ToFSharpOption());
         }
 
         public static ContentInfo Without(
@@ -31,12 +32,7 @@ namespace FunctionalHttp.Interop
             bool location = false, 
             bool mediaType = false)
         {
-            return ContentInfo.CreateInternal(
-                encodings ? SeqModule.Empty<ContentCoding>() : This.encodings,
-                languages ? SeqModule.Empty<LanguageTag>() : This.Languages,
-                length ? FSharpOption<int>.None : This.length,
-                location ? FSharpOption<Uri>.None : This.Location,
-                mediaType ? FSharpOption<MediaType>.None : This.MediaType);
+            return ContentInfoModule.Without(This, encodings, languages, length, location, mediaType);
         }
     }
 }

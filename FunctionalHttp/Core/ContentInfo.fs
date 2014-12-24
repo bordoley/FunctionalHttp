@@ -1,6 +1,7 @@
 namespace FunctionalHttp
 
 open System
+open System.Collections.Generic
 
 type ContentInfo =
     private {
@@ -11,9 +12,15 @@ type ContentInfo =
         mediaType:Option<MediaType>
     }
 
+    member this.Encodings = this.encodings
+    member this.Languages = this.languages
+    member this.Length = this.length
+    member this.Location = this.Location
+    member this.MediaType = this.mediaType
+
     static member None = { encodings = []; languages = []; length = None; location = None; mediaType = None }
 
-    static member internal CreateInternal(encodings, languages, length, location, mediaType) =
+    static member internal Create(encodings, languages, length, location, mediaType) =
         match (encodings, languages, length, location, mediaType)  with
         | (encodings, languages, None, None, None) when Seq.isEmpty encodings && Seq.isEmpty languages-> ContentInfo.None
         | _ -> { 
@@ -25,32 +32,42 @@ type ContentInfo =
             }
 
     static member Create(?encodings, ?languages, ?length, ?location, ?mediaType) =
-        ContentInfo.CreateInternal(defaultArg encodings [], defaultArg languages [], length, location, mediaType)
+        ContentInfo.Create(
+            defaultArg encodings [], 
+            defaultArg languages [], 
+            length, 
+            location, 
+            mediaType)
 
-    member this.Encodings = this.encodings
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal ContentInfo =
+    [<CompiledName("With")>]
+    let with_ (contentInfo:ContentInfo) (encodings, languages, length, location, mediaType) =
+        ContentInfo.Create(
+            defaultArg encodings contentInfo.Encodings,
+            defaultArg languages contentInfo.Languages,
+            Option.orElse contentInfo.Length length,
+            Option.orElse contentInfo.Location location,
+            Option.orElse contentInfo.MediaType mediaType)
 
-    member this.Languages = this.languages
+    [<CompiledName("Without")>]
+    let without (contentInfo:ContentInfo) (encodings, languages, length, location, mediaType) =
+        ContentInfo.Create(
+            (if encodings then Seq.empty else contentInfo.Encodings),
+            (if languages then Seq.empty else contentInfo.Languages),
+            (if length then  None else contentInfo.Length),
+            (if location then None else contentInfo.Location),
+            (if mediaType then None else contentInfo.MediaType))
 
-    member this.Length = this.length
-
-    member this.Location = this.Location
-
-    member this.MediaType = this.mediaType
-
+[<AutoOpen>]
 module ContentInfoMixins =
     type ContentInfo with
         member this.With(?encodings, ?languages, ?length:int, ?location:Uri, ?mediaType:MediaType) =
-            ContentInfo.CreateInternal(
-                (if Option.isSome encodings then encodings.Value else this.Encodings),
-                (if Option.isSome languages then languages.Value else this.Languages),
-                (if Option.isSome length then length else this.Length),
-                (if Option.isSome location then location else this.Location),
-                (if Option.isSome mediaType then mediaType else this.MediaType))
+            ContentInfo.with_ this (encodings, languages, length, location, mediaType)
 
         member this.Without(?encodings, ?languages, ?length, ?location, ?mediaType) =
-            ContentInfo.CreateInternal(
-                (if Option.isSome encodings then Seq.empty else this.Encodings),
-                (if Option.isSome languages then Seq.empty else this.Languages),
-                (if Option.isSome length then  None else this.Length),
-                (if Option.isSome location then None else this.Location),
-                (if Option.isSome mediaType then None else this.MediaType))
+            ContentInfo.without this (  Option.isSome encodings, 
+                                        Option.isSome languages, 
+                                        Option.isSome length, 
+                                        Option.isSome location, 
+                                        Option.isSome mediaType)
