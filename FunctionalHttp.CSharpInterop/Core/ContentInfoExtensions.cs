@@ -1,9 +1,10 @@
+using FunctionalHttp.Collections;
 using Microsoft.FSharp.Collections;
 using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 
-namespace FunctionalHttp.Interop
+namespace FunctionalHttp.Core.Interop
 {
     public static class ContentInfoExtensionsCSharp
     {
