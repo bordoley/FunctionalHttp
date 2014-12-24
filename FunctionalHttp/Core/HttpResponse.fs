@@ -424,7 +424,7 @@ module HttpResponseMixins =
         member this.ToResponse<'TResp>() = HttpResponse<'TResp>.Create(this)
         member this.ToAsyncResponse<'TResp>() = async { return this.ToResponse<'TResp>() }
 
-module HttpStreamResponseDeserializers =
+module HttpResponseDeserializers =
     let toAsyncMemoryStreamResponse (this:HttpResponse<Stream>) =
         let stream = this.Entity.Value
         async{

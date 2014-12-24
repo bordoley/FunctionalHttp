@@ -1,7 +1,7 @@
 namespace FunctionalHttp.Interop
 
 open FunctionalHttp
-open FunctionalHttp.HttpStreamResponseDeserializers
+open FunctionalHttp.HttpResponseDeserializers
 open System
 open System.IO
 open System.Runtime.CompilerServices
