@@ -1,5 +1,6 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Client
 
+open FunctionalHttp.Core
 open System.Threading
 
 type HttpClient<'TReq, 'TResp> = HttpRequest<'TReq> -> Async<HttpResponse<'TResp>>

@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Collections
 
 module internal Multimap =
     let asPairSequence (this:Map<'K,'I> when 'I :> 'V seq) =

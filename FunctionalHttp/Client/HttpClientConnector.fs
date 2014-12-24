@@ -1,6 +1,6 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Client
 
-open FunctionalHttp
+open FunctionalHttp.Core
 
 open System
 open System.Net

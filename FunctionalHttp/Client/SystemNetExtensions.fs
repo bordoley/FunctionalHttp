@@ -1,7 +1,7 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Client
 
-open FunctionalHttp
-open FunctionalHttp.ClientStatus
+open FunctionalHttp.Core
+open FunctionalHttp.Core.ClientStatus
 
 open System.IO
 open System.Linq

@@ -1,7 +1,7 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
-open FunctionalHttp.HttpParsers
+open FunctionalHttp.Core.HttpParsers
 open FunctionalHttp.Parsing.Parser
 
 type Challenge = 

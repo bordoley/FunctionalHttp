@@ -1,5 +1,6 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
+open FunctionalHttp.Collections
 open System
 open System.Runtime.CompilerServices
 

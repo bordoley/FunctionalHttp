@@ -1,6 +1,6 @@
-﻿namespace FunctionalHttp.Interop
+﻿namespace FunctionalHttp.Core.Interop
 
-open FunctionalHttp
+open FunctionalHttp.Core
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 

@@ -1,4 +1,4 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
 open System

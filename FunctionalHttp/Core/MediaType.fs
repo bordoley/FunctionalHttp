@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
 open System
@@ -7,7 +7,7 @@ open System.Linq
 
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.HttpParsers
+open FunctionalHttp.Core.HttpParsers
 
 type MediaType = 
     private {

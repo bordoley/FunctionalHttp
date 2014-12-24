@@ -1,6 +1,6 @@
 ﻿namespace FunctionalHttp.Interop
 
-open FunctionalHttp
+open FunctionalHttp.Client
 open System.Runtime.CompilerServices
 
 [<AbstractClass; Sealed; Extension>]
@@ -8,4 +8,4 @@ type SystemNetHttpClientExtensions private () =
     [<Extension>]
     static member AsInteropHttpClient(this: System.Net.Http.HttpClient) =
         let client = this.AsFunctionalHttpClient()
-        FunctionalHttp.Interop.HttpClient.FromFSharpHttpClient(client)
+        FunctionalHttp.Client.Interop.HttpClient.FromFSharpHttpClient(client)

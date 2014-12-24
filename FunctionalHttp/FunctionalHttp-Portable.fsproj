@@ -41,7 +41,7 @@
     <Compile Include="Parsing\CharStream.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
-    <Compile Include="HttpGrammar.fs" />
+    <Compile Include="Core\HttpGrammar.fs" />
     <Compile Include="Core\Header.fs" />
     <Compile Include="Core\CacheDirective.fs" />
     <Compile Include="Core\Challenge.fs" />
@@ -65,25 +65,25 @@
     <Compile Include="Core\Status.fs" />
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Core.Interop\ChallengeExtensions.fs" />
+    <Compile Include="Core.Interop\CharsetExtensions.fs" />
+    <Compile Include="Core.Interop\MediaTypeExtensions.fs" />
+    <Compile Include="Core.Interop\ContentInfoExtensions.fs" />
+    <Compile Include="Core.Interop\StatusExtensions.fs" />
+    <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
+    <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Resource.fs" />
     <Compile Include="Server\Application.fs" />
-    <Compile Include="Interop\ChallengeExtensions.fs" />
-    <Compile Include="Interop\CharsetExtensions.fs" />
-    <Compile Include="Interop\MediaTypeExtensions.fs" />
-    <Compile Include="Interop\ContentInfoExtensions.fs" />
-    <Compile Include="Interop\HttpRequestExtensions.fs" />
-    <Compile Include="Interop\HttpResponseExtensions.fs" />
-    <Compile Include="Interop\StatusExtensions.fs" />
-    <Compile Include="Interop\HttpClientExtensions.fs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Parsing\" />
     <Folder Include="Core\" />
+    <Folder Include="Core.Interop\" />
     <Folder Include="Client\" />
+    <Folder Include="Client.Interop\" />
     <Folder Include="Server\" />
-    <Folder Include="Interop\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

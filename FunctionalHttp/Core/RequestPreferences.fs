@@ -1,4 +1,4 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
 type Preference<'T> =
     private {

@@ -1,10 +1,10 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
 
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.HttpParsers
+open FunctionalHttp.Core.HttpParsers
 
 type EntityTag = 
     private {

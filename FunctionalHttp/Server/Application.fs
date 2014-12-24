@@ -1,6 +1,6 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Server
 
-open FunctionalHttp
+open FunctionalHttp.Core
 open System.IO
 
 type IHttpApplication =

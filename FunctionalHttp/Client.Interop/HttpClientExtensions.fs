@@ -1,14 +1,15 @@
-namespace FunctionalHttp.Interop
+namespace FunctionalHttp.Client.Interop
 
-open FunctionalHttp
+open FunctionalHttp.Client
+open FunctionalHttp.Core
 open System
 open System.IO
 open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
 
-type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.HttpClient<'TReq, 'TResp>) = 
-    static member FromFSharpHttpClient(httpClient: FunctionalHttp.HttpClient<'TReq, 'TResp>) = 
+type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.Client.HttpClient<'TReq, 'TResp>) = 
+    static member FromFSharpHttpClient(httpClient: FunctionalHttp.Client.HttpClient<'TReq, 'TResp>) = 
         new HttpClient<'TReq, 'TResp>(httpClient); 
 
     member this.FSharpHttpClient with get() = httpClient

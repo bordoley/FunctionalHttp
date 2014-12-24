@@ -1,11 +1,11 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
 open System.Text
 
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.HttpCharMatchers
+open FunctionalHttp.Core.HttpCharMatchers
 
 type Comment =
     private | Comment of list<Choice<string,Comment>>

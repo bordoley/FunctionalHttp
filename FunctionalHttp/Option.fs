@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp
+﻿namespace FunctionalHttp.Collections
 
 open System
 open System.Runtime.CompilerServices

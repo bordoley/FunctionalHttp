@@ -1,3 +1,3 @@
-namespace FunctionalHttp
+namespace FunctionalHttp.Core
 
 type Warning = | Warning
