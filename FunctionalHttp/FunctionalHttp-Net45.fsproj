@@ -54,21 +54,21 @@
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
     <Compile Include="HttpGrammar.fs" />
-    <Compile Include="Data\Header.fs" />
-    <Compile Include="Data\CacheDirective.fs" />
-    <Compile Include="Data\Challenge.fs" />
-    <Compile Include="Data\Charset.fs" />
-    <Compile Include="Data\Comment.fs" />
-    <Compile Include="Data\ContentCoding.fs" />
-    <Compile Include="Data\EntityTag.fs" />
-    <Compile Include="Data\LanguageTag.fs" />
-    <Compile Include="Data\MediaRange.fs" />
-    <Compile Include="Data\MediaType.fs" />
-    <Compile Include="Data\Product.fs" />
-    <Compile Include="Data\Range.fs" />
-    <Compile Include="Data\Server.fs" />
-    <Compile Include="Data\UserAgent.fs" />
-    <Compile Include="Data\Warning.fs" />
+    <Compile Include="Core\Header.fs" />
+    <Compile Include="Core\CacheDirective.fs" />
+    <Compile Include="Core\Challenge.fs" />
+    <Compile Include="Core\Charset.fs" />
+    <Compile Include="Core\Comment.fs" />
+    <Compile Include="Core\ContentCoding.fs" />
+    <Compile Include="Core\EntityTag.fs" />
+    <Compile Include="Core\LanguageTag.fs" />
+    <Compile Include="Core\MediaRange.fs" />
+    <Compile Include="Core\MediaType.fs" />
+    <Compile Include="Core\Product.fs" />
+    <Compile Include="Core\Range.fs" />
+    <Compile Include="Core\Server.fs" />
+    <Compile Include="Core\UserAgent.fs" />
+    <Compile Include="Core\Warning.fs" />
     <Compile Include="Core\ContentInfo.fs" />
     <Compile Include="Core\HttpVersion.fs" />
     <Compile Include="Core\Method.fs" />
@@ -96,7 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Parsing\" />
-    <Folder Include="Data\" />
     <Folder Include="Core\" />
     <Folder Include="Client\" />
     <Folder Include="Server\" />
