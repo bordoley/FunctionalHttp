@@ -171,156 +171,222 @@ type Status =
 
     override this.ToString() = this.Message
 
-type StatusClass = 
-    | ClientError | Informational | Redirection | ServerError | Success | SystemHttpClientError
-    static member From (status:Status) =
-        match status.Code with  
-        | x when x >= 100 && x < 200 -> StatusClass.Informational 
-        | x when x >= 200 && x < 300 -> StatusClass.Success 
-        | x when x >= 300 && x < 400 -> StatusClass.Redirection 
-        | x when x >= 400 && x < 500 -> StatusClass.ClientError
-        | x when x >= 500 && x < 600 -> StatusClass.ServerError 
-        | x when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
-        | _ -> failwith "Invalid status code"  
+type StatusClass =    
+    | Informational = 100
+    | Success = 200
+    | Redirection = 300
+    | ClientError = 400
+    | ServerError = 500 
+    | SystemHttpClientError = 1000
 
 [<AutoOpen>]  
 module StatusMixins =
     type Status with 
         member this.Class 
-            with get() = StatusClass.From(this)
+            with get() = 
+                match this.Code with  
+                | x when x >= 100 && x < 200 -> StatusClass.Informational 
+                | x when x >= 200 && x < 300 -> StatusClass.Success 
+                | x when x >= 300 && x < 400 -> StatusClass.Redirection 
+                | x when x >= 400 && x < 500 -> StatusClass.ClientError
+                | x when x >= 500 && x < 600 -> StatusClass.ServerError 
+                | x when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
+                | _ -> failwith "Invalid status code"  
 
 module HttpStatus =
-    let ClientErrorBadRequest = Status.ClientErrorBadRequest
+    [<CompiledName("ClientErrorBadRequest")>]
+    let clientErrorBadRequest = Status.ClientErrorBadRequest
 
-    let ClientErrorConflict = Status.ClientErrorConflict
+    [<CompiledName("ClientErrorConflict")>]
+    let clientErrorConflict = Status.ClientErrorConflict
 
-    let ClientErrorExpectaionFailed = Status.ClientErrorExpectationFailed
+    [<CompiledName("ClientErrorExpectationFailed")>]
+    let clientErrorExpectationFailed = Status.ClientErrorExpectationFailed
 
-    let ClientErrorFailedDependency = Status.ClientErrorFailedDependency
+    [<CompiledName("ClientErrorFailedDependency")>]
+    let clientErrorFailedDependency = Status.ClientErrorFailedDependency
 
-    let ClientErrorForbidden = Status.ClientErrorForbidden
+    [<CompiledName("ClientErrorForbidden")>]
+    let clientErrorForbidden = Status.ClientErrorForbidden
 
-    let ClientErrorGone = Status.ClientErrorGone
+    [<CompiledName("ClientErrorGone")>]
+    let clientErrorGone = Status.ClientErrorGone
 
-    let ClientErrorLengthRequired = Status.ClientErrorLengthRequired
+    [<CompiledName("ClientErrorLengthRequired")>]
+    let clientErrorLengthRequired = Status.ClientErrorLengthRequired
 
-    let ClientErrorLocked = Status.ClientErrorLocked
+    [<CompiledName("ClientErrorLocked")>]
+    let clientErrorLocked = Status.ClientErrorLocked
 
-    let ClientErrorMethodNotAllowed = Status.ClientErrorMethodNotAllowed
+    [<CompiledName("ClientErrorMethodNotAllowed")>]
+    let clientErrorMethodNotAllowed = Status.ClientErrorMethodNotAllowed
 
-    let ClientErrorNotAcceptable = Status.ClientErrorNotAcceptable
+    [<CompiledName("ClientErrorNotAcceptable")>]
+    let clientErrorNotAcceptable = Status.ClientErrorNotAcceptable
 
-    let ClientErrorNotFound = Status.ClientErrorNotFound
+    [<CompiledName("ClientErrorNotFound")>]
+    let clientErrorNotFound = Status.ClientErrorNotFound
 
-    let ClientErrorPreconditionFailed = Status.ClientErrorPreconditionFailed
+    [<CompiledName("ClientErrorPreconditionFailed")>]
+    let clientErrorPreconditionFailed = Status.ClientErrorPreconditionFailed
 
-    let ClientErrorProxyAuthenticated = Status.ClientErrorProxyAuthenticated
+    [<CompiledName("ClientErrorProxyAuthenticated")>]
+    let clientErrorProxyAuthenticated = Status.ClientErrorProxyAuthenticated
 
+    [<CompiledName("ClientError")>]
     let ClientErrorRequestEntityTooLarge = Status.ClientErrorRequestEntityTooLarge
 
-    let ClientErrorRequestTimeout = Status.ClientErrorRequestTimeout
+    [<CompiledName("ClientErrorRequestTimeout")>]
+    let clientErrorRequestTimeout = Status.ClientErrorRequestTimeout
 
-    let ClientErrorRequestUriTooLong = Status.ClientErrorRequestUriTooLong
+    [<CompiledName("ClientErrorRequestUriTooLong")>]
+    let clientErrorRequestUriTooLong = Status.ClientErrorRequestUriTooLong
 
-    let ClientErrorRequestedRangeNotSatisfiable = Status.ClientErrorRequestedRangeNotSatisfiable
+    [<CompiledName("ClientErrorRangeNotSatisfiable")>]
+    let clientErrorRequestedRangeNotSatisfiable = Status.ClientErrorRequestedRangeNotSatisfiable
 
-    let ClientErrorUnauthorized = Status.ClientErrorUnauthorized
+    [<CompiledName("ClientErrorUnauthorized")>]
+    let clientErrorUnauthorized = Status.ClientErrorUnauthorized
 
-    let ClientErrorUnprocessableEntity = Status.ClientErrorUnprocessableEntity
+    [<CompiledName("ClientErrorUnprocessableEntity")>]
+    let clientErrorUnprocessableEntity = Status.ClientErrorUnprocessableEntity
 
-    let ClientErrorUnsupportedMediaType = Status.ClientErrorUnsupportedMediaType
+    [<CompiledName("ClientErrorUnsupportedMediaType")>]
+    let clientErrorUnsupportedMediaType = Status.ClientErrorUnsupportedMediaType
 
-    let ClientErrorUpgradeRequired = Status.ClientErrorUpgradeRequired
+    [<CompiledName("ClientErrorUpgradeRequired")>]
+    let clientErrorUpgradeRequired = Status.ClientErrorUpgradeRequired
 
-    let InformationalContinue = Status.InformationalContinue
+    [<CompiledName("InformationalContinue")>]
+    let informationalContinue = Status.InformationalContinue
 
-    let InformationalProcessing = Status.InformationalProcessing
-    
-    let InformationalSwitchingProtocols = Status.InformationalSwitchingProtocols
+    [<CompiledName("InformationalProcessing")>]
+    let informationalProcessing = Status.InformationalProcessing
 
-    let RedirectionFound = Status.RedirectionFound
+    [<CompiledName("InformationalSwitchingProtocols")>]
+    let informationalSwitchingProtocols = Status.InformationalSwitchingProtocols
 
-    let RedirectionMovedPermanently = Status.RedirectionMovedPermanently
+    [<CompiledName("RedirectionFound")>]
+    let redirectionFound = Status.RedirectionFound
 
-    let RedirectionMultipleChoices = Status.RedirectionMultipleChoices
+    [<CompiledName("RedirectionMovedPermanently")>]
+    let redirectionMovedPermanently = Status.RedirectionMovedPermanently
 
-    let RedirectionNotModified = Status.RedirectionNotModified
+    [<CompiledName("RedirectionMultipleChoices")>]
+    let redirectionMultipleChoices = Status.RedirectionMultipleChoices
 
-    let RedirectionSeeOther = Status.RedirectionSeeOther
+    [<CompiledName("RedirectionNotModified")>]
+    let redirectionNotModified = Status.RedirectionNotModified
 
-    let RedirectionTemporaryRedirect = Status.RedirectionTemporaryRedirect
+    [<CompiledName("RedirectionSeeOther")>]
+    let redirectionSeeOther = Status.RedirectionSeeOther
 
-    let RedirectionUseProxy = Status.RedirectionUseProxy
+    [<CompiledName("RedirectionTemporaryRedirect")>]
+    let redirectionTemporaryRedirect = Status.RedirectionTemporaryRedirect
 
-    let ServerErrorBadGateway = Status.ServerErrorBadGateway
+    [<CompiledName("RedirectionUseProxy")>]
+    let redirectionUseProxy = Status.RedirectionUseProxy
 
-    let ServerErrorGatewayTimeout = Status.ServerErrorGatewayTimeout
+    [<CompiledName("ServerErrorBadGateway")>]
+    let serverErrorBadGateway = Status.ServerErrorBadGateway
 
-    let ServerErrorHttpVersionNotSupported = Status.ServerErrorHttpVersionNotSupported
+    [<CompiledName("ServerErrorGatewayTimeout")>]
+    let serverErrorGatewayTimeout = Status.ServerErrorGatewayTimeout
 
-    let ServerErrorInsufficientStorage = Status.ServerErrorInsufficientStorage
+    [<CompiledName("ServerErrorHttpVersionNotSupported")>]
+    let serverErrorHttpVersionNotSupported = Status.ServerErrorHttpVersionNotSupported
 
-    let ServerErrorInternalServerError = Status.ServerErrorInternalServerError
+    [<CompiledName("ServerErrorInsufficientStorage")>]
+    let serverErrorInsufficientStorage = Status.ServerErrorInsufficientStorage
 
-    let ServerErrorLoopDetected = Status.ServerErrorLoopDetected
+    [<CompiledName("ServerErrorInternalServerError")>]
+    let serverErrorInternalServerError = Status.ServerErrorInternalServerError
 
-    let ServerErrorNotExtended = Status.ServerErrorNotExtended
+    [<CompiledName("ServerErrorLoopDetected")>]
+    let serverErrorLoopDetected = Status.ServerErrorLoopDetected
 
-    let ServerErrorNotImplemented = Status.ServerErrorNotImplemented
+    [<CompiledName("ServerErrorNotExtended")>]
+    let serverErrorNotExtended = Status.ServerErrorNotExtended
 
-    let ServerErrorServiceUnavailable = Status.ServerErrorServiceUnavailable
+    [<CompiledName("ServerErrorNotImplemented")>]
+    let serverErrorNotImplemented = Status.ServerErrorNotImplemented
 
-    let ServerErrorVariantAlsoNegotiates = Status.ServerErrorVariantAlsoNegotiates
+    [<CompiledName("ServerErrorServiceUnavailable")>]
+    let serverErrorServiceUnavailable = Status.ServerErrorServiceUnavailable
 
-    let SuccessAccepted = Status.SuccessAccepted
+    [<CompiledName("ServerErrorVariantAlsoNegotiates")>]
+    let serverErrorVariantAlsoNegotiates = Status.ServerErrorVariantAlsoNegotiates
 
-    let SuccessAlreadyReported = Status.SuccessAlreadyReported
+    [<CompiledName("SuccessAccepted")>]
+    let successAccepted = Status.SuccessAccepted
 
-    let SuccessCreated = Status.SuccessCreated
+    [<CompiledName("SuccessAlreadyReported")>]
+    let successAlreadyReported = Status.SuccessAlreadyReported
 
-    let SuccessImUsed = Status.SuccessImUsed
+    [<CompiledName("SuccessCreated")>]
+    let successCreated = Status.SuccessCreated
 
-    let SuccessMultiStatus = Status.SuccessMultiStatus
+    [<CompiledName("SuccessImUsed")>]
+    let successImUsed = Status.SuccessImUsed
 
-    let SuccessNoContent = Status.SuccessNoContent
+    [<CompiledName("SuccessMultiStatus")>]
+    let successMultiStatus = Status.SuccessMultiStatus
 
-    let SuccessNonAuthoritativeInformation = Status.SuccessNonAuthoritativeInformation
+    [<CompiledName("SuccessNoContent")>]
+    let successNoContent = Status.SuccessNoContent
 
-    let SuccessOk = Status.SuccessOk
+    [<CompiledName("SuccessNonAuthoritativeInformation")>]
+    let successNonAuthoritativeInformation = Status.SuccessNonAuthoritativeInformation
 
-    let SuccessPartialContent = Status.SuccessPartialContent
+    [<CompiledName("SuccessOk")>]
+    let successOk = Status.SuccessOk
 
-    let SuccessResetContent = Status.SuccessResetContent
+    [<CompiledName("SuccessPartialContent")>]
+    let successPartialContent = Status.SuccessPartialContent
+
+    [<CompiledName("SuccessResetContent")>]
+    let successResetContent = Status.SuccessResetContent
     
 module ClientStatus =
-    let NetworkUnavailable = Status.Create(1000, "Network Unavailable")
+    [<CompiledName("NetworkUnavailable")>]
+    let networkUnavailable = Status.Create(1000, "Network Unavailable")
 
     // FIXME: These are HttpClient specific error codes.
     // let CacheEntryNotFound = Status.Create(1001, "CacheEntryNotFound")
 
-    let ConnectFailure = Status.Create(1002, "ConnectFailure")
+    [<CompiledName("ConnectFailure")>]
+    let connectFailure = Status.Create(1002, "ConnectFailure")
 
-    let ConnectionClosed = Status.Create(1003, "ConnectionClosed")
+    [<CompiledName("ConnectionClosed")>]
+    let connectionClosed = Status.Create(1003, "ConnectionClosed")
 
-    let KeepAliveFailure = Status.Create(1004, "KeepAliveFailure")
+    [<CompiledName("KeepAliveFailure")>]
+    let keepAliveFailure = Status.Create(1004, "KeepAliveFailure")
 
-    let MessageLengthLimitExceeded = Status.Create(1005, "MessageLengthLimitExceeded")
+    [<CompiledName("MessageLengthLimitExceeded")>]
+    let messageLengthLimitExceeded = Status.Create(1005, "MessageLengthLimitExceeded")
 
-    let NameResolutionFailure = Status.Create(1006, "NameResolutionFailure")
+    [<CompiledName("NameResolutionFailure")>]
+    let nameResolutionFailure = Status.Create(1006, "NameResolutionFailure")
 
     //let Pending = Status.Create(1007, "Pending")
 
-    let PipelineFailure = Status.Create(1008, "PipelineFailure")
+    [<CompiledName("PipelineFailure")>]
+    let pipelineFailure = Status.Create(1008, "PipelineFailure")
 
     // Included for completeness with WebExceptionStatus. The actual response is converted into the HttpResponse object
-    let ProtocolError = Status.Create(1009, "ProtocolError")
+    [<CompiledName("ProtocolError")>]
+    let protocolError = Status.Create(1009, "ProtocolError")
 
-    let ProxyNameResolutionFailure = Status.Create(1010, "ProxyNameResolutionFailure")
+    [<CompiledName("ProxyNameResolutionFailure")>]
+    let proxyNameResolutionFailure = Status.Create(1010, "ProxyNameResolutionFailure")
 
-    let ReceiveFailure = Status.Create(1011, "ReceiveFailure")
+    [<CompiledName("ReceiveFailure")>]
+    let receiveFailure = Status.Create(1011, "ReceiveFailure")
 
     // FIXME why is this an error, shouldn't it be handled by the whole cancellation token thing?
-    let RequestCanceled = Status.Create(1012, "RequestCanceled")
+    [<CompiledName("RequestCanceled")>]
+    let requestCanceled = Status.Create(1012, "RequestCanceled")
 
     // FIXME Should this be an internal exception?
     //let RequestProhibitedByCachePolicy = Status.Create(1013, "RequestProhibitedByCachePolicy")
@@ -328,18 +394,25 @@ module ClientStatus =
     // FIXME: Return a standard error for this. Its 400 class
     //let RequestProhibitedByProxy = Status.Create(1014, "RequestProhibitedByProxy")
 
-    let SecureChannelFailure = Status.Create(1015, "SecureChannelFailure")
+    [<CompiledName("SecureChannelFailure")>]
+    let secureChannelFailure = Status.Create(1015, "SecureChannelFailure")
 
-    let SendFailure = Status.Create(1016, "SendFailure")
+    [<CompiledName("SendFailure")>]
+    let sendFailure = Status.Create(1016, "SendFailure")
 
-    let ServerProtocolViolation = Status.Create(1017, "ServerProtocolViolation")
+    [<CompiledName("ServerProtocolViolation")>]
+    let serverProtocolViolation = Status.Create(1017, "ServerProtocolViolation")
 
     //let Success = Status.Create(1018, "Success")
 
-    let Timeout = Status.Create(1019, "Timeout")
+    [<CompiledName("Timeout")>]
+    let timeout = Status.Create(1019, "Timeout")
 
-    let TrustFailure = Status.Create(1020, "TrustFailure")
+    [<CompiledName("TrustFailur")>]
+    let trustFailure = Status.Create(1020, "TrustFailure")
 
-    let UnknownError = Status.Create(1021, "UnknownError")
+    [<CompiledName("UnknownError")>]
+    let unknownError = Status.Create(1021, "UnknownError")
 
-    let DeserializationFailed = Status.Create(1023, "Failed to deserialize response entity")
+    [<CompiledName("DeserializationFaile")>]
+    let deserializationFailed = Status.Create(1023, "Failed to deserialize response entity")

@@ -40,31 +40,31 @@ module internal WebExceptionExtensions =
         member this.ToStatus() =
             match this.Status with
             //| WebExceptionStatus.CacheEntryNotFound -> CacheEntryNotFound
-            | WebExceptionStatus.ConnectFailure -> Some ConnectFailure
-            | WebExceptionStatus.ConnectionClosed -> Some ConnectionClosed
-            | WebExceptionStatus.KeepAliveFailure -> Some KeepAliveFailure
-            | WebExceptionStatus.MessageLengthLimitExceeded -> Some MessageLengthLimitExceeded
-            | WebExceptionStatus.NameResolutionFailure -> Some NameResolutionFailure
+            | WebExceptionStatus.ConnectFailure -> Some connectFailure
+            | WebExceptionStatus.ConnectionClosed -> Some connectionClosed
+            | WebExceptionStatus.KeepAliveFailure -> Some keepAliveFailure
+            | WebExceptionStatus.MessageLengthLimitExceeded -> Some messageLengthLimitExceeded
+            | WebExceptionStatus.NameResolutionFailure -> Some nameResolutionFailure
             //| WebExceptionStatus.Pending -> HttpResponse<'TResp>.Create(Status.SuccessOk)
-            | WebExceptionStatus.PipelineFailure -> Some PipelineFailure
+            | WebExceptionStatus.PipelineFailure -> Some pipelineFailure
 
-            | WebExceptionStatus.ProxyNameResolutionFailure -> Some ProxyNameResolutionFailure
-            | WebExceptionStatus.ReceiveFailure -> Some ReceiveFailure
-            | WebExceptionStatus.RequestCanceled -> Some RequestCanceled
+            | WebExceptionStatus.ProxyNameResolutionFailure -> Some proxyNameResolutionFailure
+            | WebExceptionStatus.ReceiveFailure -> Some receiveFailure
+            | WebExceptionStatus.RequestCanceled -> Some requestCanceled
 
             // FIXME: Should these be handled similarly to ProtocolError?
             //| WebExceptionStatus.RequestProhibitedByCachePolicy -> Some RequestProhibitedByCachePolicy
             //| WebExceptionStatus.RequestProhibitedByProxy -> Some RequestProhibitedByProxy
 
-            | WebExceptionStatus.SecureChannelFailure -> Some SecureChannelFailure
-            | WebExceptionStatus.SendFailure -> Some SendFailure
-            | WebExceptionStatus.ServerProtocolViolation -> Some ServerProtocolViolation
+            | WebExceptionStatus.SecureChannelFailure -> Some secureChannelFailure
+            | WebExceptionStatus.SendFailure -> Some sendFailure
+            | WebExceptionStatus.ServerProtocolViolation -> Some serverProtocolViolation
 
             //| WebExceptionStatus.Success -> Some Success
 
-            | WebExceptionStatus.Timeout -> Some Timeout
-            | WebExceptionStatus.TrustFailure -> Some TrustFailure
-            | WebExceptionStatus.UnknownError -> Some UnknownError
+            | WebExceptionStatus.Timeout -> Some timeout
+            | WebExceptionStatus.TrustFailure -> Some trustFailure
+            | WebExceptionStatus.UnknownError -> Some unknownError
             | _ -> None
 
         member this.ToResponse() =

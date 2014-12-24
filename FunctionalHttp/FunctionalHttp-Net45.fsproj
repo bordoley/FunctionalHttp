@@ -79,6 +79,7 @@
     <Compile Include="Interop\Core\ContentInfoExtensions.fs" />
     <Compile Include="Interop\Core\HttpRequestExtensions.fs" />
     <Compile Include="Interop\Core\HttpResponseExtensions.fs" />
+    <Compile Include="Interop\Client\StatusExtensions.fs" />
     <Compile Include="Interop\Client\HttpClientExtensions.fs" />
     <Compile Include="Interop\Client\HttpClientConnectorExtensions.fs" />
   </ItemGroup>

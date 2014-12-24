@@ -438,7 +438,7 @@ module HttpStreamResponseDeserializers =
             let! copyResult = stream.CopyToAsync(memStream) |> Async.AwaitIAsyncResult |> Async.Catch
             return match copyResult with
                     | Choice1Of2 unit -> this.With(entity = memStream)
-                    | Choice2Of2 exn -> ClientStatus.DeserializationFailed.ToResponse().With(id = this.Id)
+                    | Choice2Of2 exn -> ClientStatus.deserializationFailed.ToResponse().With(id = this.Id)
         }
 
     let toAsyncByteArrayResponse (this:HttpResponse<Stream>) =
@@ -467,7 +467,7 @@ module HttpStreamResponseDeserializers =
             return 
                 match result with
                 | Choice2Of2 exn ->
-                    ClientStatus.DeserializationFailed.ToResponse<string>().With(id = this.Id)
+                    ClientStatus.deserializationFailed.ToResponse<string>().With(id = this.Id)
                 | Choice1Of2 result ->
                     this.With<string>(result)
         }
