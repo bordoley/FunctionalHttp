@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
- <PropertyGroup>
+  <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{2EBB961B-2147-47B1-8AD5-D6F7A747A58B}</ProjectGuid>
@@ -32,7 +32,6 @@
   <ItemGroup>
     <Reference Include="FSharp.Core">
       <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\FSharp.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +66,9 @@
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\HttpResponse.fs" />
     <Compile Include="Client\HttpClient.fs" />
+    <Compile Include="Server\Route.fs" />
+    <Compile Include="Server\Resource.fs" />
+    <Compile Include="Server\Application.fs" />
     <Compile Include="Interop\ChallengeExtensions.fs" />
     <Compile Include="Interop\CharsetExtensions.fs" />
     <Compile Include="Interop\MediaTypeExtensions.fs" />
@@ -78,9 +80,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Parsing\" />
+    <Folder Include="Data\" />
     <Folder Include="Core\" />
     <Folder Include="Client\" />
-    <Folder Include="Data\" />
+    <Folder Include="Server\" />
     <Folder Include="Interop\" />
   </ItemGroup>
   <ItemGroup>

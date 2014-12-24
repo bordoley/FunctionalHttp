@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp.Server
+﻿namespace FunctionalHttp
 
 open FunctionalHttp
 open System.IO

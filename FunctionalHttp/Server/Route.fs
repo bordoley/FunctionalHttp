@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp.Server
+﻿namespace FunctionalHttp
 open System
 
 type Route = private {route:string}
