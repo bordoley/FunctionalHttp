@@ -5,31 +5,36 @@ open System.Collections
 open System.Collections.Generic
 open System.Diagnostics.Contracts
 
-type internal CharStream private (str: string, start:int, length:int) =    
+[<Struct>]
+type internal CharStream private (str: string, offset:int, length:int) =    
     new (str) = CharStream(str, 0, str.Length)
 
-    static member val Empty = new CharStream("", 0, 0)
+    static member val Empty = Unchecked.defaultof<CharStream>
 
     member this.Length with get() = length
 
     member this.Item(index:int) =
-        if (start + index) >= length then raise (ArgumentOutOfRangeException "index")
+        if index < 0 then raise (ArgumentOutOfRangeException "index")
+        if (offset + index) >= length then raise (ArgumentOutOfRangeException "index")
         Contract.EndContractBlock()
 
-        str.Chars(start + index)
+        str.Chars(offset + index)
                       
-    member this.SubSequence(newStart, newLength) =
-        if (newStart < 0) then raise (ArgumentOutOfRangeException "newStart")
-        if (newLength < 0) then raise (ArgumentOutOfRangeException "newLength")
-        if (length < start + newStart + newLength) then raise (ArgumentException ())
+    member this.SubSequence(startIndex, length) =
+        if (startIndex < 0) then raise (ArgumentOutOfRangeException "newStart")
+        if (length < 0) then raise (ArgumentOutOfRangeException "newLength")
+        if (this.Length < startIndex + length) then raise (ArgumentException ())
         Contract.EndContractBlock()
 
-        match (newStart, newLength) with
+        match (startIndex, length) with
         | (_ ,0) -> CharStream.Empty 
-        | _ when newStart = 0 && newLength = length -> this
-        | _ -> CharStream(str, start + newStart, newLength)
+        | _ when startIndex = 0 && length = this.Length -> this
+        | _ -> CharStream(str, offset + startIndex, length)
 
-    override this.ToString() = str.Substring(start,length)
+    override this.ToString() = 
+        match str with
+        | null -> ""
+        | _ -> str.Substring(offset,length)
 
 [<AutoOpen>]
 module internal CharStreamMixins =

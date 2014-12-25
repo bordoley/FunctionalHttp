@@ -4,19 +4,36 @@ open NUnit.Framework
 open FsUnit
 
 open FunctionalHttp.Parsing
+open System
 
 module CharStreamTests =
     [<Test>]
-    let ``test CharInput.SubSequence()`` () =
-        let testInput = CharStream("test string")
+    let ``test CharStream.SubSequence() `` () =
+        // Test the invariants
+        (fun () -> CharStream.Empty.SubSequence(-1, 0) |> ignore) |> should throw typeof<ArgumentOutOfRangeException>
+        (fun () -> CharStream.Empty.SubSequence(0, -1) |> ignore) |> should throw typeof<ArgumentOutOfRangeException>
+        (fun () -> CharStream.Empty.SubSequence(1, 0) |> ignore) |> should throw typeof<ArgumentException>
 
-        testInput.SubSequence(0, testInput.Length) |> should equal testInput
-        testInput.SubSequence(1,0) |> should sameAs CharStream.Empty
+        let testCase = "test string"
+        let test = CharStream(testCase);
+        test.SubSequence(1, (test.Length - 1)).Length |> should equal (test.Length - 1)
+        test.SubSequence(0) |> should equal test
+        test.SubSequence(0,0) |> should equal CharStream.Empty
+
+    [<Test>]
+    let ``test CharStream.ToString() `` () =
+        CharStream.Empty.ToString() |> should equal ""
+
+        let testCase = "test string"
+        CharStream(testCase).SubSequence(1,5).ToString() |>  should equal (testCase.Substring(1,5))
+
+    [<Test>]
+    let ``test CharStream.Item() `` () =
+        (fun () -> CharStream.Empty.Item -1 |> ignore) |> should throw typeof<ArgumentOutOfRangeException>
+        (fun () -> CharStream.Empty.Item 0 |> ignore) |> should throw typeof<ArgumentOutOfRangeException>
         
-        let subseq = testInput.SubSequence(1,3)
-        subseq.Length |> should equal 3
-        subseq.Item 0 |> should equal 'e'
-
-        let subseq = subseq.SubSequence(1,3)
-        subseq.Length |> should equal 3
-        subseq.Item 0 |> should equal 's'
+        let expected = "test case"
+        let test = CharStream(expected)
+        for i = 0 to expected.Length - 1 do
+            test.Item i |> should equal (expected.Chars(i))
+        

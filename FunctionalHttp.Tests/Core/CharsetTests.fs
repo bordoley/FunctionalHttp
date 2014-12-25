@@ -6,6 +6,7 @@ open FsUnit
 open FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
+(*
 module CharsetTests =
     [<Test>]
     let ``test parsing valid charsets`` () =
@@ -29,3 +30,4 @@ module CharsetTests =
             match Parser.parse Charset.Parser test with
             | None -> ()
             | _ -> failwith ("Expected parsing to fail: " + test)
+            *)
