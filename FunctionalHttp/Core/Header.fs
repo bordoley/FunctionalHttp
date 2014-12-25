@@ -3,66 +3,14 @@ namespace FunctionalHttp.Core
 open System
 open FunctionalHttp.Parsing
 
-type Header private (header:string) = 
-    // FIXME: need to validate the string is a valid header using a contract
-    static member Create(header) = Header(header)
+[<Sealed>]
+type Header internal (header:string) = 
+    static member Create(header) = 
+        match Parser.parse Header.Parser header with 
+        | Some header -> header
+        | _ -> raise (ArgumentException("header"))
 
     static member internal Parser = HttpParsers.token |> Parser.map (fun header -> Header(header))
-
-    static member val Accept = Header("Accept")
-    static member val AcceptCharset = Header("Accept-Charset")
-    static member val AcceptEncoding = Header("Accept-Encoding")
-    static member val AcceptLanguage = Header("Accept-Language")
-    static member val AcceptRanges = Header("Accept-Ranges")
-    static member val Age = Header("Age")
-    static member val Allow = Header("Allow")
-    static member val Authorization = Header("Authorization")
-    static member val CacheControl = Header("Cache-Control")
-    static member val Connection = Header("Connection")
-    static member val ContentEncoding = Header("Content-Encoding")
-    static member val ContentLanguage = Header("Content-Language")
-    static member val ContentLength = Header("Content-Length")
-    static member val ContentLocation = Header("Content-Location")
-    static member val ContentMD5 = Header("Content-MD5")
-    static member val ContentRange = Header("Content-Range")
-    static member val ContentType = Header("Content-Type")
-    static member val Cookie = Header("Cookie")
-    static member val Date = Header("Date")
-    static member val ETag = Header("ETag")
-    static member val Expect = Header("Expect")
-    static member val Expires = Header("Expires")
-    static member val From = Header("From")
-    static member val Host = Header("Host")
-    static member val IfMatch = Header("If-Match")
-    static member val IfModifiedSince = Header("If-Modified-Since")
-    static member val IfNoneMatch = Header("If-None-Match")
-    static member val IfRange = Header("If-Range")
-    static member val IfUnmodifiedSince = Header("If-Unmodified-Since")
-    static member val LastModified = Header("Last-Modified")
-    static member val Location = Header("Location")
-    static member val MaxForwards = Header("Max-Forwards")
-    static member val Pragma = Header("Pragma")
-    static member val ProxyAuthenticate = Header("Proxy-Authenticate")
-    static member val ProxyAuthorization = Header("Proxy-Authorization")
-    static member val Range = Header("Range")
-    static member val Referer = Header("Referer")
-    static member val RetryAfter = Header("Retry-After")
-    static member val Server = Header("Server")
-    static member val SetCookie = Header("Set-Cookie")
-    static member val TE = Header("TE")
-    static member val Trailer = Header("Trailer")
-    static member val TransferEncoding = Header("Transfer-Encoding")
-    static member val Upgrade = Header("Upgrade")
-    static member val UserAgent = Header("User-Agent")
-    static member val Vary = Header("Vary")
-    static member val Via = Header("Via")
-    static member val Warning = Header("Warning")
-    static member val WwwAuthenticate = Header("WWW-Authenticate")
-
-    // Extension Headers
-    static member val XHttpMethod = Header("X-HTTP-Method")
-    static member val XHttpMethodOverride = Header("X-HTTP-Method-Override")
-    static member val XMethodOverride = Header("X-Method-Override")
 
     member val private Normalized = header.ToLowerInvariant()
 
@@ -87,3 +35,161 @@ type Header private (header:string) =
     override this.GetHashCode() = hash this.Normalized
 
     override this.ToString () = header
+
+module HttpHeaders =
+    [<CompiledName("Accept")>]
+    let accept = Header("Accept")
+
+    [<CompiledName("AcceptCharset")>]
+    let acceptCharset = Header("Accept-Charset")
+
+    [<CompiledName("AcceptEncoding")>]
+    let acceptEncoding = Header("Accept-Encoding")
+
+    [<CompiledName("AcceptLanguage")>]
+    let acceptLanguage = Header("Accept-Language")
+
+    [<CompiledName("AcceptRanges")>]
+    let acceptRanges = Header("Accept-Ranges")
+
+    [<CompiledName("Age")>]
+    let age = Header("Age")
+
+    [<CompiledName("Allow")>]
+    let allow = Header("Allow")
+
+    [<CompiledName("Authorization")>]
+    let authorization = Header("Authorization")
+
+    [<CompiledName("CacheControl")>]
+    let cacheControl = Header("Cache-Control")
+
+    [<CompiledName("Connection")>]
+    let connection = Header("Connection")
+
+    [<CompiledName("ContentEncoding")>]
+    let contentEncoding = Header("Content-Encoding")
+
+    [<CompiledName("ContentLanguage")>]
+    let contentLanguage = Header("Content-Language")
+
+    [<CompiledName("ContentLength")>]
+    let contentLength = Header("Content-Length")
+
+    [<CompiledName("ContentLocation")>]
+    let contentLocation = Header("Content-Location")
+
+    [<CompiledName("ContentMD5")>]
+    let contentMD5 = Header("Content-MD5")
+
+    [<CompiledName("ContentRange")>]
+    let contentRange = Header("Content-Range")
+
+    [<CompiledName("ContentType")>]
+    let contentType = Header("Content-Type")
+
+    [<CompiledName("Cookie")>]
+    let cookie = Header("Cookie")
+
+    [<CompiledName("Date")>]
+    let date = Header("Date")
+
+    [<CompiledName("ETag")>]
+    let etag = Header("ETag")
+
+    [<CompiledName("Expect")>]
+    let expect = Header("Expect")
+
+    [<CompiledName("Expires")>]
+    let expires = Header("Expires")
+
+    [<CompiledName("From")>]
+    let from = Header("From")
+
+    [<CompiledName("Host")>]
+    let host = Header("Host")
+
+    [<CompiledName("ifMatch")>]
+    let IfMatch = Header("If-Match")
+
+    [<CompiledName("IfModifiedSince")>]
+    let ifModifiedSince = Header("If-Modified-Since")
+
+    [<CompiledName("IfNoneMatch")>]
+    let ifNoneMatch = Header("If-None-Match")
+
+    [<CompiledName("IfRange")>]
+    let ifRange = Header("If-Range")
+
+    [<CompiledName("IfUnmodifiedSince")>]
+    let ifUnmodifiedSince = Header("If-Unmodified-Since")
+
+    [<CompiledName("LastModified")>]
+    let lastModified = Header("Last-Modified")
+
+    [<CompiledName("Location")>]
+    let location = Header("Location")
+
+    [<CompiledName("MaxForwards")>]
+    let maxForwards = Header("Max-Forwards")
+
+    [<CompiledName("Pragma")>]
+    let pragma = Header("Pragma")
+
+    [<CompiledName("ProxyAuthenticate")>]
+    let proxyAuthenticate = Header("Proxy-Authenticate")
+
+    [<CompiledName("ProxyAuthorization")>]
+    let proxyAuthorization = Header("Proxy-Authorization")
+
+    [<CompiledName("Range")>]
+    let range = Header("Range")
+
+    [<CompiledName("Referer")>]
+    let referer = Header("Referer")
+
+    [<CompiledName("RetryAfter")>]
+    let retryAfter = Header("Retry-After")
+
+    [<CompiledName("Server")>]
+    let server = Header("Server")
+
+    [<CompiledName("SetCookie")>]
+    let setCookie = Header("Set-Cookie")
+
+    [<CompiledName("TE")>]
+    let te = Header("TE")
+
+    [<CompiledName("Trailer")>]
+    let trailer = Header("Trailer")
+
+    [<CompiledName("TransferEncoding")>]
+    let transferEncoding = Header("Transfer-Encoding")
+
+    [<CompiledName("Upgrade")>]
+    let upgrade = Header("Upgrade")
+
+    [<CompiledName("UserAgent")>]
+    let userAgent = Header("User-Agent")
+
+    [<CompiledName("Vary")>]
+    let vary = Header("Vary")
+
+    [<CompiledName("Via")>]
+    let via = Header("Via")
+
+    [<CompiledName("Warning")>]
+    let warning = Header("Warning")
+
+    [<CompiledName("WwwAuthenticate")>]
+    let wwwAuthenticate = Header("WWW-Authenticate")
+
+    // Extension Headers
+    [<CompiledName("XHttpMethod ")>]
+    let xHttpMethod = Header("X-HTTP-Method")
+
+    [<CompiledName("XHttpMethodOverride")>]
+    let xHttpMethodOverride = Header("X-HTTP-Method-Override")
+
+    [<CompiledName("XMethodOverride")>]
+    let xMethodOverride = Header("X-Method-Override")
