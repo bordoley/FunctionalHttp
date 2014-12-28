@@ -27,7 +27,7 @@ namespace FunctionalHttp.Core.Interop
             Uri referer = null,
             Uri uri = null,
             UserAgent userAgent = null,
-            HttpVersion version = null)
+            HttpVersion? version = null)
         {
             return HttpRequestModule.With<TReq, TReq>(
                 This,
@@ -66,7 +66,7 @@ namespace FunctionalHttp.Core.Interop
             Uri referer = null,
             Uri uri = null,
             UserAgent userAgent = null,
-            HttpVersion version = null)
+            HttpVersion? version = null)
         {
             return HttpRequestModule.With<TReq, TNew>(
                 This,

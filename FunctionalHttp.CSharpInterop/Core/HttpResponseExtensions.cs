@@ -30,7 +30,7 @@ namespace FunctionalHttp.Core.Interop
             Server server = null,
             Status status = null,
             Vary vary = null,
-            HttpVersion version = null,
+            HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
             return HttpResponseModule.With<TResp, TResp>(
@@ -79,7 +79,7 @@ namespace FunctionalHttp.Core.Interop
             Server server = null,
             Status status = null,
             Vary vary = null,
-            HttpVersion version = null,
+            HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
             return HttpResponseModule.With<TResp, TNew>(

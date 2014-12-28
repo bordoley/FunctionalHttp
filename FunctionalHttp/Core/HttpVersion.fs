@@ -1,24 +1,27 @@
 namespace FunctionalHttp.Core
 
+open System
 open System.Diagnostics.Contracts
 
-type HttpVersion =
-    private {
-        major:int
-        minor:int
-    }
+[<Struct>]
+type HttpVersion private (major:int, minor:int) =
 
-    static member Http1_1 = { major = 1; minor = 1; }
-    static member Http1_0 = { major = 1; minor = 0; }
-    static member Http0_9 = { major = 0; minor = 9; }
+    static member Http1_1 = HttpVersion(1, 1)
+    static member Http1_0 = HttpVersion(1, 0)
+    static member Http0_9 = HttpVersion(0, 9)
 
     static member Create (major, minor) =
-        Contract.Requires(major >= 0 && major <= 9)
-        Contract.Requires(minor >= 0 && minor <= 9)
+        if (major < 0 || major > 9) then raise (ArgumentOutOfRangeException("major"))
+        if (minor < 0 || minor > 9) then raise (ArgumentOutOfRangeException("major"))
+        Contract.EndContractBlock();
 
-        { major = major; minor = minor; }
+        match (major, minor) with
+        | (1,1) -> HttpVersion.Http1_1
+        | (1,0) -> HttpVersion.Http1_0
+        | (0,9) -> HttpVersion.Http0_9
+        | _ -> HttpVersion(major, minor)
 
-    member this.Major = this.major
-    member this.Minor = this.minor
+    member this.Major = major
+    member this.Minor = minor
 
-    override this.ToString() = sprintf "HTTP/%u.%u" this.major this.minor
+    override this.ToString() = sprintf "HTTP/%u.%u" this.Major this.Minor
