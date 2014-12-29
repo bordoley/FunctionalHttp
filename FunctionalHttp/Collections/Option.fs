@@ -13,12 +13,30 @@ module internal Option =
         | Some retval ->
             result <- retval
             true
+    
+    [<CompiledName("GetOrElse")>]
+    let getOrElse b a =
+        match a with
+        | Some x -> x
+        | None -> b
+
+    [<CompiledName("GetOrElse")>]
+    let getOrElseLazy (b: Lazy<_>) a =
+        match a with
+        | Some x -> x
+        | None -> a.Value
 
     [<CompiledName("OrElse")>]
     let orElse b a =
         match a with
         | Some _ -> a
         | None -> b
+
+    [<CompiledName("OrElse")>]
+    let orElseLazy (b:Lazy<_>) a =
+        match a with
+        | Some _ -> a
+        | None -> b.Value
 
     [<CompiledName("OfNull")>]
     let ofNull value =

@@ -91,7 +91,10 @@
     <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" />
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Resource.fs" />
+    <Compile Include="Server\Router.fs" />
     <Compile Include="Server\Application.fs" />
+    <Compile Include="Server\HttpServer.fs" />
+    <Compile Include="Server\EventLoop.fs" />
     <Compile Include="Server\HttpListenerServer.fs" />
   </ItemGroup>
   <ItemGroup>

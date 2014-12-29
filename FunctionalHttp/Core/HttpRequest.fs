@@ -2,6 +2,7 @@ namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
 open System
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 
 type HttpRequest<'TReq> = 
@@ -109,6 +110,25 @@ type HttpRequest<'TReq> =
             uri, 
             userAgent,
             defaultArg version HttpVersion.Http1_1)
+
+    static member internal Create(meth:Method, uri:Uri, version:HttpVersion, entity:'TReq option, headers:IEnumerable<String*IEnumerable<String>>, ?id) =
+            HttpRequest<'TReq>.Create (
+                Option.None,
+                Set.empty,
+                ContentInfo.None,
+                entity,
+                false,
+                Map.empty,
+                Guid.NewGuid(),
+                meth, 
+                Set.empty,
+                RequestPreconditions.None,
+                RequestPreferences.None,
+                Option.None,
+                Option.None,           
+                uri, 
+                Option.None,
+                version)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpRequest =
