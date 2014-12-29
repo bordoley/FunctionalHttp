@@ -5,6 +5,7 @@ open FunctionalHttp.Server
 open System
 open System.IO
 open System.Net
+open System.Threading
 
 type EchoResource () =
     let route = Route.Create ["example"]
@@ -28,13 +29,12 @@ module main =
 
         let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
 
-        async {
+        let cts = new CancellationTokenSource()
 
-            let! server = HttpListenerServer.createAsync listener (fun _ -> application) |> Async.AwaitTask
-            Console.ReadLine () |> ignore
-            server.Dispose()
-        } |> Async.RunSynchronously
+        let thread = Thread(fun () -> HttpListenerServer.startOnEventLoop listener (fun _ -> application) cts.Token)
+        thread.Start ()
 
+        Console.ReadLine () |> ignore
+        cts.Cancel()
 
         0 // return an integer exit code
-

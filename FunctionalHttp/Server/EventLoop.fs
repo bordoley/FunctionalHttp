@@ -7,7 +7,7 @@ open System.Threading.Tasks
 type internal IEventLoop =
     inherit IDisposable
 
-    abstract member PostAsync: (unit -> 'T)*CancellationToken  -> Task<'T>
+    abstract member PostAsync: (unit -> 'T)*CancellationToken -> Task<'T>
     abstract member Run : unit -> unit
 
 [<Sealed>]
@@ -22,10 +22,10 @@ type internal EventLoopImpl () =
     let queue = new BlockingCollection<(unit -> unit)*CancellationToken>()
     let disposed = new CancellationTokenSource()
     let thread = Thread.CurrentThread
+    let running = ref false
 
     interface IDisposable with
-        member this.Dispose () = 
-            disposed.Cancel ()
+        member this.Dispose () = disposed.Cancel ()
 
     interface IEventLoop with
         member this.PostAsync (f:unit -> 'T, cts:CancellationToken) =
@@ -41,7 +41,11 @@ type internal EventLoopImpl () =
             tcs.Task
        
         member this.Run () =
-            if Thread.CurrentThread <> thread then raise (InvalidOperationException())
+            if disposed.Token.IsCancellationRequested then raise (ObjectDisposedException("object disposed"))
+            if Thread.CurrentThread <> thread then raise (InvalidOperationException("Attempting to run the event loop on a different thread than it was created on"))
+            if !running then raise (InvalidOperationException("event loop is already running"))
+
+            running := true
 
             SynchronizationContext.SetSynchronizationContext(EventLoopSynchronizationContext(this :> IEventLoop))
             let rec loop () =
