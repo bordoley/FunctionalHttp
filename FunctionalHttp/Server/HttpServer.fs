@@ -4,7 +4,7 @@ open FunctionalHttp.Core
 open System.IO
 
 module internal HttpServer =
-    let processRequest (applicationProvider:HttpRequest<_> -> IHttpApplication) (req:HttpRequest<Stream>) =
+    let processRequest (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (req:HttpRequest<Stream>) =
         let app = applicationProvider(req)
         let req2 = app.Filter req
 
