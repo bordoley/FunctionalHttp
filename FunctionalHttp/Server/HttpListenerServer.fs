@@ -18,8 +18,9 @@ module HttpListenerServer =
         HttpRequest<Stream>.Create(meth, req.Url, version, Some req.InputStream, headers)
 
     let private sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
-        listenerResponse.StatusCode <- resp.Status.Code
         async {
+            listenerResponse.StatusCode <- resp.Status.Code
+
             do!
                 match resp.Entity with
                 | Some stream -> stream.CopyToAsync(listenerResponse.OutputStream) |> Async.AwaitIAsyncResult |> Async.Ignore
@@ -28,11 +29,13 @@ module HttpListenerServer =
         }
 
     let start (listener:HttpListener) (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (cancellationToken:CancellationToken) =
+        let server = HttpServer.processRequest applicationProvider
+
         let processRequest (ctx:HttpListenerContext) =
             async {
                 try
                     let req = parseRequest ctx.Request 
-                    let! resp = HttpServer.processRequest applicationProvider req
+                    let! resp = server req
                     do! sendResponse ctx.Response resp
                 with | ex -> ()
             }

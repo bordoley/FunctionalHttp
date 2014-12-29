@@ -12,9 +12,9 @@ type EchoResource () =
 
     interface IStreamResource with
         member this.Route = route
-        member this.Filter (req: HttpRequest<obj>) = req
-        member this.Filter (resp: HttpResponse<obj>) = resp
-        member this.Handle (req:HttpRequest<obj>) = HttpStatus.successOk.ToAsyncResponse<obj>()
+        member this.Filter (req: HttpRequest<'TFilterReq>) = req
+        member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
+        member this.Handle (req:HttpRequest<_>) = HttpStatus.successOk.ToAsyncResponse<obj>()
         member this.Accept (req: HttpRequest<obj>) = HttpStatus.successOk.ToAsyncResponse<obj>()
         member this.Parse (req: HttpRequest<Stream>) = req.WithoutEntityAsync<obj>()
         member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.WithoutEntityAsync<Stream>()

@@ -11,19 +11,17 @@ module internal HttpServer =
         let resource = app.Route req2
 
         async {
-            let! req3 = resource.Parse req2
-            let req4 = resource.Filter req3
-            let! resp = resource.Handle req4
+            let req3 = resource.Filter req2
+            let! resp = resource.Handle req3
             let! resp2 =
                 if resp.Status <> HttpStatus.informationalContinue
                 then resp.ToAsyncResponse()
                 else async {
-                    let! req4 = resource.Parse req
+                    let! req4 = resource.Parse req3
                     return! 
                         match req4.Entity with
                         | Some e -> resource.Accept req4
                         | None -> HttpStatus.clientErrorBadRequest.ToAsyncResponse()
-
                 }
             let resp3 = resource.Filter resp2
             return! resource.Serialize (req3, resp3)
