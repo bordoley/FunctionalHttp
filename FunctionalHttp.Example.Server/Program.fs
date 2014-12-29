@@ -20,13 +20,6 @@ type EchoResource () =
         member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.WithoutEntityAsync<Stream>()
 
 module main =
-    // FIXME: Should this really even be here. Shouldn't the event loop be part of another libary like AsyncEx, etc.?
-    let startOnEventLoop (listener:HttpListener) (applicationProvider:HttpRequest<_> -> IHttpApplication) (cancellationToken:CancellationToken) =
-        let eventLoop = EventLoop.current ()
-        HttpListenerServer.start listener applicationProvider cancellationToken  |> Async.StartImmediate
-        cancellationToken.Register(fun () -> eventLoop.Dispose()) |> ignore
-        eventLoop.Run ()
-
     [<EntryPoint>]
     let main argv =
         let listener = new HttpListener();
