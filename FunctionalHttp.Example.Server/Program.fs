@@ -29,8 +29,6 @@ module main =
 
     [<EntryPoint>]
     let main argv =
-        printfn "%A" argv
-
         let listener = new HttpListener();
         listener.Prefixes.Add "http://*:8080/"
 
@@ -38,8 +36,7 @@ module main =
 
         let cts = new CancellationTokenSource()
 
-        let thread = Thread(fun () -> startOnEventLoop listener (fun _ -> application) cts.Token)
-        thread.Start ()
+        HttpListenerServer.start listener (fun _ -> application) cts.Token |> Async.StartImmediate
 
         Console.ReadLine () |> ignore
         cts.Cancel()

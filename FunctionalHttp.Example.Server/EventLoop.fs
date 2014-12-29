@@ -49,15 +49,12 @@ type internal EventLoopImpl () =
 
             SynchronizationContext.SetSynchronizationContext(EventLoopSynchronizationContext(this :> IEventLoop))
             let rec loop () =
-                if disposed.Token.IsCancellationRequested
-                then ()
-                else
-                    try
-                        let (action,cts) = queue.Take(disposed.Token)
-                        if not cts.IsCancellationRequested then action()
-                        loop()
-                    with
-                    | :? OperationCanceledException -> ()
+                try
+                    let (action,cts) = queue.Take(disposed.Token)
+                    if not cts.IsCancellationRequested then action()
+                    loop()
+                with
+                | :? OperationCanceledException -> ()
 
             loop ()             
 

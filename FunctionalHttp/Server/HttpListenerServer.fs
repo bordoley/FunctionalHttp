@@ -49,4 +49,5 @@ module HttpListenerServer =
         async {
             if not listener.IsListening then listener.Start ()
             do! loop ()
+            listener.Stop()
         }
