@@ -28,29 +28,25 @@ module HttpListenerServer =
         }
 
     let start (listener:HttpListener) (applicationProvider:HttpRequest<_> -> IHttpApplication) (cancellationToken:CancellationToken) =
-        let listenAndProcessRequest (ctx:HttpListenerContext) =
+        let processRequest (ctx:HttpListenerContext) =
             async {
                 try
-                    do! Async.SwitchToThreadPool()
                     let req = parseRequest ctx.Request 
                     let! resp = HttpServer.processRequest applicationProvider req
                     do! sendResponse ctx.Response resp
                 with | ex -> ()
             }
 
-        listener.Start ()
-
         let rec loop () =
             async {
+                cancellationToken.ThrowIfCancellationRequested()
                 let! ctx = listener.GetContextAsync() |> Async.AwaitTask
-                do! listenAndProcessRequest ctx
+                cancellationToken.ThrowIfCancellationRequested()
+                do! processRequest ctx
                 do! loop ()
             }
-        loop () |> Async.StartImmediate
 
-    // FIXME: Should this really even be here. Shouldn't the event loop be part of another libary like AsyncEx, etc.?
-    let startOnEventLoop (listener:HttpListener) (applicationProvider:HttpRequest<_> -> IHttpApplication) (cancellationToken:CancellationToken) =
-        let eventLoop = EventLoop.current ()
-        start listener applicationProvider cancellationToken
-        cancellationToken.Register(fun () -> eventLoop.Dispose()) |> ignore
-        eventLoop.Run ()
+        async {
+            if not listener.IsListening then listener.Start ()
+            do! loop ()
+        }

@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp.Server
+﻿namespace FunctionalHttp.Example.Server
 open System
 open System.Collections.Concurrent
 open System.Threading
