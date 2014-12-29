@@ -29,7 +29,7 @@ module main =
 
         let cts = new CancellationTokenSource()
 
-        HttpListenerServer.start listener (fun _ -> application) cts.Token |> Async.StartImmediate
+        HttpListenerServer.start (fun _ -> application) listener cts.Token |> Async.StartImmediate
 
         Console.ReadLine () |> ignore
         cts.Cancel()

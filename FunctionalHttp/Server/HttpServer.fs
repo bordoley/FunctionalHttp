@@ -5,12 +5,10 @@ open System.IO
 
 module internal HttpServer =
     let processRequest (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (req:HttpRequest<Stream>) =
-        let app = applicationProvider(req)
-        let req2 = app.Filter req
-
-        let resource = app.Route req2
-
         async {
+            let app = applicationProvider(req)
+            let req2 = app.Filter req
+            let resource = app.Route req2
             let req3 = resource.Filter req2
             let! resp = resource.Handle req3
             let! resp2 =

@@ -28,7 +28,7 @@ module HttpListenerServer =
             listenerResponse.Close()
         }
 
-    let start (listener:HttpListener) (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (cancellationToken:CancellationToken) =
+    let start (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (listener:HttpListener) (cancellationToken:CancellationToken) =
         let server = HttpServer.processRequest applicationProvider
 
         let processRequest (ctx:HttpListenerContext) =
