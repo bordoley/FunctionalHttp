@@ -30,7 +30,6 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null)
         {
             return HttpRequestModule.With<TReq, TReq>(
-                This,
                 authorization.ToFSharpOption(),
                 cacheControl.ToFSharpOption(),
                 contentInfo.ToFSharpOption(),
@@ -46,7 +45,8 @@ namespace FunctionalHttp.Core.Interop
                 referer.ToFSharpOption(),
                 uri.ToFSharpOption(),
                 userAgent.ToFSharpOption(),
-                version.ToFSharpOption());
+                version.ToFSharpOption(),
+                This);
         }
 
         public static HttpRequest<TNew> With<TReq, TNew>(
@@ -69,11 +69,10 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null)
         {
             return HttpRequestModule.With<TReq, TNew>(
-                This,
                 authorization.ToFSharpOption(),
                 cacheControl.ToFSharpOption(),
                 contentInfo.ToFSharpOption(),
-                entity.ToFSharpOption(),
+                entity,
                 expectContinue.ToFSharpOption(),
                 headers.ToFSharpOption().Select(MapModule.OfSeq),
                 id.ToFSharpOption(),
@@ -85,7 +84,8 @@ namespace FunctionalHttp.Core.Interop
                 referer.ToFSharpOption(),
                 uri.ToFSharpOption(),
                 userAgent.ToFSharpOption(),
-                version.ToFSharpOption());
+                version.ToFSharpOption(),
+                This);
         }
 
         public static HttpRequest<TReq> Without<TReq>(
@@ -101,9 +101,7 @@ namespace FunctionalHttp.Core.Interop
             bool referer = false,
             bool userAgent = false)
         {
-            return HttpRequestModule.Without<TReq, TReq>(
-                This, 
-                This.Entity, 
+            return HttpRequestModule.Without<TReq>(
                 authorization, 
                 cacheControl, 
                 contentInfo, 
@@ -113,35 +111,8 @@ namespace FunctionalHttp.Core.Interop
                 preferences, 
                 proxyAuthorization, 
                 referer, 
-                userAgent);
-        }
-
-        public static HttpRequest<TNew> WithoutEntity<TReq, TNew>(
-            this HttpRequest<TReq> This, 
-            bool authorization = false, 
-            bool cacheControl = false,
-            bool contentInfo = false,
-            bool headers = false,
-            bool pragma = false,
-            bool preconditions = false,
-            bool preferences = false,
-            bool proxyAuthorization = false,
-            bool referer = false,
-            bool userAgent = false)
-        {
-            return HttpRequestModule.Without<TReq, TNew>(
-                This, 
-                FSharpOption<TNew>.None, 
-                authorization, 
-                cacheControl, 
-                contentInfo, 
-                headers,
-                pragma, 
-                preconditions, 
-                preferences, 
-                proxyAuthorization, 
-                referer, 
-                userAgent);
+                userAgent,
+                This);
         }
     }
 }

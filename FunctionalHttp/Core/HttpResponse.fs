@@ -19,7 +19,7 @@ type HttpResponse<'TResp> =
         cacheControl: Set<CacheDirective>
         contentInfo:ContentInfo
         date:Option<DateTime>
-        entity:Option<'TResp>
+        entity:'TResp
         etag:Option<EntityTag>
         expires:Option<DateTime>
         headers:Map<Header,obj>
@@ -102,7 +102,8 @@ type HttpResponse<'TResp> =
             warning = warning
         }
 
-    static member Create(   status, 
+    static member Create(   status,
+                            entity,
                             ?acceptedRanges,
                             ?age, 
                             ?allowed, 
@@ -110,7 +111,6 @@ type HttpResponse<'TResp> =
                             ?cacheControl, 
                             ?contentInfo, 
                             ?date,
-                            ?entity:'TResp, 
                             ?etag, 
                             ?expires, 
                             ?headers,
@@ -155,7 +155,7 @@ type HttpResponse<'TResp> =
             Set.empty, //cacheControl,
             ContentInfo.None, //ContentInfo.Create(headers),
             None,
-            Some entity, 
+            entity, 
             None,
             None, //expires
             Map.empty,
@@ -171,93 +171,92 @@ type HttpResponse<'TResp> =
             []) 
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal HttpResponse =
+module internal HttpResponseInternal =
     [<CompiledName("With")>]
-    let with_ (response:HttpResponse<'TResp>) ( acceptedRanges,
-                                                age, 
-                                                allowed,
-                                                authenticate,
-                                                cacheControl, 
-                                                contentInfo, 
-                                                date,
-                                                entity:Option<'TNew>,
-                                                etag,
-                                                expires, 
-                                                headers,
-                                                id, 
-                                                lastModified,
-                                                location, 
-                                                proxyAuthenticate,
-                                                retryAfter,
-                                                server,
-                                                status,
-                                                vary,
-                                                version,
-                                                warning) =
+    let with_<'TResp, 'TNew> (  acceptedRanges,
+                                age, 
+                                allowed,
+                                authenticate,
+                                cacheControl, 
+                                contentInfo, 
+                                date,
+                                entity:'TNew,
+                                etag,
+                                expires, 
+                                headers,
+                                id, 
+                                lastModified,
+                                location, 
+                                proxyAuthenticate,
+                                retryAfter,
+                                server,
+                                status,
+                                vary,
+                                version,
+                                warning) (resp:HttpResponse<'TResp>) =
         HttpResponse<'TNew>.Create(
-            Option.orElse response.AcceptedRanges acceptedRanges,
-            Option.orElse response.Age age,
-            Set.ofSeq <| defaultArg allowed (response.Allowed :> Method seq),
-            Set.ofSeq <| defaultArg authenticate (response.Authenticate :> Challenge seq),
-            Set.ofSeq <| defaultArg cacheControl (response.CacheControl :> CacheDirective seq),
-            defaultArg contentInfo response.ContentInfo,
-            Option.orElse response.Date date,
+            Option.orElse resp.AcceptedRanges acceptedRanges,
+            Option.orElse resp.Age age,
+            Set.ofSeq <| defaultArg allowed (resp.Allowed :> Method seq),
+            Set.ofSeq <| defaultArg authenticate (resp.Authenticate :> Challenge seq),
+            Set.ofSeq <| defaultArg cacheControl (resp.CacheControl :> CacheDirective seq),
+            defaultArg contentInfo resp.ContentInfo,
+            Option.orElse resp.Date date,
             entity,
-            Option.orElse response.ETag etag,
-            Option.orElse response.Expires expires,
-            defaultArg headers response.Headers,
-            defaultArg id response.Id,
-            Option.orElse response.LastModified lastModified,
-            Option.orElse response.Location location,
-            Set.ofSeq <| defaultArg proxyAuthenticate (response.ProxyAuthenticate :> Challenge seq),
-            Option.orElse response.RetryAfter retryAfter,
-            Option.orElse response.Server server,
-            defaultArg status response.Status,
-            Option.orElse response.Vary vary,
-            defaultArg version response.Version,
-            List.ofSeq <| defaultArg warning (response.Warning :> Warning seq))
+            Option.orElse resp.ETag etag,
+            Option.orElse resp.Expires expires,
+            defaultArg headers resp.Headers,
+            defaultArg id resp.Id,
+            Option.orElse resp.LastModified lastModified,
+            Option.orElse resp.Location location,
+            Set.ofSeq <| defaultArg proxyAuthenticate (resp.ProxyAuthenticate :> Challenge seq),
+            Option.orElse resp.RetryAfter retryAfter,
+            Option.orElse resp.Server server,
+            defaultArg status resp.Status,
+            Option.orElse resp.Vary vary,
+            defaultArg version resp.Version,
+            List.ofSeq <| defaultArg warning (resp.Warning :> Warning seq))
 
     [<CompiledName("Without")>]
-    let without (response:HttpResponse<_>) (entity:Option<'TNew>) ( acceptedRanges,
-                                                                    age, 
-                                                                    allowed,
-                                                                    authenticate, 
-                                                                    cacheControl, 
-                                                                    contentInfo, 
-                                                                    date, 
-                                                                    etag, 
-                                                                    expires, 
-                                                                    headers, 
-                                                                    lastModified, 
-                                                                    location, 
-                                                                    proxyAuthenticate,
-                                                                    retryAfter,
-                                                                    server,
-                                                                    vary,
-                                                                    warning) =
-        HttpResponse<'TNew>.Create(
-            (if acceptedRanges then None else response.AcceptedRanges),
-            (if age then None else response.Age),
-            (if allowed then Set.empty else response.Allowed),
-            (if authenticate then Set.empty else response.Authenticate),
-            (if cacheControl then Set.empty else response.CacheControl),
-            (if contentInfo then ContentInfo.None else response.ContentInfo),
-            (if date then None else response.Date),
-            entity,
-            (if etag then None else response.ETag),
-            (if expires then None else response.Expires),
-            (if headers then Map.empty else response.Headers),
-            response.Id,
-            (if lastModified then None else response.LastModified),
-            (if location then None else response.Location),
-            (if proxyAuthenticate then Set.empty else response.ProxyAuthenticate),
-            (if retryAfter then None else response.RetryAfter),
-            (if server then None else response.Server),
-            response.Status,
-            (if vary then None else response.Vary),
-            response.Version,
-            (if warning then [] else response.Warning))
-
+    let without (   acceptedRanges,
+                    age, 
+                    allowed,
+                    authenticate, 
+                    cacheControl, 
+                    contentInfo, 
+                    date, 
+                    etag, 
+                    expires, 
+                    headers, 
+                    lastModified, 
+                    location, 
+                    proxyAuthenticate,
+                    retryAfter,
+                    server,
+                    vary,
+                    warning) (resp:HttpResponse<'TResp>) =
+        HttpResponse<'TResp>.Create(
+            (if acceptedRanges then None else resp.AcceptedRanges),
+            (if age then None else resp.Age),
+            (if allowed then Set.empty else resp.Allowed),
+            (if authenticate then Set.empty else resp.Authenticate),
+            (if cacheControl then Set.empty else resp.CacheControl),
+            (if contentInfo then ContentInfo.None else resp.ContentInfo),
+            (if date then None else resp.Date),
+            resp.Entity,
+            (if etag then None else resp.ETag),
+            (if expires then None else resp.Expires),
+            (if headers then Map.empty else resp.Headers),
+            resp.Id,
+            (if lastModified then None else resp.LastModified),
+            (if location then None else resp.Location),
+            (if proxyAuthenticate then Set.empty else resp.ProxyAuthenticate),
+            (if retryAfter then None else resp.RetryAfter),
+            (if server then None else resp.Server),
+            resp.Status,
+            (if vary then None else resp.Vary),
+            resp.Version,
+            (if warning then [] else resp.Warning))
 
 [<AutoOpen>]
 module HttpResponseMixins =
@@ -282,27 +281,27 @@ module HttpResponseMixins =
                             ?vary: Vary,
                             ?version:HttpVersion,
                             ?warning: Warning seq) =
-            HttpResponse.with_ this (   acceptedRanges,
-                                        age, 
-                                        allowed,
-                                        authenticate,
-                                        cacheControl, 
-                                        contentInfo, 
-                                        date,
-                                        this.Entity,
-                                        etag,
-                                        expires, 
-                                        headers,
-                                        id, 
-                                        lastModified,
-                                        location, 
-                                        proxyAuthenticate,
-                                        retryAfter,
-                                        server,
-                                        status,
-                                        vary,
-                                        version,
-                                        warning) 
+            this |> HttpResponseInternal.with_ (acceptedRanges,
+                                                age, 
+                                                allowed,
+                                                authenticate,
+                                                cacheControl, 
+                                                contentInfo, 
+                                                date,
+                                                this.Entity,
+                                                etag,
+                                                expires, 
+                                                headers,
+                                                id, 
+                                                lastModified,
+                                                location, 
+                                                proxyAuthenticate,
+                                                retryAfter,
+                                                server,
+                                                status,
+                                                vary,
+                                                version,
+                                                warning)
 
         member this.With (  entity:'TNew,
                             ?acceptedRanges:AcceptableRanges,
@@ -325,27 +324,27 @@ module HttpResponseMixins =
                             ?vary: Vary,
                             ?version:HttpVersion,
                             ?warning: Warning seq) =
-            HttpResponse.with_ this (   acceptedRanges,
-                                        age, 
-                                        allowed,
-                                        authenticate,
-                                        cacheControl, 
-                                        contentInfo, 
-                                        date,
-                                        Some entity,
-                                        etag,
-                                        expires, 
-                                        headers,
-                                        id, 
-                                        lastModified,
-                                        location, 
-                                        proxyAuthenticate,
-                                        retryAfter,
-                                        server,
-                                        status,
-                                        vary,
-                                        version,
-                                        warning) 
+            this |> HttpResponseInternal.with_ (acceptedRanges,
+                                                age, 
+                                                allowed,
+                                                authenticate,
+                                                cacheControl, 
+                                                contentInfo, 
+                                                date,
+                                                entity,
+                                                etag,
+                                                expires, 
+                                                headers,
+                                                id, 
+                                                lastModified,
+                                                location, 
+                                                proxyAuthenticate,
+                                                retryAfter,
+                                                server,
+                                                status,
+                                                vary,
+                                                version,
+                                                warning) 
 
         member this.Without<'TResp>(?acceptedRanges,
                                     ?age, 
@@ -364,7 +363,7 @@ module HttpResponseMixins =
                                     ?server,
                                     ?vary,
                                     ?warning) =
-            HttpResponse.without this this.Entity ( Option.isSome acceptedRanges,
+            this |> HttpResponseInternal.without (  Option.isSome acceptedRanges,
                                                     Option.isSome age, 
                                                     Option.isSome allowed,
                                                     Option.isSome authenticate, 
@@ -382,53 +381,24 @@ module HttpResponseMixins =
                                                     Option.isSome vary,
                                                     Option.isSome warning) 
 
-        member this.WithoutEntity<'TNew>(?acceptedRanges,
-                                            ?age, 
-                                            ?allowed,
-                                            ?authenticate, 
-                                            ?cacheControl, 
-                                            ?contentInfo, 
-                                            ?date, 
-                                            ?etag, 
-                                            ?expires, 
-                                            ?headers, 
-                                            ?lastModified, 
-                                            ?location, 
-                                            ?proxyAuthenticate,
-                                            ?retryAfter,
-                                            ?server,
-                                            ?vary,
-                                            ?warning) =
-            HttpResponse.without this (None:Option<'TNew>) (Option.isSome acceptedRanges,
-                                                            Option.isSome age, 
-                                                            Option.isSome allowed,
-                                                            Option.isSome authenticate, 
-                                                            Option.isSome cacheControl, 
-                                                            Option.isSome contentInfo, 
-                                                            Option.isSome date, 
-                                                            Option.isSome etag, 
-                                                            Option.isSome expires, 
-                                                            Option.isSome headers, 
-                                                            Option.isSome lastModified, 
-                                                            Option.isSome location, 
-                                                            Option.isSome proxyAuthenticate,
-                                                            Option.isSome retryAfter,
-                                                            Option.isSome server,
-                                                            Option.isSome vary,
-                                                            Option.isSome warning) 
-
-        member this.ToAsyncResponse() = async { return this }
-
-        member this.WithoutEntityAsync<'TNew> () = async { return this.WithoutEntity<'TNew>() }
+        member this.ToObjectResponse() = this.With(this.Entity :> obj)
 
     type Status with
-        member this.ToResponse<'TResp>() = HttpResponse<'TResp>.Create(this)
-        member this.ToAsyncResponse<'TResp>() = async { return this.ToResponse<'TResp>() }
+        member this.ToResponse() = HttpResponse<String>.Create(this, this.ToString())
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module HttpResponse =
+    let toObjResponse<'TResp when 'TResp : not struct> (resp:HttpResponse<'TResp>) =
+        resp.With(resp.Entity :> obj)
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Status =
+    let toResponse (status:Status) = status.ToResponse()
+(*
 module HttpResponseDeserializers =
     let toAsyncMemoryStreamResponse (this:HttpResponse<Stream>) =
-        let stream = this.Entity.Value
         async{
+            let stream = this.Entity
             let memStream =
                 match this.ContentInfo.Length with
                 | Some length -> 
@@ -438,7 +408,7 @@ module HttpResponseDeserializers =
 
             let! copyResult = stream.CopyToAsync(memStream) |> Async.AwaitIAsyncResult |> Async.Catch
             return match copyResult with
-                    | Choice1Of2 unit -> this.With(entity = memStream)
+                    | Choice1Of2 unit -> this.With(memStream)
                     | Choice2Of2 exn -> ClientStatus.deserializationFailed.ToResponse().With(id = this.Id)
         }
 
@@ -472,3 +442,4 @@ module HttpResponseDeserializers =
                 | Choice1Of2 result ->
                     this.With<string>(result)
         }
+        *)

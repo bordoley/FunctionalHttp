@@ -33,8 +33,7 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
-            return HttpResponseModule.With<TResp, TResp>(
-                This,
+            return HttpResponseInternalModule.With<TResp, TResp>(
                 acceptedRanges.ToFSharpOption(),
                 age.ToFSharpOption(),
                 allowed.ToFSharpOption(),
@@ -55,7 +54,8 @@ namespace FunctionalHttp.Core.Interop
                 status.ToFSharpOption(),
                 vary.ToFSharpOption(),
                 version.ToFSharpOption(),
-                warning.ToFSharpOption());
+                warning.ToFSharpOption(),
+                This);
         }
 
         public static HttpResponse<TNew> With<TResp, TNew>(
@@ -82,8 +82,7 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
-            return HttpResponseModule.With<TResp, TNew>(
-                This,
+            return HttpResponseInternalModule.With<TResp, TNew>(
                 acceptedRanges.ToFSharpOption(),
                 age.ToFSharpOption(), 
                 allowed.ToFSharpOption(),
@@ -91,7 +90,7 @@ namespace FunctionalHttp.Core.Interop
                 cacheControl.ToFSharpOption(),
                 contentInfo.ToFSharpOption(),
                 date.ToFSharpOption(),
-                entity.ToFSharpOption(),
+                entity,
                 etag.ToFSharpOption(),
                 expires.ToFSharpOption(),
                 headers.ToFSharpOption().Select(MapModule.OfSeq),
@@ -104,7 +103,8 @@ namespace FunctionalHttp.Core.Interop
                 status.ToFSharpOption(),
                 vary.ToFSharpOption(),
                 version.ToFSharpOption(),
-                warning.ToFSharpOption());
+                warning.ToFSharpOption(),
+                This);
         }
 
         public static HttpResponse<TResp> Without<TResp>(
@@ -127,9 +127,7 @@ namespace FunctionalHttp.Core.Interop
             bool vary = false,
             bool warning = false)
         {
-            return HttpResponseModule.Without<TResp, TResp>(
-                This,
-                This.Entity,
+            return HttpResponseInternalModule.Without<TResp>(
                 acceptedRanges,
                 age, 
                 allowed,
@@ -146,49 +144,8 @@ namespace FunctionalHttp.Core.Interop
                 retryAfter,
                 server,
                 vary,
-                warning);
-        }
-
-        public static HttpResponse<TNew> WithoutEntity<TResp, TNew>(
-            this HttpResponse<TResp> This,
-            bool acceptedRanges = false,
-            bool age = false,
-            bool allowed = false,
-            bool authenticate = false,
-            bool cacheControl = false,
-            bool contentInfo = false,
-            bool date = false,
-            bool etag = false,
-            bool expires = false,
-            bool headers = false,
-            bool lastModified = false,
-            bool location = false,
-            bool proxyAuthenticate = false,
-            bool retryAfter = false,
-            bool server = false,
-            bool vary = false,
-            bool warning = false)
-        {
-            return HttpResponseModule.Without<TResp, TNew>(
-                This,
-                FSharpOption<TNew>.None,
-                acceptedRanges,
-                age, 
-                allowed,
-                authenticate, 
-                cacheControl, 
-                contentInfo, 
-                date, 
-                etag, 
-                expires, 
-                headers, 
-                lastModified, 
-                location, 
-                proxyAuthenticate,
-                retryAfter,
-                server,
-                vary,
-                warning);
+                warning,
+                This);
         }
     }
 }

@@ -14,10 +14,18 @@ type EchoResource () =
         member this.Route = route
         member this.Filter (req: HttpRequest<'TFilterReq>) = req
         member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
-        member this.Handle (req:HttpRequest<_>) = HttpStatus.successOk.ToAsyncResponse<obj>()
-        member this.Accept (req: HttpRequest<obj>) = HttpStatus.successOk.ToAsyncResponse<obj>()
-        member this.Parse (req: HttpRequest<Stream>) = req.WithoutEntityAsync<obj>()
-        member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.WithoutEntityAsync<Stream>()
+        member this.Handle (req:HttpRequest<unit>) = 
+            HttpStatus.successOk.ToResponse()
+            |> HttpResponse.toObjResponse 
+            |> fun x -> async { return x }
+
+        member this.Accept (req: HttpRequest<obj>) = 
+            HttpStatus.successOk.ToResponse()
+            |> HttpResponse.toObjResponse 
+            |> fun x -> async { return x }
+
+        member this.Parse (req: HttpRequest<Stream>) = async { return Choice1Of2 (req.With(() :> obj)) }
+        member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.With(Stream.Null) |> fun x -> async { return x }
 
 module main =
     [<EntryPoint>]

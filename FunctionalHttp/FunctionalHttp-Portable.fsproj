@@ -38,6 +38,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Collections\Multimap.fs" />
     <Compile Include="Collections\Option.fs" />
+    <Compile Include="Collections\Async.fs" />
     <Compile Include="Parsing\CharStream.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />

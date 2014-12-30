@@ -10,10 +10,6 @@ type HttpRequestExtensions private () =
     [<Extension>]
     static member TryGetAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 
         Option.tryGetValue this.Authorization &authorization
-   
-    [<Extension>]
-    static member TryGetEntity(this:HttpRequest<'TReq>, entity : byref<'TReq>) = 
-        Option.tryGetValue this.Entity &entity
 
     [<Extension>]
     static member TryGetProxyAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 

@@ -15,16 +15,12 @@ module HttpListenerServer =
         let version = HttpVersion.Create(req.ProtocolVersion.Major, req.ProtocolVersion.Minor)
         let headers = (req.Headers.AllKeys :> seq<string>) |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))
 
-        HttpRequest<Stream>.Create(meth, req.Url, version, Some req.InputStream, headers)
+        HttpRequest<Stream>.Create(meth, req.Url, version,  req.InputStream, headers)
 
     let private sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
         async {
             listenerResponse.StatusCode <- resp.Status.Code
-
-            do!
-                match resp.Entity with
-                | Some stream -> stream.CopyToAsync(listenerResponse.OutputStream) |> Async.AwaitIAsyncResult |> Async.Ignore
-                | _ -> async { return () }
+            do! resp.Entity.CopyToAsync(listenerResponse.OutputStream) |> Async.AwaitIAsyncResult |> Async.Ignore
             listenerResponse.Close()
         }
 

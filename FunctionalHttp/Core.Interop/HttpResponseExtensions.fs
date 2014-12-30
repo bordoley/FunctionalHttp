@@ -2,7 +2,7 @@ namespace FunctionalHttp.Core.Interop
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
-open FunctionalHttp.Core.HttpResponseDeserializers
+//open FunctionalHttp.Core.HttpResponseDeserializers
 open System
 open System.IO
 open System.Runtime.CompilerServices
@@ -12,15 +12,7 @@ type HttpResponseExtensions private () =
     [<Extension>]
     static member ToResponse(this:Status) = this.ToResponse()
 
-    [<Extension>]
-    static member ToAsyncResponse(this:Status) = this.ToAsyncResponse()
-
-    [<Extension>]
-    static member ToAsyncResponse(this:HttpResponse<'TResp>) = this.ToAsyncResponse()
-
-    [<Extension>]
-    static member WithoutEntityAsyncResponse<'TResp> (this:HttpResponse<_>) = this.WithoutEntityAsync<'TResp>()
-
+    (*
     [<Extension>]
     static member ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) = toAsyncMemoryStreamResponse this
 
@@ -29,6 +21,7 @@ type HttpResponseExtensions private () =
 
     [<Extension>]
     static member ToAsyncStringResponse (this:HttpResponse<Stream>) = toAsyncStringResponse this
+    *)
 
     [<Extension>]
     static member TryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<AcceptableRanges>) = 
@@ -41,10 +34,6 @@ type HttpResponseExtensions private () =
     [<Extension>]
     static member TryGetDate(this:HttpResponse<'TResp>, date : byref<DateTime>) = 
         Option.tryGetValue this.Date &date
-
-    [<Extension>]
-    static member TryGetEntity(this:HttpResponse<'TResp>, entity : byref<'TResp>) = 
-        Option.tryGetValue this.Entity &entity
 
     [<Extension>]
     static member TryGetETag(this:HttpResponse<'TResp>, etag : byref<EntityTag>) = 

@@ -38,6 +38,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Collections\Multimap.fs" />
     <Compile Include="Collections\Option.fs" />
+    <Compile Include="Collections\Async.fs" />
     <Compile Include="Parsing\CharStream.fs" />
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
@@ -73,10 +74,10 @@
     <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
     <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
     <Compile Include="Client\HttpClient.fs" />
-    <Compile Include="Client\SystemNetExtensions.fs" />
-    <Compile Include="Client\HttpClientConnector.fs" />
+    <!--- <Compile Include="Client\SystemNetExtensions.fs" />
+    <Compile Include="Client\HttpClientConnector.fs" />-->
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
-    <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" />
+    <!--- <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" /> -->
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Resource.fs" />
     <Compile Include="Server\Router.fs" />

@@ -99,9 +99,6 @@ type internal HttpRequestExtensions private () =
         | _ -> ()         
 
         // HTTP Client likes to crash when you set the content on a GET request
-        match (this.Method, this.Entity) with
-        | (m, Some stream) when m <> Method.Get ->
-            message.Content <- new StreamContent(stream)
-        | _ -> ()   
+        if this.Method <> Method.Get then message.Content <- new StreamContent(this.Entity)
 
         message
