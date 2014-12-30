@@ -10,7 +10,7 @@ open System.Runtime.CompilerServices
 [<AbstractClass; Sealed; Extension>]
 type HttpResponseExtensions private () =
     [<Extension>]
-    static member ToResponse(this:Status) = this.ToResponse()
+    static member ToResponse(this:Status) = Status.toResponse this
 
     (*
     [<Extension>]

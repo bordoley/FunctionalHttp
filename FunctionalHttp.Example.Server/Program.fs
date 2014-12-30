@@ -15,12 +15,14 @@ type EchoResource () =
         member this.Filter (req: HttpRequest<'TFilterReq>) = req
         member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
         member this.Handle (req:HttpRequest<unit>) = 
-            HttpStatus.successOk.ToResponse()
+            HttpStatus.successOk
+            |> Status.toResponse
             |> HttpResponse.toObjResponse 
             |> fun x -> async { return x }
 
         member this.Accept (req: HttpRequest<obj>) = 
-            HttpStatus.successOk.ToResponse()
+            HttpStatus.successOk
+            |> Status.toResponse
             |> HttpResponse.toObjResponse 
             |> fun x -> async { return x }
 

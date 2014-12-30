@@ -381,11 +381,6 @@ module HttpResponseMixins =
                                                     Option.isSome vary,
                                                     Option.isSome warning) 
 
-        member this.ToObjectResponse() = this.With(this.Entity :> obj)
-
-    type Status with
-        member this.ToResponse() = HttpResponse<String>.Create(this, this.ToString())
-
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
     let toObjResponse<'TResp when 'TResp : not struct> (resp:HttpResponse<'TResp>) =
@@ -393,7 +388,7 @@ module HttpResponse =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Status =
-    let toResponse (status:Status) = status.ToResponse()
+    let toResponse (status:Status) = HttpResponse<String>.Create(status, status.ToString())
 (*
 module HttpResponseDeserializers =
     let toAsyncMemoryStreamResponse (this:HttpResponse<Stream>) =
