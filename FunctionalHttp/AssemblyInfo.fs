@@ -1,4 +1,4 @@
-﻿module FunctionalHttp.AssemblyInfo
+﻿namespace FunctionalHttp
 open System.Reflection
 open System.Runtime.CompilerServices
 
