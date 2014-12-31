@@ -1,8 +1,10 @@
 ﻿namespace FunctionalHttp.Client
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open FunctionalHttp.Core.ClientStatus
 
+open System
 open System.IO
 open System.Linq
 open System.Net
@@ -19,8 +21,6 @@ module internal HttpWebResponseExtensions =
                     this.Headers.GetValues(key).Select(fun value -> (key,value)))
 
             HttpResponse<Stream>.Create(statusCode, this.GetResponseStream(), headers)
-
-        member this.ToAsyncResponse () = this.ToResponse().ToAsyncResponse()
 
 [<AutoOpen>]
 module internal HttpResponseMessageExtensions =
@@ -40,45 +40,40 @@ module internal WebExceptionExtensions =
         member this.ToStatus() =
             match this.Status with
             //| WebExceptionStatus.CacheEntryNotFound -> CacheEntryNotFound
-            | WebExceptionStatus.ConnectFailure -> Some connectFailure
-            | WebExceptionStatus.ConnectionClosed -> Some connectionClosed
-            | WebExceptionStatus.KeepAliveFailure -> Some keepAliveFailure
-            | WebExceptionStatus.MessageLengthLimitExceeded -> Some messageLengthLimitExceeded
-            | WebExceptionStatus.NameResolutionFailure -> Some nameResolutionFailure
+            | WebExceptionStatus.ConnectFailure -> connectFailure
+            | WebExceptionStatus.ConnectionClosed -> connectionClosed
+            | WebExceptionStatus.KeepAliveFailure -> keepAliveFailure
+            | WebExceptionStatus.MessageLengthLimitExceeded -> messageLengthLimitExceeded
+            | WebExceptionStatus.NameResolutionFailure -> nameResolutionFailure
             //| WebExceptionStatus.Pending -> HttpResponse<'TResp>.Create(Status.SuccessOk)
-            | WebExceptionStatus.PipelineFailure -> Some pipelineFailure
+            | WebExceptionStatus.PipelineFailure -> pipelineFailure
 
-            | WebExceptionStatus.ProxyNameResolutionFailure -> Some proxyNameResolutionFailure
-            | WebExceptionStatus.ReceiveFailure -> Some receiveFailure
-            | WebExceptionStatus.RequestCanceled -> Some requestCanceled
+            | WebExceptionStatus.ProxyNameResolutionFailure -> proxyNameResolutionFailure
+            | WebExceptionStatus.ReceiveFailure -> receiveFailure
+            | WebExceptionStatus.RequestCanceled -> requestCanceled
 
             // FIXME: Should these be handled similarly to ProtocolError?
-            //| WebExceptionStatus.RequestProhibitedByCachePolicy -> Some RequestProhibitedByCachePolicy
-            //| WebExceptionStatus.RequestProhibitedByProxy -> Some RequestProhibitedByProxy
+            //| WebExceptionStatus.RequestProhibitedByCachePolicy -> RequestProhibitedByCachePolicy
+            //| WebExceptionStatus.RequestProhibitedByProxy -> RequestProhibitedByProxy
 
-            | WebExceptionStatus.SecureChannelFailure -> Some secureChannelFailure
-            | WebExceptionStatus.SendFailure -> Some sendFailure
-            | WebExceptionStatus.ServerProtocolViolation -> Some serverProtocolViolation
+            | WebExceptionStatus.SecureChannelFailure -> secureChannelFailure
+            | WebExceptionStatus.SendFailure -> sendFailure
+            | WebExceptionStatus.ServerProtocolViolation -> serverProtocolViolation
 
-            //| WebExceptionStatus.Success -> Some Success
+            //| WebExceptionStatus.Success -> Success
 
-            | WebExceptionStatus.Timeout -> Some timeout
-            | WebExceptionStatus.TrustFailure -> Some trustFailure
-            | WebExceptionStatus.UnknownError -> Some unknownError
-            | _ -> None
+            | WebExceptionStatus.Timeout -> timeout
+            | WebExceptionStatus.TrustFailure -> trustFailure
+            | WebExceptionStatus.UnknownError -> unknownError
+            | _ -> raise (Exception("Unknown WebExceptionStatus", this))
 
         member this.ToResponse() =
             match this.Status with
             | WebExceptionStatus.ProtocolError ->
                 match this.Response with
                 | :? HttpWebResponse as resp -> resp.ToResponse()
-                | _ -> raise (new System.Exception("ProtocolError didn't include HttpWebResponse", this))
-            | _ -> 
-                match this.ToStatus() with
-                | Some status -> status.ToResponse<Stream>()
-                | None -> raise (new System.Exception("Unknown WebExceptionStatus", this))
-
-        member this.ToAsyncResponse() = this.ToResponse().ToAsyncResponse()
+                | _ -> raise (Exception("ProtocolError didn't include HttpWebResponse", this))
+            | _ ->  this.ToStatus() |> Status.toResponse |> fun x -> x.With(Stream.Null)
 
 [<AbstractClass; Sealed; Extension>]
 type internal HttpRequestExtensions private () =

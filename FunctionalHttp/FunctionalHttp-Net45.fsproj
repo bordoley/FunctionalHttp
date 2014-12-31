@@ -17,6 +17,7 @@
     <IntermediateOutputPath>obj\Debug\Net45\</IntermediateOutputPath>
     <DefineConstants>DEBUG, NET45</DefineConstants>
     <Tailcalls>false</Tailcalls>
+    <DocumentationFile>bin\Debug\Net45\FunctionalHttp.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -26,6 +27,7 @@
     <IntermediateOutputPath>obj\Release\Net45\</IntermediateOutputPath>
     <Tailcalls>true</Tailcalls>
     <DefineConstants>NET45</DefineConstants>
+    <DocumentationFile>bin\Release\Net45\FunctionalHttp.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -74,8 +76,8 @@
     <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
     <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
     <Compile Include="Client\HttpClient.fs" />
-    <!--- <Compile Include="Client\SystemNetExtensions.fs" />
-    <Compile Include="Client\HttpClientConnector.fs" />-->
+    <Compile Include="Client\SystemNetExtensions.fs" />
+    <Compile Include="Client\HttpClientConnector.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
     <!--- <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" /> -->
     <Compile Include="Server\Route.fs" />

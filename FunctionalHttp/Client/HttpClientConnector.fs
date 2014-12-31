@@ -1,5 +1,6 @@
 namespace FunctionalHttp.Client
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Core
 
 open System
@@ -19,10 +20,10 @@ module SystemNetHttpClientMixins =
                     // FIXME: Add some logging
 
                     match exn with
-                    | :? WebException as exn -> exn.ToAsyncResponse()            
+                    | :? WebException as exn -> exn.ToResponse() |> Async.result          
                     | :? AggregateException as exn ->
                         match exn.InnerException with 
-                        | null -> raise (new System.Exception("Unexpected exception", exn))
+                        | null -> raise (Exception("Unexpected exception", exn))
                         | exn -> handleException exn
                     | _ -> raise (new System.Exception("Unexpected exception", exn))  
         
