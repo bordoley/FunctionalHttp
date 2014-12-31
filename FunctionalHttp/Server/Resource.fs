@@ -40,6 +40,11 @@ type IUniformResourceDelegate<'TReq> =
     abstract member Filter: HttpRequest<'TFilterReq> -> HttpRequest<'TFilterReq>
     abstract member Filter: HttpResponse<'TFilterResp> -> HttpResponse<'TFilterResp>
 
+type IAuthorizer =
+  abstract member AuthenticationChallenge : Challenge with get
+  abstract member Scheme:string with get
+  abstract member Authenticate: HttpRequest<unit> -> Async<bool>
+
 type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
     let optionsResponse = 
         HttpResponse<obj>.Create(HttpStatus.successOk, () :> obj, allowed = resource.Allowed) |> Async.result
@@ -116,11 +121,6 @@ type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
                 resource.Post typedReq
             | _ -> raise (ArgumentException())
 
-type IAuthorizer =
-  abstract member AuthenticationChallenge : Challenge with get
-  abstract member Scheme:string with get
-  abstract member Authenticate: HttpRequest<unit> -> Async<bool>
-
 
 type internal BasicAuthorizer internal (authenticationChallenge:Challenge, f:HttpRequest<unit>*string*string -> Async<bool>) =
     interface IAuthorizer with
@@ -179,11 +179,14 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
         member this.Accept req = resource.Accept req
 
 module Authorizer =
-    let basic (realm:string) (f:HttpRequest<_>*string*string -> Async<bool>) =
+    let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
         let challengeString = sprintf "basic realm=\"%s\", encoding=\"UTF-8\"" realm
-        let challenge = Parser.parse Challenge.Parser challengeString |> Option.get
+        let challenge = challengeString |> Parser.parse Challenge.Parser |> Option.get
         BasicAuthorizer (challenge, f) :> IAuthorizer
 
 module Resource =
     [<CompiledName("Uniform")>]
     let uniform resourceDelegate = UniformResource(resourceDelegate) :> IResource
+
+    let authorizing (authorizers: seq<string*IAuthorizer>) resource =
+         AuthorizingResource(resource, Map.ofSeq authorizers) :> IResource
