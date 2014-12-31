@@ -18,16 +18,15 @@ type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.Client.HttpCl
     member this.SendRequest(request:HttpRequest<'TReq>)  =
         let completer = TaskCompletionSource()
 
-        let handleRequest = async {            
+        async {            
             let! response = httpClient request
             completer.SetResult(response)
-        }
+        } |> Async.StartImmediate
 
-        Async.StartImmediate handleRequest
         completer.Task
 
 [<AbstractClass; Sealed; Extension>]
-type HttpClientInteropExtensions private () =
+type HttpClientExtensions private () =
     [<Extension>]
     static member UsingContext(this:HttpClient<'TReq, 'TResp>, context:SynchronizationContext) =
         let client = HttpClient.usingContext context this.FSharpHttpClient

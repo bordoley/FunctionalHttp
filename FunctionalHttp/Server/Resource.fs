@@ -42,15 +42,14 @@ type IUniformResourceDelegate<'TReq> =
 
 type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
     let optionsResponse = 
-        HttpResponse<obj>.Create(HttpStatus.successOk, () :> obj, allowed = resource.Allowed)
-        |> Async.result
+        HttpResponse<obj>.Create(HttpStatus.successOk, () :> obj, allowed = resource.Allowed) |> Async.result
 
     let methodNotAllowedResponse = 
-        HttpStatus.clientErrorMethodNotAllowed
-        |> Status.toResponse
-        |> fun x -> x.With(allowed = resource.Allowed)
-        |> HttpResponse.toObjResponse
-        |> Async.result
+        HttpResponse<obj>.Create(HttpStatus.clientErrorMethodNotAllowed, () :> obj, allowed = resource.Allowed) |> Async.result
+
+    let continueResponse = HttpResponse<obj>.Create(HttpStatus.informationalContinue, () :> obj)
+    let continueIfSuccess (resp:HttpResponse<obj>) =
+        if resp.Status.Class <> StatusClass.Success then resp else continueResponse
 
     let unmodified (req:HttpRequest<_>) (resp:HttpResponse<_>) = true
         //if req.preconditions.ifNoneMatch.isEmpty && req.preconditions.ifModifiedSince.isEmpty then false
@@ -92,18 +91,12 @@ type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
             | m when m = Method.Post -> 
                 async {
                     let! resp = resource.Get req
-                    return 
-                        if resp.Status.Class <> StatusClass.Success 
-                        then resp
-                        else HttpStatus.informationalContinue |> Status.toResponse |> HttpResponse.toObjResponse
+                    return continueIfSuccess resp
                 }
             | m when m = Method.Put || m = Method.Patch ->
                 async {
                     let! resp = checkUpdateConditions req
-                    return 
-                        if resp.Status.Class <> StatusClass.Success 
-                        then resp
-                        else HttpStatus.informationalContinue |> Status.toResponse |> HttpResponse.toObjResponse
+                    return continueIfSuccess resp
                 }
             | m when m = Method.Delete ->
                 async {
@@ -143,7 +136,7 @@ type internal BasicAuthorizer internal (authenticationChallenge:Challenge, f:Htt
                         let decodedString = Encoding.UTF8.GetString(bytes, 0, bytes.Length)
                         let userPwd = decodedString.Split([|':'|], 2, StringSplitOptions.None)
                         if userPwd.Length <> 2
-                        then async{ return false }
+                        then Async.result false
                         else f(req, userPwd.[0], userPwd.[1])
                     | _ -> async{ return false }
             }
@@ -154,6 +147,12 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
         HttpStatus.clientErrorUnauthorized
         |> Status.toResponse
         |> fun x -> x.With(authenticate = challenges)
+        |> HttpResponse.toObjResponse
+        |> Async.result
+
+    let forbiddenResponse = 
+        HttpStatus.clientErrorForbidden 
+        |> Status.toResponse 
         |> HttpResponse.toObjResponse
         |> Async.result
 
@@ -173,10 +172,7 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
                     return! 
                         if authenticated 
                         then resource.Handle req
-                        else HttpStatus.clientErrorForbidden 
-                             |> Status.toResponse 
-                             |> HttpResponse.toObjResponse
-                             |> Async.result
+                        else forbiddenResponse
                 })
             |> Option.getOrElse unauthorizedResponse
 

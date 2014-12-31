@@ -388,4 +388,4 @@ module HttpResponse =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Status =
-    let toResponse (status:Status) = HttpResponse<String>.Create(status, status.ToString())
+    let toResponse (status:Status) = HttpResponse<unit>.Create(status, ())

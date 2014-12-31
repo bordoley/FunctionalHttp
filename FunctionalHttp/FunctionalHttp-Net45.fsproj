@@ -79,7 +79,7 @@
     <Compile Include="Client\SystemNetExtensions.fs" />
     <Compile Include="Client\HttpClientConnector.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
-    <!--- <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" /> -->
+    <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" />
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Resource.fs" />
     <Compile Include="Server\Router.fs" />
