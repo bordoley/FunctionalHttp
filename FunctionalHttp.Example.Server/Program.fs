@@ -37,7 +37,7 @@ module main =
 
         let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
 
-        let server = HttpServer.create (fun _ -> application) HttpServer.internalErrorResponseWithStackTrace
+        let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 
         let cts = new CancellationTokenSource()
 

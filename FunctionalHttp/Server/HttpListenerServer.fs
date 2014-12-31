@@ -24,9 +24,10 @@ module HttpListenerServer =
             resp.Location |> Option.map (fun x -> listenerResponse.RedirectLocation <- x.ToString()) |> ignore
             resp.ContentInfo.Length 
                 |> Option.map (fun x -> listenerResponse.ContentLength64 <- int64 x) |> ignore
-
-            do! resp.Entity.CopyToAsync(listenerResponse.OutputStream) |> Async.AwaitIAsyncResult |> Async.Ignore
-            listenerResponse.Close()
+            
+            use entity = resp.Entity
+            use outStream = listenerResponse.OutputStream
+            do! entity.CopyToAsync(outStream) |> Async.AwaitIAsyncResult |> Async.Ignore
         }
 
     [<CompiledName("Create")>]
@@ -40,7 +41,6 @@ module HttpListenerServer =
                     let! resp = server req
                     do! sendResponse ctx.Response resp
                 with | ex -> Console.WriteLine ex
-
             }
 
         let rec loop () =

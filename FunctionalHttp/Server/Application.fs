@@ -40,13 +40,13 @@ module HttpApplication =
     let singleResource resource = SingleResourceApplication(resource) :> IHttpApplication
 
     [<CompiledName("Routing")>]
-    let routing defaultResource resources =
+    let routing (resources, defaultResource)  =
         RoutingApplication ((Router.Empty.AddAll resources), defaultResource) :> IHttpApplication
 
     [<CompiledName("WithRequestFilter")>]
     let withRequestFilter (filter:RequestFilter<Stream>) (application:IHttpApplication) =
         RequestFilterApplication(application, filter) :> IHttpApplication
 
-    [<CompiledName("WithRequestFilter")>]
+    [<CompiledName("WithResponseFilter")>]
     let withResponseFilter (filter:ResponseFilter<Stream>) (application:IHttpApplication) =
         ResponseFilterApplication(application, filter) :> IHttpApplication

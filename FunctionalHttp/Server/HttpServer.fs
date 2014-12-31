@@ -26,16 +26,16 @@ module HttpServer =
         HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, stream, contentInfo = contentInfo) |> Async.result
 
     [<CompiledName("VirtualHostApplicationProvider")>]
-    let virtualHostApplicationProvider (applications:seq<string*IHttpApplication>) (defaultApplication:IHttpApplication) =
+    let virtualHostApplicationProvider (applications:seq<string*IHttpApplication>, defaultApplication:IHttpApplication) =
         let map = Map.ofSeq applications
 
-        let provider (req:HttpRequest<_>) = 
+        let provider (req:HttpRequest<Stream>) = 
             map.TryFind req.Uri.DnsSafeHost |> Option.getOrElse defaultApplication
 
         provider
 
     [<CompiledName("Create")>]
-    let create (applicationProvider : HttpRequest<Stream> -> IHttpApplication) (internalErrorResponse : exn -> Async<HttpResponse<Stream>>) =
+    let create (applicationProvider : HttpRequest<Stream> -> IHttpApplication, internalErrorResponse : exn -> Async<HttpResponse<Stream>>) =
         { 
             new obj()
                 interface IHttpServerDelegate with

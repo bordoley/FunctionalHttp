@@ -179,6 +179,7 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
         member this.Accept req = resource.Accept req
 
 module Authorizer =
+    [<CompiledName("Basic")>]
     let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
         let challengeString = sprintf "basic realm=\"%s\", encoding=\"UTF-8\"" realm
         let challenge = challengeString |> Parser.parse Challenge.Parser |> Option.get
@@ -188,5 +189,6 @@ module Resource =
     [<CompiledName("Uniform")>]
     let uniform resourceDelegate = UniformResource(resourceDelegate) :> IResource
 
-    let authorizing (authorizers: seq<string*IAuthorizer>) resource =
+    [<CompiledName("Authorizing")>]
+    let authorizing (authorizers: seq<string*IAuthorizer>, resource) =
          AuthorizingResource(resource, Map.ofSeq authorizers) :> IResource
