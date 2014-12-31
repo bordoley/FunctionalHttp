@@ -2,7 +2,7 @@
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
-open FunctionalHttp.Core.ClientStatus
+open FunctionalHttp.Client.ClientStatus
 
 open System
 open System.IO

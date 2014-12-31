@@ -346,40 +346,40 @@ module HttpResponseMixins =
                                                 version,
                                                 warning) 
 
-        member this.Without<'TResp>(?acceptedRanges,
-                                    ?age, 
-                                    ?allowed, 
-                                    ?authenticate, 
-                                    ?cacheControl, 
-                                    ?contentInfo, 
-                                    ?date, 
-                                    ?etag, 
-                                    ?expires, 
-                                    ?headers, 
-                                    ?lastModified, 
-                                    ?location,
-                                    ?proxyAuthenticate,
-                                    ?retryAfter, 
-                                    ?server,
-                                    ?vary,
-                                    ?warning) =
-            this |> HttpResponseInternal.without (  Option.isSome acceptedRanges,
-                                                    Option.isSome age, 
-                                                    Option.isSome allowed,
-                                                    Option.isSome authenticate, 
-                                                    Option.isSome cacheControl, 
-                                                    Option.isSome contentInfo, 
-                                                    Option.isSome date, 
-                                                    Option.isSome etag, 
-                                                    Option.isSome expires, 
-                                                    Option.isSome headers, 
-                                                    Option.isSome lastModified, 
-                                                    Option.isSome location, 
-                                                    Option.isSome proxyAuthenticate,
-                                                    Option.isSome retryAfter,
-                                                    Option.isSome server,
-                                                    Option.isSome vary,
-                                                    Option.isSome warning) 
+        member this.Without<'TResp>(?acceptedRanges:bool,
+                                    ?age:bool, 
+                                    ?allowed:bool, 
+                                    ?authenticate:bool, 
+                                    ?cacheControl:bool, 
+                                    ?contentInfo:bool, 
+                                    ?date:bool, 
+                                    ?etag:bool, 
+                                    ?expires:bool, 
+                                    ?headers:bool, 
+                                    ?lastModified:bool, 
+                                    ?location:bool,
+                                    ?proxyAuthenticate:bool,
+                                    ?retryAfter:bool, 
+                                    ?server:bool,
+                                    ?vary:bool,
+                                    ?warning:bool) =
+            this |> HttpResponseInternal.without (  defaultArg acceptedRanges false,
+                                                    defaultArg age false, 
+                                                    defaultArg allowed false,
+                                                    defaultArg authenticate false, 
+                                                    defaultArg cacheControl false, 
+                                                    defaultArg contentInfo false, 
+                                                    defaultArg date false, 
+                                                    defaultArg etag false, 
+                                                    defaultArg expires false, 
+                                                    defaultArg headers false, 
+                                                    defaultArg lastModified false, 
+                                                    defaultArg location false, 
+                                                    defaultArg proxyAuthenticate false,
+                                                    defaultArg retryAfter false,
+                                                    defaultArg server false,
+                                                    defaultArg vary false,
+                                                    defaultArg warning false) 
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
@@ -389,52 +389,3 @@ module HttpResponse =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Status =
     let toResponse (status:Status) = HttpResponse<String>.Create(status, status.ToString())
-(*
-module HttpResponseDeserializers =
-    let toAsyncMemoryStreamResponse (this:HttpResponse<Stream>) =
-        async{
-            let stream = this.Entity
-            let memStream =
-                match this.ContentInfo.Length with
-                | Some length -> 
-                    let byteArray = Array.init<byte> (int length) (fun i -> 0uy)
-                    new MemoryStream(byteArray)
-                | _ -> new MemoryStream()
-
-            let! copyResult = stream.CopyToAsync(memStream) |> Async.AwaitIAsyncResult |> Async.Catch
-            return match copyResult with
-                    | Choice1Of2 unit -> this.With(memStream)
-                    | Choice2Of2 exn -> ClientStatus.deserializationFailed.ToResponse().With(id = this.Id)
-        }
-
-    let toAsyncByteArrayResponse (this:HttpResponse<Stream>) =
-        async {
-            let! memResponse = toAsyncMemoryStreamResponse this
-            return
-                match memResponse.Entity with
-                | None -> memResponse.WithoutEntity<byte[]>()
-                | Some stream -> this.With(entity = stream.ToArray())    
-        }
-
-    let toAsyncStringResponse (this:HttpResponse<Stream>)  =
-        let stream = this.Entity.Value
-        async {
-            let encoding = 
-                match 
-                    this.ContentInfo.MediaType 
-                    |> Option.bind (fun mr -> mr.Charset) 
-                    |> Option.bind (fun charset -> charset.Encoding)  with
-                | Some enc -> enc
-                | _ -> Encoding.UTF8
-
-            use sr = new StreamReader(stream, encoding)
-
-            let! result = sr.ReadToEndAsync() |> Async.AwaitTask |> Async.Catch
-            return 
-                match result with
-                | Choice2Of2 exn ->
-                    ClientStatus.deserializationFailed.ToResponse<string>().With(id = this.Id)
-                | Choice1Of2 result ->
-                    this.With<string>(result)
-        }
-        *)

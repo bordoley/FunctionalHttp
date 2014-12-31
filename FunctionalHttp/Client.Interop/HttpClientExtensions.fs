@@ -8,6 +8,7 @@ open System.Runtime.CompilerServices
 open System.Threading
 open System.Threading.Tasks
 
+[<Sealed>]
 type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.Client.HttpClient<'TReq, 'TResp>) = 
     static member FromFSharpHttpClient(httpClient: FunctionalHttp.Client.HttpClient<'TReq, 'TResp>) = 
         new HttpClient<'TReq, 'TResp>(httpClient); 
