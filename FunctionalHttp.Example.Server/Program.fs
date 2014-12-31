@@ -15,6 +15,7 @@ type EchoResource () =
         member this.Filter (req: HttpRequest<'TFilterReq>) = req
         member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
         member this.Handle (req:HttpRequest<unit>) = 
+            raise (Exception("test"))
             HttpStatus.successOk
             |> Status.toResponse
             |> HttpResponse.toObjResponse 
@@ -37,9 +38,11 @@ module main =
 
         let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
 
+        let server = HttpServer.create (fun _ -> application) HttpServer.internalErrorResponseWithStackTrace
+
         let cts = new CancellationTokenSource()
 
-        HttpListenerServer.start (fun _ -> application) listener cts.Token |> Async.StartImmediate
+        HttpListenerServer.create server listener cts.Token |> Async.StartImmediate
 
         Console.ReadLine () |> ignore
         cts.Cancel()

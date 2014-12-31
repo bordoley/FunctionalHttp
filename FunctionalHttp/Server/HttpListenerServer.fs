@@ -1,5 +1,6 @@
 ﻿namespace FunctionalHttp.Server
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open FunctionalHttp.Parsing
 open System
@@ -20,12 +21,17 @@ module HttpListenerServer =
     let private sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
         async {
             listenerResponse.StatusCode <- resp.Status.Code
+            resp.Location |> Option.map (fun x -> listenerResponse.RedirectLocation <- x.ToString()) |> ignore
+            resp.ContentInfo.Length 
+                |> Option.map (fun x -> listenerResponse.ContentLength64 <- int64 x) |> ignore
+
             do! resp.Entity.CopyToAsync(listenerResponse.OutputStream) |> Async.AwaitIAsyncResult |> Async.Ignore
             listenerResponse.Close()
         }
 
-    let start (applicationProvider:HttpRequest<Stream> -> IHttpApplication) (listener:HttpListener) (cancellationToken:CancellationToken) =
-        let server = HttpServer.processRequest applicationProvider
+    [<CompiledName("Create")>]
+    let create (server:IHttpServerDelegate) (listener:HttpListener) (cancellationToken:CancellationToken) =
+        let server = HttpServer.processRequest server
 
         let processRequest (ctx:HttpListenerContext) =
             async {
@@ -33,7 +39,8 @@ module HttpListenerServer =
                     let req = parseRequest ctx.Request 
                     let! resp = server req
                     do! sendResponse ctx.Response resp
-                with | ex -> ()
+                with | ex -> Console.WriteLine ex
+
             }
 
         let rec loop () =

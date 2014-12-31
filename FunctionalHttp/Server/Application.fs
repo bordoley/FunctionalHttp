@@ -50,11 +50,3 @@ module HttpApplication =
     [<CompiledName("WithRequestFilter")>]
     let withResponseFilter (filter:ResponseFilter<Stream>) (application:IHttpApplication) =
         ResponseFilterApplication(application, filter) :> IHttpApplication
-
-    let virtualHost (applications:seq<string*IHttpApplication>) (defaultApplication:IHttpApplication) =
-        let map = Map.ofSeq applications
-
-        let provider (req:HttpRequest<_>) = 
-            map.TryFind req.Uri.DnsSafeHost |> Option.getOrElse defaultApplication
-
-        provider
