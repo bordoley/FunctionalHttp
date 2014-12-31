@@ -15,7 +15,6 @@ type EchoResource () =
         member this.Filter (req: HttpRequest<'TFilterReq>) = req
         member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
         member this.Handle (req:HttpRequest<unit>) = 
-            raise (Exception("test"))
             HttpStatus.successOk
             |> Status.toResponse
             |> HttpResponse.toObjResponse 
@@ -27,7 +26,7 @@ type EchoResource () =
             |> HttpResponse.toObjResponse 
             |> fun x -> async { return x }
 
-        member this.Parse (req: HttpRequest<Stream>) = async { return Choice1Of2 (req.With(() :> obj)) }
+        member this.Parse (req: HttpRequest<Stream>) = async { return req.With(() :> obj) }
         member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.With(Stream.Null) |> fun x -> async { return x }
 
 module main =

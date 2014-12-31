@@ -1,4 +1,4 @@
-﻿namespace FunctionalHttp.Interop
+﻿namespace FunctionalHttp.Client.Interop
 
 open FunctionalHttp.Client
 open System.Runtime.CompilerServices

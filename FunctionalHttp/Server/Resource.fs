@@ -22,7 +22,7 @@ type IResource =
 type IStreamResource =
     inherit IResource
 
-    abstract member Parse: HttpRequest<Stream> -> Async<Choice<HttpRequest<obj>, exn>>
+    abstract member Parse: HttpRequest<Stream> -> Async<HttpRequest<obj>>
     abstract member Serialize: HttpRequest<_>*HttpResponse<obj> -> Async<HttpResponse<Stream>>
  
 type IUniformResourceDelegate<'TReq> =

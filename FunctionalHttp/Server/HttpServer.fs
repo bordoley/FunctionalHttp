@@ -58,7 +58,7 @@ module HttpServer =
                 if resp.Status <> HttpStatus.informationalContinue
                 then resp |> Async.result
                 else async {
-                    let! req4 = resource.Parse req3
+                    let! req4 = resource.Parse req3 |> Async.Catch
                     return! 
                         match req4 with
                         | Choice1Of2 req -> resource.Accept req
