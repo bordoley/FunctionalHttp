@@ -198,13 +198,13 @@ module Resource =
     [<CompiledName("WithFilters")>]
     let withFilters (requestFilter:RequestFilter<unit>, responseFilter:ResponseFilter<obj>) (resource:IResource) =
         { new IResource with
-                    member this.Route with get() = resource.Route
+            member this.Route with get() = resource.Route
 
-                    member this.Filter req = requestFilter req
+            member this.Filter req = requestFilter req
 
-                    member this.Filter resp = responseFilter resp
+            member this.Filter resp = responseFilter resp
 
-                    member this.Handle req = resource.Handle req
-                
-                    member this.Accept req = resource.Accept req
+            member this.Handle req = resource.Handle req
+        
+            member this.Accept req = resource.Accept req
         }
