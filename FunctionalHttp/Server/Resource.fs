@@ -13,8 +13,8 @@ type ResponseFilter<'TResp> = HttpResponse<'TResp> -> HttpResponse<'TResp>
 type IResource = 
     abstract member Route:Route with get
 
-    abstract member Filter: HttpRequest<'TReq> -> HttpRequest<'TReq>
-    abstract member Filter: HttpResponse<'TResp> -> HttpResponse<'TResp>
+    abstract member Filter: HttpRequest<unit> -> HttpRequest<unit>
+    abstract member Filter: HttpResponse<obj> -> HttpResponse<obj>
 
     abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<obj>>
     abstract member Accept: HttpRequest<obj> -> Async<HttpResponse<obj>>
@@ -36,9 +36,6 @@ type IUniformResourceDelegate<'TReq> =
     abstract member Patch: HttpRequest<'TReq> -> Async<HttpResponse<obj>> 
     abstract member Post: HttpRequest<'TReq> -> Async<HttpResponse<obj>>
     abstract member Put: HttpRequest<'TReq> -> Async<HttpResponse<obj>>
-
-    abstract member Filter: HttpRequest<'TFilterReq> -> HttpRequest<'TFilterReq>
-    abstract member Filter: HttpResponse<'TFilterResp> -> HttpResponse<'TFilterResp>
 
 type IAuthorizer =
   abstract member AuthenticationChallenge : Challenge with get
@@ -89,9 +86,9 @@ type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
     interface IResource with
         member this.Route with get() = resource.Route
 
-        member this.Filter (req:HttpRequest<'TFilterReq>)  = resource.Filter req
+        member this.Filter (req:HttpRequest<unit>)  = req
 
-        member this.Filter (resp:HttpResponse<'TFilterResp>) = resource.Filter resp
+        member this.Filter (resp:HttpResponse<obj>) = resp
 
         member this.Handle req =
             match req.Method with
@@ -163,9 +160,9 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
     interface IResource with
         member this.Route with get() = resource.Route
 
-        member this.Filter (req:HttpRequest<'TFilterReq>)  = resource.Filter req
+        member this.Filter (req:HttpRequest<unit>)  = resource.Filter req
 
-        member this.Filter (resp:HttpResponse<'TFilterResp>) = resource.Filter resp
+        member this.Filter (resp:HttpResponse<obj>) = resource.Filter resp
 
         member this.Handle (req:HttpRequest<unit>) =
             req.Authorization
@@ -173,7 +170,7 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
             |> Option.map (fun authorizer -> 
                 async {
                     let! authenticated  = authorizer.Authenticate req
-                    return! 
+                    return!
                         if authenticated 
                         then resource.Handle req
                         else forbiddenResponse
@@ -181,6 +178,7 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
             |> Option.getOrElse unauthorizedResponse
 
         member this.Accept req = resource.Accept req
+
 
 module Authorizer =
     [<CompiledName("Basic")>]
@@ -196,3 +194,17 @@ module Resource =
     [<CompiledName("Authorizing")>]
     let authorizing (authorizers: seq<string*IAuthorizer>, resource) =
          AuthorizingResource(resource, Map.ofSeq authorizers) :> IResource
+
+    [<CompiledName("WithFilters")>]
+    let withFilters (requestFilter:RequestFilter<unit>, responseFilter:ResponseFilter<obj>) (resource:IResource) =
+        { new IResource with
+                    member this.Route with get() = resource.Route
+
+                    member this.Filter req = requestFilter req
+
+                    member this.Filter resp = responseFilter resp
+
+                    member this.Handle req = resource.Handle req
+                
+                    member this.Accept req = resource.Accept req
+        }

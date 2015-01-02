@@ -12,8 +12,8 @@ type EchoResource () =
 
     interface IStreamResource with
         member this.Route = route
-        member this.Filter (req: HttpRequest<'TFilterReq>) = req
-        member this.Filter (resp: HttpResponse<'TFilterResp>) = resp
+        member this.Filter (req: HttpRequest<unit>) = req
+        member this.Filter (resp: HttpResponse<obj>) = resp
         member this.Handle (req:HttpRequest<unit>) = 
             HttpStatus.successOk
             |> Status.toResponse

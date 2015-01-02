@@ -23,16 +23,10 @@ type internal RoutingApplication (router:Router, defaultResource:IStreamResource
             let path = List.ofArray req.Uri.Segments
             (router.Item path) |> Option.getOrElse defaultResource
 
-type internal RequestFilterApplication (application:IHttpApplication, requestFilter:RequestFilter<Stream>) =
+type internal FilterApplication (application:IHttpApplication, requestFilter:RequestFilter<Stream>, responseFilter:ResponseFilter<Stream>) =
     interface IHttpApplication with
         member this.Filter (req:HttpRequest<Stream>)= requestFilter req
         member this.Filter (resp:HttpResponse<Stream>) = application.Filter resp
-        member this.Route (req:HttpRequest<Stream>) = application.Route req
-
-type internal ResponseFilterApplication (application:IHttpApplication, responseFilter:ResponseFilter<Stream>) =
-    interface IHttpApplication with
-        member this.Filter (req:HttpRequest<Stream>)= application.Filter req
-        member this.Filter (resp:HttpResponse<Stream>) = responseFilter resp
         member this.Route (req:HttpRequest<Stream>) = application.Route req
      
 module HttpApplication =
@@ -43,10 +37,6 @@ module HttpApplication =
     let routing (resources, defaultResource)  =
         RoutingApplication ((Router.Empty.AddAll resources), defaultResource) :> IHttpApplication
 
-    [<CompiledName("WithRequestFilter")>]
-    let withRequestFilter (filter:RequestFilter<Stream>) (application:IHttpApplication) =
-        RequestFilterApplication(application, filter) :> IHttpApplication
-
-    [<CompiledName("WithResponseFilter")>]
-    let withResponseFilter (filter:ResponseFilter<Stream>) (application:IHttpApplication) =
-        ResponseFilterApplication(application, filter) :> IHttpApplication
+    [<CompiledName("WithFilters")>]
+    let withFilters (requestFilter:RequestFilter<Stream>, responseFilter:ResponseFilter<Stream>)  (application:IHttpApplication) =
+        FilterApplication(application, requestFilter, responseFilter) :> IHttpApplication

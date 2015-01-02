@@ -41,13 +41,15 @@ module HttpServer =
                 let app = applicationProvider req
                 let req = app.Filter req
                 let resource = app.Route req
+                let reqEntity = req.Entity
+                let req = req.With(())
                 let req = resource.Filter req
-                let! resp = resource.Handle (req.With(()))
+                let! resp = resource.Handle req
                 let! resp =
                     if resp.Status <> HttpStatus.informationalContinue
                     then resp |> Async.result
                     else async {
-                        let! req = resource.Parse req
+                        let! req = req.With(reqEntity) |> resource.Parse 
                         return! 
                             match req.Entity with
                             | Choice1Of2 entity -> resource.Accept (req.With(entity))
