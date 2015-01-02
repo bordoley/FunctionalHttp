@@ -2,10 +2,8 @@
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
-open FunctionalHttp.Parsing
 open System
 open System.IO
-open System.Text
 
 type RequestFilter<'TReq> = HttpRequest<'TReq> -> HttpRequest<'TReq>
 type ResponseFilter<'TResp> = HttpResponse<'TResp> -> HttpResponse<'TResp>
@@ -37,41 +35,9 @@ type IUniformResourceDelegate<'TReq> =
     abstract member Post: HttpRequest<'TReq> -> Async<HttpResponse<obj>>
     abstract member Put: HttpRequest<'TReq> -> Async<HttpResponse<obj>>
 
-type IAuthorizer =
-  abstract member AuthenticationChallenge : Challenge with get
-  abstract member Scheme:string with get
-  abstract member Authenticate: HttpRequest<unit> -> Async<bool>
-
 module internal ResourceInternal =
     let cast (resp : HttpResponse<_>) =
         resp.With(resp.Entity :> obj)
-
-module Authorizer =
-    [<CompiledName("Basic")>]
-    let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
-        let challengeString = sprintf "basic realm=\"%s\", encoding=\"UTF-8\"" realm
-        let challenge = challengeString |> Parser.parse Challenge.Parser |> Option.get
-
-        { new IAuthorizer with
-            member this.AuthenticationChallenge with get () = challenge
-
-            member this.Scheme = "Basic"
-
-            member this.Authenticate (req:HttpRequest<unit>) =
-                async {
-                    let creds = req.Authorization.Value
-                    return! 
-                        match creds.DataOrParameters with
-                        | Choice1Of2 base64Data ->
-                            let bytes = Convert.FromBase64String base64Data
-                            let decodedString = Encoding.UTF8.GetString(bytes, 0, bytes.Length)
-                            let userPwd = decodedString.Split([|':'|], 2, StringSplitOptions.None)
-                            if userPwd.Length <> 2
-                            then Async.result false
-                            else f(req, userPwd.[0], userPwd.[1])
-                        | _ -> async{ return false }
-                }
-        }
 
 module Resource =
     [<CompiledName("Uniform")>]
@@ -85,7 +51,7 @@ module Resource =
         let continueResponse = HttpResponse<obj>.Create(HttpStatus.informationalContinue, () :> obj)
         let continueIfSuccess (resp:HttpResponse<obj>) =
             if resp.Status.Class <> StatusClass.Success then resp else continueResponse
-
+           
         let unmodified (req:HttpRequest<_>) (resp:HttpResponse<_>) = true
             //if req.preconditions.ifNoneMatch.isEmpty && req.preconditions.ifModifiedSince.isEmpty then false
             //else 
