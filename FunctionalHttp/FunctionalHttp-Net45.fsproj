@@ -76,9 +76,9 @@
     <Compile Include="Core.Interop\StatusExtensions.fs" />
     <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
     <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
-    <Compile Include="Client\HttpClient.fs" />
+    <Compile Include="Client\ClientStatus.fs" />
     <Compile Include="Client\SystemNetExtensions.fs" />
-    <Compile Include="Client\HttpClientConnector.fs" />
+    <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
     <Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" />
     <Compile Include="Server\Route.fs" />

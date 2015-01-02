@@ -7,5 +7,5 @@ open System.Runtime.CompilerServices
 type SystemNetHttpClientExtensions private () = 
     [<Extension>]
     static member AsInteropHttpClient(this: System.Net.Http.HttpClient) =
-        let client = this.AsFunctionalHttpClient()
+        let client = HttpClient.asFunctionalHttpClient this
         FunctionalHttp.Client.Interop.HttpClient.FromFSharpHttpClient(client)

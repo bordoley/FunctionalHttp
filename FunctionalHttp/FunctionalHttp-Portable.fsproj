@@ -18,7 +18,7 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\Portable-net45+win+wpa81+wp80\</OutputPath>
     <IntermediateOutputPath>obj\Debug\Portable-net45+win+wpa81+wp80\</IntermediateOutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
+    <DefineConstants>DEBUG; PCL</DefineConstants>
     <Tailcalls>false</Tailcalls>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -28,6 +28,7 @@
     <OutputPath>bin\Release\Portable-net45+win+wpa81+wp80\</OutputPath>
     <IntermediateOutputPath>obj\Release\Portable-net45+win+wpa81+wp80\</IntermediateOutputPath>
     <Tailcalls>true</Tailcalls>
+    <DefineConstants>PCL</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
@@ -74,6 +75,7 @@
     <Compile Include="Core.Interop\StatusExtensions.fs" />
     <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
     <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
+    <Compile Include="Client\ClientStatus.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
     <Compile Include="Server\Route.fs" />
