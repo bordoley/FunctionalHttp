@@ -1,7 +1,6 @@
-﻿namespace FunctionalHttp.Serialization
+﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Core
 open System
 open System.IO
 open System.Text

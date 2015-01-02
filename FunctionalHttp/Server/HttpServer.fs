@@ -58,10 +58,10 @@ module HttpServer =
                 if resp.Status <> HttpStatus.informationalContinue
                 then resp |> Async.result
                 else async {
-                    let! req4 = resource.Parse req3 |> Async.Catch
+                    let! req4 = resource.Parse req3
                     return! 
-                        match req4 with
-                        | Choice1Of2 req -> resource.Accept req
+                        match req4.Entity with
+                        | Choice1Of2 entity -> resource.Accept (req4.With(entity))
                         | Choice2Of2 ex -> badRequestResponse
                 }
             let resp3 = resource.Filter resp2

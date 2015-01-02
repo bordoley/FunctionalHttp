@@ -383,8 +383,15 @@ module HttpResponseMixins =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
-    let toObjResponse<'TResp when 'TResp : not struct> (resp:HttpResponse<'TResp>) =
-        resp.With(resp.Entity :> obj)
+    [<CompiledName("Convert")>]
+    let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
+        async {
+            let! result = converter (resp.ContentInfo, resp.Entity) |> Async.Catch
+            return 
+                match result with
+                | Choice1Of2 (contentInfo, out) -> resp.With(Choice1Of2 out, contentInfo = contentInfo)
+                | Choice2Of2 exn -> resp.With(Choice2Of2 exn)
+        }
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Status =

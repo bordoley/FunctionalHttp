@@ -17,16 +17,16 @@ type EchoResource () =
         member this.Handle (req:HttpRequest<unit>) = 
             HttpStatus.successOk
             |> Status.toResponse
-            |> HttpResponse.toObjResponse 
+            |> fun x -> x.With(x.Entity :> obj)
             |> fun x -> async { return x }
 
         member this.Accept (req: HttpRequest<obj>) = 
             HttpStatus.successOk
             |> Status.toResponse
-            |> HttpResponse.toObjResponse 
+            |> fun x -> x.With(x.Entity :> obj)
             |> fun x -> async { return x }
 
-        member this.Parse (req: HttpRequest<Stream>) = async { return req.With(() :> obj) }
+        member this.Parse (req: HttpRequest<Stream>) = req |> HttpRequest.convert Converters.fromAnyToObject 
         member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.With(Stream.Null) |> fun x -> async { return x }
 
 module main =

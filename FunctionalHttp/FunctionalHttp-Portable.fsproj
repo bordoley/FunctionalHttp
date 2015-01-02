@@ -64,6 +64,7 @@
     <Compile Include="Core\RequestPreconditions.fs" />
     <Compile Include="Core\RequestPreferences.fs" />
     <Compile Include="Core\Status.fs" />
+    <Compile Include="Core\Converters.fs" />
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\HttpResponse.fs" />
     <Compile Include="Core.Interop\ChallengeExtensions.fs" />
@@ -73,7 +74,6 @@
     <Compile Include="Core.Interop\StatusExtensions.fs" />
     <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
     <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
-    <Compile Include="Serialization\Converters.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
     <Compile Include="Server\Route.fs" />

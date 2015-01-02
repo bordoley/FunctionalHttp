@@ -131,7 +131,7 @@ type HttpRequest<'TReq> =
                 version)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal HttpRequest =
+module internal HttpRequestInternal =
     [<CompiledName("With")>]
     let with_<'TReq, 'TNew> (   authorization,
                                 cacheControl,
@@ -214,22 +214,22 @@ module HttpRequestMixins =
                             ?uri:Uri, 
                             ?userAgent:UserAgent,
                             ?version:HttpVersion) =
-            this |> HttpRequest.with_  (authorization,
-                                        cacheControl,
-                                        contentInfo,
-                                        this.Entity,
-                                        expectContinue,
-                                        headers,
-                                        id,
-                                        meth,
-                                        pragma,
-                                        preconditions,
-                                        preferences,
-                                        proxyAuthorization,
-                                        referer,
-                                        uri,
-                                        userAgent,
-                                        version)
+            this |> HttpRequestInternal.with_  (authorization,
+                                                cacheControl,
+                                                contentInfo,
+                                                this.Entity,
+                                                expectContinue,
+                                                headers,
+                                                id,
+                                                meth,
+                                                pragma,
+                                                preconditions,
+                                                preferences,
+                                                proxyAuthorization,
+                                                referer,
+                                                uri,
+                                                userAgent,
+                                                version)
 
         member this.With<'TNew> (   entity:'TNew,
                                     ?authorization:Credentials,
@@ -247,22 +247,22 @@ module HttpRequestMixins =
                                     ?uri:Uri, 
                                     ?userAgent:UserAgent,
                                     ?version:HttpVersion) =
-            this |> HttpRequest.with_  (authorization,
-                                        cacheControl,
-                                        contentInfo,
-                                        entity,
-                                        expectContinue,
-                                        headers,
-                                        id,
-                                        meth,
-                                        pragma,
-                                        preconditions,
-                                        preferences,
-                                        proxyAuthorization,
-                                        referer,
-                                        uri,
-                                        userAgent,
-                                        version)
+            this |> HttpRequestInternal.with_ ( authorization,
+                                                cacheControl,
+                                                contentInfo,
+                                                entity,
+                                                expectContinue,
+                                                headers,
+                                                id,
+                                                meth,
+                                                pragma,
+                                                preconditions,
+                                                preferences,
+                                                proxyAuthorization,
+                                                referer,
+                                                uri,
+                                                userAgent,
+                                                version)
 
         member this.Without(?authorization:bool, 
                             ?cacheControl:bool, 
@@ -274,13 +274,25 @@ module HttpRequestMixins =
                             ?proxyAuthorization:bool, 
                             ?referer:bool, 
                             ?userAgent:bool) =
-            this |> HttpRequest.without (   defaultArg authorization false, 
-                                            defaultArg cacheControl false, 
-                                            defaultArg contentInfo false, 
-                                            defaultArg headers false,
-                                            defaultArg pragma false, 
-                                            defaultArg preconditions false, 
-                                            defaultArg preferences false, 
-                                            defaultArg proxyAuthorization false, 
-                                            defaultArg referer false, 
-                                            defaultArg userAgent false)                                                           
+            this |> HttpRequestInternal.without (   defaultArg authorization false, 
+                                                    defaultArg cacheControl false, 
+                                                    defaultArg contentInfo false, 
+                                                    defaultArg headers false,
+                                                    defaultArg pragma false, 
+                                                    defaultArg preconditions false, 
+                                                    defaultArg preferences false, 
+                                                    defaultArg proxyAuthorization false, 
+                                                    defaultArg referer false, 
+                                                    defaultArg userAgent false)                                                           
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module HttpRequest =
+    [<CompiledName("Convert")>]
+    let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (req:HttpRequest<'TIn>) = 
+        async {
+            let! result = converter (req.ContentInfo, req.Entity) |> Async.Catch
+            return 
+                match result with
+                | Choice1Of2 (contentInfo, out) -> req.With(Choice1Of2 out, contentInfo = contentInfo)
+                | Choice2Of2 exn -> req.With(Choice2Of2 exn)
+        }

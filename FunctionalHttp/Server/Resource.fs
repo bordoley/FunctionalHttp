@@ -22,7 +22,7 @@ type IResource =
 type IStreamResource =
     inherit IResource
 
-    abstract member Parse: HttpRequest<Stream> -> Async<HttpRequest<obj>>
+    abstract member Parse: HttpRequest<Stream> -> Async<HttpRequest<Choice<obj,exn>>>
     abstract member Serialize: HttpRequest<_>*HttpResponse<obj> -> Async<HttpResponse<Stream>>
  
 type IUniformResourceDelegate<'TReq> =
@@ -45,6 +45,10 @@ type IAuthorizer =
   abstract member Scheme:string with get
   abstract member Authenticate: HttpRequest<unit> -> Async<bool>
 
+module internal ResourceInternal =
+    let cast (resp : HttpResponse<_>) =
+        resp.With(resp.Entity :> obj)
+
 type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
     let optionsResponse = 
         HttpResponse<obj>.Create(HttpStatus.successOk, () :> obj, allowed = resource.Allowed) |> Async.result
@@ -65,7 +69,7 @@ type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
     let checkUpdateConditions (req:HttpRequest<_>) = 
         HttpStatus.successOk
         |> Status.toResponse
-        |> HttpResponse.toObjResponse
+        |> ResourceInternal.cast
         |> Async.result
 
     let conditionalGet (req:HttpRequest<_>) = 
@@ -78,7 +82,7 @@ type internal UniformResource<'TReq>(resource:IUniformResourceDelegate<'TReq>) =
                     HttpStatus.redirectionNotModified
                     |> Status.toResponse
                     |> fun x -> x.With(allowed = resource.Allowed)
-                    |> HttpResponse.toObjResponse
+                    |> ResourceInternal.cast
             else resp
         }
 
@@ -147,13 +151,13 @@ type internal AuthorizingResource (resource:IResource, authorizers: Map<string, 
         HttpStatus.clientErrorUnauthorized
         |> Status.toResponse
         |> fun x -> x.With(authenticate = challenges)
-        |> HttpResponse.toObjResponse
+        |> ResourceInternal.cast
         |> Async.result
 
     let forbiddenResponse = 
         HttpStatus.clientErrorForbidden 
         |> Status.toResponse 
-        |> HttpResponse.toObjResponse
+        |> ResourceInternal.cast
         |> Async.result
 
     interface IResource with

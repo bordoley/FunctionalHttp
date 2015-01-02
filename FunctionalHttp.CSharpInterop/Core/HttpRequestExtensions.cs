@@ -29,7 +29,7 @@ namespace FunctionalHttp.Core.Interop
             UserAgent userAgent = null,
             HttpVersion? version = null)
         {
-            return HttpRequestModule.With<TReq, TReq>(
+            return HttpRequestInternalModule.With<TReq, TReq>(
                 authorization.ToFSharpOption(),
                 cacheControl.ToFSharpOption(),
                 contentInfo.ToFSharpOption(),
@@ -68,7 +68,7 @@ namespace FunctionalHttp.Core.Interop
             UserAgent userAgent = null,
             HttpVersion? version = null)
         {
-            return HttpRequestModule.With<TReq, TNew>(
+            return HttpRequestInternalModule.With<TReq, TNew>(
                 authorization.ToFSharpOption(),
                 cacheControl.ToFSharpOption(),
                 contentInfo.ToFSharpOption(),
@@ -101,7 +101,7 @@ namespace FunctionalHttp.Core.Interop
             bool referer = false,
             bool userAgent = false)
         {
-            return HttpRequestModule.Without<TReq>(
+            return HttpRequestInternalModule.Without<TReq>(
                 authorization, 
                 cacheControl, 
                 contentInfo, 
