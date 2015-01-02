@@ -3,7 +3,6 @@
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open System
-open System.IO
 
 type RequestFilter<'TReq> = HttpRequest<'TReq> -> HttpRequest<'TReq>
 type ResponseFilter<'TResp> = HttpResponse<'TResp> -> HttpResponse<'TResp>
@@ -17,12 +16,6 @@ type IResource =
     abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<obj>>
     abstract member Accept: HttpRequest<obj> -> Async<HttpResponse<obj>>
 
-type IStreamResource =
-    inherit IResource
-
-    abstract member Parse: HttpRequest<Stream> -> Async<HttpRequest<Choice<obj,exn>>>
-    abstract member Serialize: HttpRequest<_>*HttpResponse<obj> -> Async<HttpResponse<Stream>>
- 
 type IUniformResourceDelegate<'TReq> =
     abstract member RequireETagForUpdate:bool with get
     abstract member RequireIfUnmodifiedSinceForUpdate:bool with get

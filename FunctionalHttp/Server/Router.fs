@@ -4,7 +4,7 @@ open System
 
 type internal Router = 
     private {
-        resource: IStreamResource option
+        resource: IServerResource option
         children: Map<string,Router>
     }
     static member Empty = { resource = Option.None; children = Map.empty }
@@ -37,7 +37,7 @@ type internal Router =
                     |> Option.bind(fun router -> globMatch tail router)
                 ))
 
-    member private this.DoAdd (route:string list) (resource:IStreamResource) =
+    member private this.DoAdd (route:string list) (resource:IServerResource) =
         match route with
         | [] -> { resource = Some resource; children = this.children }
         | head::tail -> 
@@ -48,7 +48,7 @@ type internal Router =
                 |> Option.getOrElseLazy (lazy Router.Empty.DoAdd tail resource)
             { resource = this.resource; children = this.children.Add (key, newChild) }
 
-    member this.Add (resource:IStreamResource) = this.DoAdd (resource.Route.ToList()) resource
+    member this.Add (resource:IServerResource) = this.DoAdd (resource.Route.ToList()) resource
 
-    member this.AddAll (resources:IStreamResource seq) =
+    member this.AddAll (resources:IServerResource seq) =
         resources |> Seq.fold (fun (router:Router) resource -> router.Add resource) this           

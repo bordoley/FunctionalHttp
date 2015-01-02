@@ -2,12 +2,13 @@
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
+
 open System.IO
 
 type IHttpApplication =
-    abstract Filter:  HttpRequest<Stream> -> HttpRequest<Stream>
+    abstract Filter: HttpRequest<Stream> -> HttpRequest<Stream>
     abstract Filter: HttpResponse<Stream> -> HttpResponse<Stream>
-    abstract Route: HttpRequest<Stream> -> IStreamResource
+    abstract Route: HttpRequest<Stream> -> IServerResource
      
 module HttpApplication =
     [<CompiledName("SingleResource")>]

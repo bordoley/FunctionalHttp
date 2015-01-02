@@ -10,7 +10,7 @@ open System.Threading
 type EchoResource () =
     let route = Route.Create ["example"]
 
-    interface IStreamResource with
+    interface IServerResource with
         member this.Route = route
         member this.Filter (req: HttpRequest<unit>) = req
         member this.Filter (resp: HttpResponse<obj>) = resp
@@ -32,7 +32,7 @@ type EchoResource () =
 module main =
     [<EntryPoint>]
     let main argv =
-        let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
+        let application = HttpApplication.singleResource (EchoResource() :> IServerResource)
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 
         let listener = new HttpListener();

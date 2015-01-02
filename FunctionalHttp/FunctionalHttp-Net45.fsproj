@@ -84,6 +84,7 @@
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Authorizer.fs" />
     <Compile Include="Server\Resource.fs" />
+    <Compile Include="Server\ServerResource.fs" />
     <Compile Include="Server\Router.fs" />
     <Compile Include="Server\Application.fs" />
     <Compile Include="Server\HttpServer.fs" />
