@@ -191,7 +191,7 @@ module Authorizer =
 
 module Resource =
     [<CompiledName("Uniform")>]
-    let uniform resourceDelegate = UniformResource(resourceDelegate) :> IResource
+    let uniform (resourceDelegate: IUniformResourceDelegate<'TReq>) = UniformResource(resourceDelegate) :> IResource
 
     [<CompiledName("Authorizing")>]
     let authorizing (authorizers: seq<string*IAuthorizer>, resource) =

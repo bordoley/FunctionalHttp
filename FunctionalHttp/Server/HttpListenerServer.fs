@@ -31,9 +31,7 @@ module HttpListenerServer =
         }
 
     [<CompiledName("Create")>]
-    let create (server:IHttpServerDelegate) (listener:HttpListener) (cancellationToken:CancellationToken) =
-        let server = HttpServer.processRequest server
-
+    let create (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>, listener:HttpListener, cancellationToken:CancellationToken) =
         let processRequest (ctx:HttpListenerContext) =
             async {
                 try
