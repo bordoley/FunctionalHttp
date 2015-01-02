@@ -32,16 +32,15 @@ type EchoResource () =
 module main =
     [<EntryPoint>]
     let main argv =
+        let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
+        let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
+
         let listener = new HttpListener();
         listener.Prefixes.Add "http://*:8080/"
 
-        let application = HttpApplication.singleResource (EchoResource() :> IStreamResource)
-
-        let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
-
         let cts = new CancellationTokenSource()
 
-        HttpListenerServer.create (server, listener, cts.Token) |> Async.StartImmediate
+        (listener, cts.Token) |> HttpServer.asListenerConnector server |> Async.StartImmediate
 
         Console.ReadLine () |> ignore
         cts.Cancel()
