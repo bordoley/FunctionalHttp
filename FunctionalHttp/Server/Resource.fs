@@ -10,8 +10,8 @@ type ResponseFilter<'TResp> = HttpResponse<'TResp> -> HttpResponse<'TResp>
 type IResource<'TReq, 'TResp> = 
     abstract member Route:Route with get
 
-    abstract member Filter: HttpRequest<unit> -> HttpRequest<unit>
-    abstract member Filter: HttpResponse<unit> -> HttpResponse<unit>
+    abstract member FilterRequest: HttpRequest<'TFilterReq> -> HttpRequest<'TFilterReq>
+    abstract member FilterResponse: HttpResponse<'TFilterResp> -> HttpResponse<'TFilterResp>
 
     abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>>
     abstract member Accept: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
@@ -22,13 +22,27 @@ type IUniformResourceDelegate<'TReq, 'TResp> =
     abstract member Route:Route with get
     abstract member Allowed:Set<Method> with get
 
-    abstract member Delete: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>> 
+    abstract member Delete: HttpRequest<unit> -> Async<HttpResponse<unit>> 
     abstract member Get: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>> 
     abstract member Patch: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>> 
     abstract member Post: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
     abstract member Put: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
 
 module Resource =
+    [<CompiledName("Create")>]
+    let create (route, handle, accept) =
+        { new IResource<'TReq, 'TReqp> with
+            member this.Route = route
+
+            member this.FilterRequest (req: HttpRequest<_>) = req
+
+            member this.FilterResponse (resp: HttpResponse<_>) = resp
+
+            member this.Handle (req:HttpRequest<unit>) = handle req
+
+            member this.Accept (req: HttpRequest<'TReq>) = accept req
+        }
+
     [<CompiledName("Uniform")>]
     let uniform (resource: IUniformResourceDelegate<'TReq,'TResp>) = 
         let optionsResponse = 
@@ -65,9 +79,9 @@ module Resource =
         { new IResource<'TReq, 'TResp> with
             member this.Route with get() = resource.Route
 
-            member this.Filter (req:HttpRequest<unit>)  = req
+            member this.FilterRequest (req:HttpRequest<_>)  = req
 
-            member this.Filter (resp:HttpResponse<unit>) = resp
+            member this.FilterResponse (resp:HttpResponse<_>) = resp
 
             member this.Handle req =
                 match req.Method with
@@ -89,7 +103,11 @@ module Resource =
                         return! 
                             if resp.Status.Class <> StatusClass.Success 
                             then resp |> Async.result
-                            else resource.Delete req
+                            else 
+                                async {
+                                    let! resp = resource.Delete req
+                                    return resp.With(None)
+                                }
                     }
                 | m when m = Method.Options ->  optionsResponse
                 | _ -> raise (ArgumentException())
@@ -115,9 +133,9 @@ module Resource =
         { new IResource<'TReq,'TResp> with
             member this.Route with get() = resource.Route
 
-            member this.Filter (req:HttpRequest<unit>)  = resource.Filter req
+            member this.FilterRequest (req:HttpRequest<_>)  = resource.FilterRequest req
 
-            member this.Filter (resp:HttpResponse<unit>) = resource.Filter resp
+            member this.FilterResponse (resp:HttpResponse<_>) = resource.FilterResponse resp
 
             member this.Handle (req:HttpRequest<unit>) =
                 req.Authorization
@@ -136,13 +154,13 @@ module Resource =
         } 
 
     [<CompiledName("WithFilters")>]
-    let withFilters (requestFilter:RequestFilter<unit>, responseFilter:ResponseFilter<unit>) (resource:IResource<'TReq, 'TResp>) =
+    let withFilters ( requestFilter: RequestFilter<unit>, responseFilter: ResponseFilter<unit>) (resource:IResource<'TReq, 'TResp>) =
         { new IResource<'TReq, 'TResp> with
             member this.Route with get() = resource.Route
 
-            member this.Filter req = requestFilter req
+            member this.FilterRequest req = req.With(()) |> requestFilter |> (fun x -> x.With(req.Entity))
 
-            member this.Filter resp = responseFilter resp
+            member this.FilterResponse resp = resp.With(()) |> responseFilter |> (fun x -> x.With(resp.Entity))
 
             member this.Handle req = resource.Handle req
         

@@ -400,6 +400,6 @@ module HttpResponse =
             return resp.With(out, contentInfo = contentInfo)
         }
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Status =
-    let toResponse (status:Status) = HttpResponse<unit>.Create(status, ())
+    [<CompiledName("WithEntity")>]
+    let withEntity (entity:'TNew) (resp:HttpResponse<'TResp>) =
+        resp.With(entity)

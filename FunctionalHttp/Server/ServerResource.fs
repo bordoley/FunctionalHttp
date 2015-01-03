@@ -7,8 +7,8 @@ open System.IO
 type IServerResource =
     abstract member Route:Route with get
 
-    abstract member Filter: HttpRequest<Stream> -> HttpRequest<Stream>
-    abstract member Filter: HttpResponse<Stream> -> HttpResponse<Stream>
+    abstract member FilterRequest: HttpRequest<Stream> -> HttpRequest<Stream>
+    abstract member FilterResponse: HttpResponse<Stream> -> HttpResponse<Stream>
 
     abstract member Handle: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
     abstract member Accept: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
@@ -21,9 +21,9 @@ module ServerResource =
         {new IServerResource with
             member this.Route = resource.Route
 
-            member this.Filter (req: HttpRequest<Stream>) = req.With(()) |> resource.Filter |> fun x -> x.With(req.Entity)
+            member this.FilterRequest (req: HttpRequest<Stream>) = req.With(()) |> resource.FilterRequest |> HttpRequest.withEntity req.Entity
     
-            member this.Filter (resp: HttpResponse<Stream>) = resp.With(()) |> resource.Filter |> fun x -> x.With(resp.Entity)
+            member this.FilterResponse (resp: HttpResponse<Stream>) = resp.With(()) |> resource.FilterResponse |> HttpResponse.withEntity resp.Entity
 
             member this.Handle req = 
                 async {

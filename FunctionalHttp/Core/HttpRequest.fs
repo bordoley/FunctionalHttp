@@ -303,3 +303,7 @@ module HttpRequest =
             let! (contentInfo, out) = converter (req.ContentInfo, req.Entity)
             return req.With(Choice1Of2 out, contentInfo = contentInfo)
         }
+
+    [<CompiledName("WithEntity")>]
+    let withEntity (entity:'TNew) (req:HttpRequest<'TReq>) =
+        req.With(entity)

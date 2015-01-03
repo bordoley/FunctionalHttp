@@ -10,7 +10,7 @@ open System.Threading
 
 module HttpServer =
     [<CompiledName("DefaultInternalErrorResponse")>]
-    let defaultInternalErrorResponse () = 
+    let defaultInternalErrorResponse (exn: exn) = 
         HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, Stream.Null) |> Async.result
 
     [<CompiledName("InternalErrorResponseWithStackTrace")>]
@@ -36,10 +36,10 @@ module HttpServer =
         let doProcessRequest (req:HttpRequest<Stream>) = 
             async {
                 let app = applicationProvider req
-                let req = app.Filter req
+                let req = app.FilterRequest req
 
                 let resource = app.Route req
-                let req =  resource.Filter req
+                let req =  resource.FilterRequest req
 
                 let! resp = resource.Handle req
                 let! resp =
@@ -47,7 +47,7 @@ module HttpServer =
                     then resp |> Async.result
                     else resource.Accept req      
 
-                return resp |> resource.Filter |> app.Filter
+                return resp |> resource.FilterResponse |> app.FilterResponse
             } 
 
         fun (req:HttpRequest<Stream>) ->

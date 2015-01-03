@@ -73,7 +73,7 @@ module internal WebExceptionExtensions =
                 match this.Response with
                 | :? HttpWebResponse as resp -> resp.ToResponse()
                 | _ -> raise (Exception("ProtocolError didn't include HttpWebResponse", this))
-            | _ ->  this.ToStatus() |> Status.toResponse |> fun x -> x.With(Stream.Null)
+            | _ ->  HttpResponse<Stream>.Create(this.ToStatus(), Stream.Null)
 
 [<AbstractClass; Sealed; Extension>]
 type internal HttpRequestExtensions private () =

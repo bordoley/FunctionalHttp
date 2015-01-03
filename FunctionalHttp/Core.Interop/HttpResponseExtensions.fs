@@ -10,20 +10,6 @@ open System.Runtime.CompilerServices
 [<AbstractClass; Sealed; Extension>]
 type HttpResponseExtensions private () =
     [<Extension>]
-    static member ToResponse(this:Status) = Status.toResponse this
-
-    (*
-    [<Extension>]
-    static member ToAsyncMemoryStreamResponse(this:HttpResponse<Stream>) = toAsyncMemoryStreamResponse this
-
-    [<Extension>]
-    static member ToAsyncByteArrayResponse(this:HttpResponse<Stream>) = toAsyncByteArrayResponse this
-
-    [<Extension>]
-    static member ToAsyncStringResponse (this:HttpResponse<Stream>) = toAsyncStringResponse this
-    *)
-
-    [<Extension>]
     static member TryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<AcceptableRanges>) = 
         Option.tryGetValue this.AcceptedRanges &acceptedRanges
 

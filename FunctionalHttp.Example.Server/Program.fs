@@ -9,35 +9,18 @@ open System.Threading
 
 module main =
     [<EntryPoint>]
-    let main argv =
-        let echoResource =
+    let main argv =         
+        let application = 
             let route = Route.Create ["example"]
 
-            {new IResource<string, string> with
-                member this.Route = route
-
-                member this.Filter (req: HttpRequest<unit>) = req
-                member this.Filter (resp: HttpResponse<unit>) = resp
-
-                member this.Handle (req:HttpRequest<unit>) = 
-                    HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString()))
-                    |> fun x -> async { return x }
-
-                member this.Accept (req: HttpRequest<string>) = 
-                    HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString()))
-                    |> fun x -> async { return x }
-
-            }
-
-        let application = 
-            echoResource 
-            |> ServerResource.create (Converters.fromStreamToString |> HttpRequest.convert, 
-                                      fun (req, resp) -> 
-                                          match resp.Entity with
-                                          | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
-                                          | None -> resp.With(Stream.Null) |> fun x -> async { return x })  
-
-            |> HttpApplication.singleResource 
+            let handleAndAccept (req:HttpRequest<_>) = async { return HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString())) }
+            let parse = Converters.fromStreamToString |> HttpRequest.convert
+            let serialize (req, resp:HttpResponse<Option<string>>) = 
+                match resp.Entity with
+                  | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
+                  | None -> resp.With(Stream.Null) |> fun x -> async { return x }
+                   
+            (route, handleAndAccept, handleAndAccept) |> Resource.create |> ServerResource.create (parse, serialize) |> HttpApplication.singleResource 
 
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 
