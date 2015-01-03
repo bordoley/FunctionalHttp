@@ -20,7 +20,7 @@ type IStreamResource =
 module StreamResource =
     [<CompiledName("Create")>]
     let create (parse:RequestParser<'TReq>, serialize:ResponseSerializer<'TResp>) (resource:IResource<'TReq,'TResp>) = 
-        let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> Async.result
+        let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> async.Return
 
         {new IStreamResource with
             member this.Route = resource.Route

@@ -65,14 +65,14 @@ module internal WebExceptionExtensions =
             | WebExceptionStatus.Timeout -> timeout
             | WebExceptionStatus.TrustFailure -> trustFailure
             | WebExceptionStatus.UnknownError -> unknownError
-            | _ -> raise (Exception("Unknown WebExceptionStatus", this))
+            | _ -> Exception("Unknown WebExceptionStatus", this) |> raise
 
         member this.ToResponse() =
             match this.Status with
             | WebExceptionStatus.ProtocolError ->
                 match this.Response with
                 | :? HttpWebResponse as resp -> resp.ToResponse()
-                | _ -> raise (Exception("ProtocolError didn't include HttpWebResponse", this))
+                | _ -> Exception("ProtocolError didn't include HttpWebResponse", this) |> raise
             | _ ->  HttpResponse<Stream>.Create(this.ToStatus(), Stream.Null)
 
 [<AbstractClass; Sealed; Extension>]

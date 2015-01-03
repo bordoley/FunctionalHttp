@@ -8,7 +8,7 @@ type Header internal (header:string) =
     static member Create(header) = 
         match Parser.parse Header.Parser header with 
         | Some header -> header
-        | _ -> raise (ArgumentException("header"))
+        | _ -> ArgumentException "header" |> raise
 
     static member internal Parser = HttpParsers.token |> Parser.map (fun header -> Header(header))
 

@@ -11,8 +11,8 @@ type HttpVersion private (major:int, minor:int) =
     static member Http0_9 = HttpVersion(0, 9)
 
     static member Create (major, minor) =
-        if (major < 0 || major > 9) then raise (ArgumentOutOfRangeException("major"))
-        if (minor < 0 || minor > 9) then raise (ArgumentOutOfRangeException("major"))
+        if (major < 0 || major > 9) then ArgumentOutOfRangeException "major" |> raise
+        if (minor < 0 || minor > 9) then ArgumentOutOfRangeException "minor" |> raise 
         Contract.EndContractBlock();
 
         match (major, minor) with

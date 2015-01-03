@@ -46,10 +46,10 @@ module Resource =
     [<CompiledName("Uniform")>]
     let uniform (resource: IUniformResourceDelegate<'TReq,'TResp>) = 
         let optionsResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None, allowed = resource.Allowed) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None, allowed = resource.Allowed) |> async.Return
 
         let methodNotAllowedResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorMethodNotAllowed, None, allowed = resource.Allowed) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorMethodNotAllowed, None, allowed = resource.Allowed) |> async.Return
 
         let continueResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.informationalContinue, None)
 
@@ -63,17 +63,15 @@ module Resource =
             //        resp.ETag.
 
         let checkUpdateConditions (req:HttpRequest<unit>) = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None) |> async.Return
 
         let conditionalGet (req:HttpRequest<unit>) = 
             async { 
-               let! resp = resource.Get req
-               return 
-                if resp.Status.Class <> StatusClass.Success then resp
-                else if (unmodified (req, resp)) 
-                    then 
-                        HttpResponse<Option<'TResp>>.Create(HttpStatus.redirectionNotModified, None, allowed = resource.Allowed)
-                else resp
+                let! resp = resource.Get req
+                return 
+                    if resp.Status.Class <> StatusClass.Success then resp
+                    else if unmodified (req, resp) then HttpResponse<Option<'TResp>>.Create(HttpStatus.redirectionNotModified, None, allowed = resource.Allowed)
+                    else resp
             }
 
         { new IResource<'TReq, 'TResp> with
@@ -88,35 +86,25 @@ module Resource =
                 | m when not (resource.Allowed.Contains m) -> methodNotAllowedResponse
                 | m when m = Method.Get || m = Method.Head -> conditionalGet req
                 | m when m = Method.Post -> 
-                    async {
-                        let! resp = resource.Get req
-                        return continueIfSuccess resp
-                    }
-                | m when m = Method.Put || m = Method.Patch ->
-                    async {
-                        let! resp = checkUpdateConditions req
-                        return continueIfSuccess resp
-                    }
+                    req |> resource.Get |> Async.map continueIfSuccess
+                | m when m = Method.Put || m = Method.Patch -> 
+                    req |> checkUpdateConditions |> Async.map continueIfSuccess
                 | m when m = Method.Delete ->
                     async {
                         let! resp = resource.Get req
                         return! 
                             if resp.Status.Class <> StatusClass.Success 
-                            then resp |> Async.result
-                            else 
-                                async {
-                                    let! resp = resource.Delete req
-                                    return resp.With(None)
-                                }
+                            then resp |> async.Return
+                            else req |> resource.Delete |> Async.map (HttpResponse.withEntity None)
                     }
                 | m when m = Method.Options ->  optionsResponse
-                | _ -> raise (ArgumentException())
+                | _ -> ArgumentException() |> raise
 
             member this.Accept req = 
                 match req.Method with
                 | m when m = Method.Post ->
                     resource.Post req
-                | _ -> raise (ArgumentException())
+                | _ -> ArgumentException() |> raise
     }
 
     [<CompiledName("Authorizing")>]
@@ -125,10 +113,10 @@ module Resource =
 
         let unauthorizedResponse = 
             let challenges = authorizers |> Map.toSeq |> Seq.map (fun (k,v) -> v.AuthenticationChallenge)
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnauthorized, None, authenticate = challenges) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnauthorized, None, authenticate = challenges) |> async.Return
 
         let forbiddenResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorForbidden , None) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorForbidden , None) |> async.Return
 
         { new IResource<'TReq,'TResp> with
             member this.Route with get() = resource.Route

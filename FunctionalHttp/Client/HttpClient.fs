@@ -31,12 +31,12 @@ module HttpClient =
             // FIXME: Add some logging
 
             match exn with
-            | :? WebException as exn -> exn.ToResponse() |> Async.result          
+            | :? WebException as exn -> exn.ToResponse() |> async.Return 
             | :? AggregateException as exn -> 
                 match exn.InnerException with 
-                | null -> raise (Exception("Unexpected exception", exn))
+                | null -> Exception("Unexpected exception", exn) |> raise
                 | exn -> handleException exn
-            | _ -> raise (new System.Exception("Unexpected exception", exn))  
+            | _ -> Exception("Unexpected exception", exn) |> raise  
 
         fun (request: HttpRequest<Stream>) -> async {
             let httpClientRequest = request.ToHttpRequestMessage()

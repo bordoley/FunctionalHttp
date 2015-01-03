@@ -14,16 +14,16 @@ type internal CharStream private (str: string, offset:int, length:int) =
     member this.Length with get() = length
 
     member this.Item(index:int) =
-        if index < 0 then raise (ArgumentOutOfRangeException "index")
-        if (offset + index) >= length then raise (ArgumentOutOfRangeException "index")
+        if index < 0 then ArgumentOutOfRangeException "index" |> raise 
+        if (offset + index) >= length then ArgumentOutOfRangeException "index" |> raise
         Contract.EndContractBlock()
 
         str.Chars(offset + index)
                       
     member this.SubSequence(startIndex, length) =
-        if (startIndex < 0) then raise (ArgumentOutOfRangeException "newStart")
-        if (length < 0) then raise (ArgumentOutOfRangeException "newLength")
-        if (this.Length < startIndex + length) then raise (ArgumentException ())
+        if (startIndex < 0) then ArgumentOutOfRangeException "newStart" |> raise
+        if (length < 0) then ArgumentOutOfRangeException "newLength" |> raise
+        if (this.Length < startIndex + length) then ArgumentException () |> raise
         Contract.EndContractBlock()
 
         match (startIndex, length) with

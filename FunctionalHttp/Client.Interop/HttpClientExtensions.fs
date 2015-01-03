@@ -1,6 +1,7 @@
 namespace FunctionalHttp.Client.Interop
 
 open FunctionalHttp.Client
+open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open System
 open System.IO
@@ -18,10 +19,7 @@ type HttpClient<'TReq, 'TResp> private (httpClient: FunctionalHttp.Client.HttpCl
     member this.SendRequest(request:HttpRequest<'TReq>)  =
         let completer = TaskCompletionSource()
 
-        async {            
-            let! response = httpClient request
-            completer.SetResult(response)
-        } |> Async.StartImmediate
+        request |> httpClient |> Async.map completer.SetResult |> Async.StartImmediate
 
         completer.Task
 

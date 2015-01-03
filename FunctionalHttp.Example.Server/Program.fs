@@ -13,12 +13,12 @@ module main =
         let application = 
             let route = Route.Create ["example"]
 
-            let handleAndAccept (req:HttpRequest<_>) = async { return HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString())) }
+            let handleAndAccept (req:HttpRequest<_>) = HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString())) |> async.Return
             let parse = Converters.fromStreamToString |> HttpRequest.convert
             let serialize (req, resp:HttpResponse<Option<string>>) = 
                 match resp.Entity with
                   | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
-                  | None -> resp.With(Stream.Null) |> fun x -> async { return x }
+                  | None -> resp.With(Stream.Null) |> async.Return
                    
             (route, handleAndAccept, handleAndAccept) |> Resource.create |> StreamResource.create (parse, serialize) |> HttpApplication.singleResource 
 

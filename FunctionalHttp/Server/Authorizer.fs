@@ -33,7 +33,7 @@ module Authorizer =
                             let decodedString = Encoding.UTF8.GetString(bytes, 0, bytes.Length)
                             let userPwd = decodedString.Split([|':'|], 2, StringSplitOptions.None)
                             if userPwd.Length <> 2
-                            then Async.result false
+                            then async.Return false
                             else f(req, userPwd.[0], userPwd.[1])
                         | _ -> async{ return false }
                 }

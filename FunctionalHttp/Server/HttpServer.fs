@@ -1,6 +1,7 @@
 ﻿namespace FunctionalHttp.Server
 
 open FunctionalHttp.Collections
+open FunctionalHttp.Collections.Async
 open FunctionalHttp.Core
 open FunctionalHttp.Parsing
 open System.IO
@@ -9,7 +10,7 @@ open System.Text
 module HttpServer =
     [<CompiledName("DefaultInternalErrorResponse")>]
     let defaultInternalErrorResponse (exn: exn) = 
-        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, Stream.Null) |> Async.result
+        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, Stream.Null) |> async.Return
 
     [<CompiledName("InternalErrorResponseWithStackTrace")>]
     let internalErrorResponseWithStackTrace (exn: exn) =
@@ -20,7 +21,7 @@ module HttpServer =
         // both request and response serialization
         let contentInfo = ContentInfo.Create(length = bytes.Length)
         let stream = new MemoryStream(bytes) :> Stream
-        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, stream, contentInfo = contentInfo) |> Async.result
+        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, stream, contentInfo = contentInfo) |> async.Return
 
     [<CompiledName("VirtualHostApplicationProvider")>]
     let virtualHostApplicationProvider (applications:seq<string*IHttpApplication>, defaultApplication:IHttpApplication) =
@@ -42,7 +43,7 @@ module HttpServer =
                 let! resp = resource.Handle req
                 let! resp =
                     if resp.Status <> HttpStatus.informationalContinue
-                    then resp |> Async.result
+                    then resp |> async.Return
                     else resource.Accept req      
 
                 return resp |> resource.FilterResponse |> app.FilterResponse
@@ -53,7 +54,7 @@ module HttpServer =
                 let! resp = doProcessRequest req |> Async.Catch
                 return! 
                     match resp with
-                    | Choice1Of2 resp -> resp |> Async.result
+                    | Choice1Of2 resp -> resp |> async.Return
                     | Choice2Of2 exn -> internalErrorResponse exn
             }
 
@@ -88,9 +89,7 @@ module HttpServer =
         let processRequest (ctx:HttpListenerContext) =
             async {
                 try
-                    let req = parseRequest ctx.Request 
-                    let! resp = server req
-                    do! sendResponse ctx.Response resp
+                    do! ctx.Request |> parseRequest |> server >>= sendResponse ctx.Response
                 with | ex -> Console.WriteLine ex // FIXME: Use a logging framework?
             }
 
