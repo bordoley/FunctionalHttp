@@ -3,10 +3,8 @@
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open FunctionalHttp.Parsing
-open System
 open System.IO
 open System.Text 
-open System.Threading
 
 module HttpServer =
     [<CompiledName("DefaultInternalErrorResponse")>]
@@ -61,8 +59,10 @@ module HttpServer =
 
 #if PCL
 #else
+    open System
     open System.Net
     open System.Runtime.CompilerServices
+    open System.Threading
 
     [<CompiledName("AsListenerConnector"); Extension>]
     let asListenerConnector (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>) =
@@ -91,7 +91,7 @@ module HttpServer =
                     let req = parseRequest ctx.Request 
                     let! resp = server req
                     do! sendResponse ctx.Response resp
-                with | ex -> Console.WriteLine ex
+                with | ex -> Console.WriteLine ex // FIXME: Use a logging framework?
             }
 
         fun (listener:HttpListener, cancellationToken:CancellationToken) ->

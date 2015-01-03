@@ -1,6 +1,5 @@
 ﻿namespace FunctionalHttp.Server
 open FunctionalHttp.Collections
-open System
 
 type internal Router = 
     private {
@@ -9,7 +8,7 @@ type internal Router =
     }
     static member Empty = { resource = Option.None; children = Map.empty }
 
-    static member private routeSegmentToKey (segment:String) =
+    static member private routeSegmentToKey (segment:string) =
         if segment.StartsWith(":") then ":" else segment
 
     member this.Item (path: string list) =
