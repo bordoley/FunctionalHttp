@@ -13,8 +13,8 @@ type IResource<'TReq, 'TResp> =
     abstract member Filter: HttpRequest<unit> -> HttpRequest<unit>
     abstract member Filter: HttpResponse<unit> -> HttpResponse<unit>
 
-    abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<Choice<'TResp, exn, unit>>>
-    abstract member Accept: HttpRequest<'TReq> -> Async<HttpResponse<Choice<'TResp, exn, unit>>>
+    abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>>
+    abstract member Accept: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
 
 type IUniformResourceDelegate<'TReq, 'TResp> =
     abstract member RequireETagForUpdate:bool with get
@@ -22,43 +22,43 @@ type IUniformResourceDelegate<'TReq, 'TResp> =
     abstract member Route:Route with get
     abstract member Allowed:Set<Method> with get
 
-    abstract member Delete: HttpRequest<unit> -> Async<HttpResponse<Choice<'TResp, exn, unit>>> 
-    abstract member Get: HttpRequest<unit> -> Async<HttpResponse<Choice<'TResp, exn, unit>>> 
-    abstract member Patch: HttpRequest<'TReq> -> Async<HttpResponse<Choice<'TResp, exn, unit>>> 
-    abstract member Post: HttpRequest<'TReq> -> Async<HttpResponse<Choice<'TResp, exn, unit>>>
-    abstract member Put: HttpRequest<'TReq> -> Async<HttpResponse<Choice<'TResp, exn, unit>>>
+    abstract member Delete: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>> 
+    abstract member Get: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>> 
+    abstract member Patch: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>> 
+    abstract member Post: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
+    abstract member Put: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
 
 module Resource =
     [<CompiledName("Uniform")>]
     let uniform (resource: IUniformResourceDelegate<'TReq,'TResp>) = 
         let optionsResponse = 
-            HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.successOk, Choice3Of3 (), allowed = resource.Allowed) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None, allowed = resource.Allowed) |> Async.result
 
         let methodNotAllowedResponse = 
-            HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.clientErrorMethodNotAllowed, Choice3Of3 (), allowed = resource.Allowed) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorMethodNotAllowed, None, allowed = resource.Allowed) |> Async.result
 
-        let continueResponse = HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.informationalContinue, Choice3Of3 ())
+        let continueResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.informationalContinue, None)
 
-        let continueIfSuccess (resp:HttpResponse<Choice<'TResp, exn, unit>>) =
+        let continueIfSuccess (resp:HttpResponse<Option<'TResp>>) =
             if resp.Status.Class <> StatusClass.Success then resp else continueResponse
            
-        let unmodified (req:HttpRequest<unit>) (resp:HttpResponse<Choice<'TResp, exn, unit>>) = true
+        let unmodified (req:HttpRequest<unit>, resp:HttpResponse<Option<'TResp>>) = true
             //if req.preconditions.ifNoneMatch.isEmpty && req.preconditions.ifModifiedSince.isEmpty then false
             //else 
             //    let matchingTag = 
             //        resp.ETag.
 
         let checkUpdateConditions (req:HttpRequest<unit>) = 
-            HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.successOk, Choice3Of3 ()) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None) |> Async.result
 
         let conditionalGet (req:HttpRequest<unit>) = 
             async { 
                let! resp = resource.Get req
                return 
                 if resp.Status.Class <> StatusClass.Success then resp
-                else if (unmodified req resp) 
+                else if (unmodified (req, resp)) 
                     then 
-                        HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.redirectionNotModified, Choice3Of3 (), allowed = resource.Allowed)
+                        HttpResponse<Option<'TResp>>.Create(HttpStatus.redirectionNotModified, None, allowed = resource.Allowed)
                 else resp
             }
 
@@ -107,10 +107,10 @@ module Resource =
 
         let unauthorizedResponse = 
             let challenges = authorizers |> Map.toSeq |> Seq.map (fun (k,v) -> v.AuthenticationChallenge)
-            HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.clientErrorUnauthorized, Choice3Of3 (), authenticate = challenges) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnauthorized, None, authenticate = challenges) |> Async.result
 
         let forbiddenResponse = 
-            HttpResponse<Choice<'TResp, exn, unit>>.Create(HttpStatus.clientErrorForbidden , Choice3Of3 ()) |> Async.result
+            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorForbidden , None) |> Async.result
 
         { new IResource<'TReq,'TResp> with
             member this.Route with get() = resource.Route

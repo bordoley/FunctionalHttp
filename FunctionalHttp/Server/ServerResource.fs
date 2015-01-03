@@ -16,7 +16,7 @@ type IServerResource =
 module ServerResource =
     [<CompiledName("Create")>]
     let create (parse:HttpRequest<Stream> -> Async<HttpRequest<Choice<'TReq,exn>>>, serialize) (resource:IResource<'TReq,'TResp>) = 
-        let badRequestResponse (ex:exn) = HttpResponse<Choice<'TResp, exn>>.Create(HttpStatus.clientErrorBadRequest, Choice2Of3 ex) |> Async.result
+        let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> Async.result
 
         {new IServerResource with
             member this.Route = resource.Route
@@ -38,7 +38,7 @@ module ServerResource =
                     let! resp = 
                         match req.Entity with
                         | Choice1Of2 entity -> resource.Accept (req.With(entity))
-                        | Choice2Of2 ex -> badRequestResponse ex
+                        | Choice2Of2 ex -> badRequestResponse
 
                     return! serialize(req.With(()), resp)
                 }

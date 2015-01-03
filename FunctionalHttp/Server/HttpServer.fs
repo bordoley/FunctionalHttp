@@ -47,8 +47,7 @@ module HttpServer =
                     then resp |> Async.result
                     else resource.Accept req      
 
-                let resp = resource.Filter resp
-                return app.Filter resp
+                return resp |> resource.Filter |> app.Filter
             } 
 
         fun (req:HttpRequest<Stream>) ->
