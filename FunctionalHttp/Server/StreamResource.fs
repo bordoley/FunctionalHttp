@@ -44,7 +44,8 @@ module StreamResource =
             }
         }
 
-    let contentType (parsers: seq<MediaType*RequestParser<'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
+    [<CompiledName("ContentTypeNegotiating")>]
+    let contentTypeNegotiating (parsers: seq<MediaType*RequestParser<'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
         let parsers = Map.ofSeq parsers
         let serializers = Map.ofSeq serializers
 
@@ -59,11 +60,20 @@ module StreamResource =
             // FIXME
             resp.With(Stream.Null) |> async.Return
 
-        let delegateServerResource = create (parse, serialize) resource
+        let connegResource = 
+            { new IResource<'TReq,'TResp> with 
+                member this.Route with get() = resource.Route
 
-        {new IStreamResource with
-            member this.Route = delegateServerResource.Route
+                member this.FilterRequest req = resource.FilterRequest req
+                member this.FilterResponse resp = resource.FilterResponse resp
 
-            member this.Handle req = 
-                delegateServerResource.Handle req
-        }
+                member this.Handle req = 
+                    //FIXME:
+                    resource.Handle req
+
+                member this.Accept resp = 
+                    // FIXME:
+                    resource.Accept resp
+            }
+
+        create (parse, serialize) connegResource
