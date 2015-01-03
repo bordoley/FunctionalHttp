@@ -33,32 +33,21 @@ module HttpServer =
 
     [<CompiledName("Create")>]
     let create (applicationProvider : HttpRequest<Stream> -> IHttpApplication, internalErrorResponse : exn -> Async<HttpResponse<Stream>>) =
-        let badRequestResponse =
-            HttpResponse<obj>.Create(HttpStatus.clientErrorBadRequest, () :> obj) |> Async.result
-
         let doProcessRequest (req:HttpRequest<Stream>) = 
             async {
                 let app = applicationProvider req
                 let req = app.Filter req
 
                 let resource = app.Route req
-                let requestStream = req.Entity
-                let req = req.With(()) |> resource.Filter
+                let req =  resource.Filter req
 
                 let! resp = resource.Handle req
                 let! resp =
                     if resp.Status <> HttpStatus.informationalContinue
                     then resp |> Async.result
-                    else async {
-                        let! req = req.With(requestStream) |> resource.Parse 
-                        return! 
-                            match req.Entity with
-                            | Choice1Of2 entity -> resource.Accept (req.With(entity))
-                            | Choice2Of2 ex -> badRequestResponse
-                    }
+                    else resource.Accept req      
 
                 let resp = resource.Filter resp
-                let! resp = resource.Serialize (req, resp) 
                 return app.Filter resp
             } 
 

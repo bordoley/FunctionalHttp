@@ -13,27 +13,31 @@ module main =
         let echoResource =
             let route = Route.Create ["example"]
 
-            {new IResource with
+            {new IResource<string, string> with
                 member this.Route = route
+
                 member this.Filter (req: HttpRequest<unit>) = req
-                member this.Filter (resp: HttpResponse<obj>) = resp
+                member this.Filter (resp: HttpResponse<unit>) = resp
+
                 member this.Handle (req:HttpRequest<unit>) = 
-                    HttpStatus.successOk
-                    |> Status.toResponse
-                    |> fun x -> x.With(x.Status.ToString() :> obj)
+                    HttpResponse<Choice<string, exn, unit>>.Create(HttpStatus.successOk, Choice1Of3 (HttpStatus.successOk.ToString()))
                     |> fun x -> async { return x }
 
-                member this.Accept (req: HttpRequest<obj>) = 
-                    HttpStatus.successOk
-                    |> Status.toResponse
-                    |> fun x -> x.With(x.Status.ToString() :> obj)
+                member this.Accept (req: HttpRequest<string>) = 
+                    HttpResponse<Choice<string, exn, unit>>.Create(HttpStatus.successOk, Choice1Of3 (HttpStatus.successOk.ToString()))
                     |> fun x -> async { return x }
+
             }
 
         let application = 
             echoResource 
-            |> ServerResource.create (Converters.fromStreamToString |> Converters.compose Converters.fromAnyToObject |> HttpRequest.convert, 
-                                      fun (req, resp) -> resp |> (Converters.fromAnyToString |> Converters.compose Converters.fromStringToStream |> HttpResponse.convertOrThrow))              
+            |> ServerResource.create (Converters.fromStreamToString |> HttpRequest.convert, 
+                                      fun (req, resp) -> 
+                                          match resp.Entity with
+                                          | Choice1Of3 str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
+                                          | Choice2Of3 exn -> resp.With(Stream.Null) |> fun x -> async { return x }
+                                          | Choice3Of3 unit -> resp.With(Stream.Null) |> fun x -> async { return x })  
+
             |> HttpApplication.singleResource 
 
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
