@@ -2,7 +2,11 @@
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
+open System
 open System.IO
+
+type RequestParser<'TReq> = HttpRequest<Stream> -> Async<HttpRequest<Choice<'TReq,exn>>>
+type ResponseSerializer<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>> -> Async<HttpResponse<Stream>>
 
 type IServerResource =
     abstract member Route:Route with get
@@ -15,15 +19,15 @@ type IServerResource =
 
 module ServerResource =
     [<CompiledName("Create")>]
-    let create (parse:HttpRequest<Stream> -> Async<HttpRequest<Choice<'TReq,exn>>>, serialize) (resource:IResource<'TReq,'TResp>) = 
+    let create (parse:RequestParser<'TReq>, serialize:ResponseSerializer<'TResp>) (resource:IResource<'TReq,'TResp>) = 
         let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> Async.result
 
         {new IServerResource with
             member this.Route = resource.Route
 
-            member this.FilterRequest (req: HttpRequest<Stream>) = req.With(()) |> resource.FilterRequest |> HttpRequest.withEntity req.Entity
+            member this.FilterRequest (req: HttpRequest<Stream>) = resource.FilterRequest req
     
-            member this.FilterResponse (resp: HttpResponse<Stream>) = resp.With(()) |> resource.FilterResponse |> HttpResponse.withEntity resp.Entity
+            member this.FilterResponse (resp: HttpResponse<Stream>) = resource.FilterResponse resp
 
             member this.Handle req = 
                 async {
@@ -43,3 +47,40 @@ module ServerResource =
                     return! serialize(req.With(()), resp)
                 }
         }
+
+        (*
+    let contentType (parsers: seq<MediaType*RequestParser<'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
+        let parsers = Map.ofSeq parsers
+        let serializers = Map.ofSeq serializers
+
+        let parse (req:HttpRequest<Stream>) = 
+            match req.ContentInfo.MediaType with
+            | Some mediaType -> 
+                let parser = parsers.Item mediaType
+                parser req
+            | _ -> InvalidOperationException() |> raise
+
+        let serialize (req:HttpRequest<unit>, resp:HttpResponse<Option<'TResp>>) =
+            // FIXME
+            resp.With(Stream.Null) |> Async.result
+
+        let delegateServerResource = create (parse, serialize) resource
+
+        {new IServerResource with
+            member this.Route = delegateServerResource.Route
+
+            member this.FilterRequest (req: HttpRequest<Stream>) = delegateServerResource.FilterRequest req
+    
+            member this.FilterResponse (resp: HttpResponse<Stream>) = delegateServerResource.FilterResponse resp
+
+            member this.Handle req = 
+                async {
+                    let! resp = delegateServerResource.Handle req
+
+                }
+
+            member this.Accept req = 
+                async {
+
+                }
+        }*)
