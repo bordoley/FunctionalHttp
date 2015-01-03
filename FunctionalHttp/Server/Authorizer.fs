@@ -35,6 +35,6 @@ module Authorizer =
                             if userPwd.Length <> 2
                             then async.Return false
                             else f(req, userPwd.[0], userPwd.[1])
-                        | _ -> async{ return false }
+                        | _ -> async.Return false
                 }
         }

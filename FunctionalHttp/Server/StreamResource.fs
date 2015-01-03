@@ -41,7 +41,7 @@ module StreamResource =
                     let! req = parse req
                     let! resp = 
                         match req.Entity with
-                        | Choice1Of2 entity -> resource.Accept (req.With(entity))
+                        | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
                         | Choice2Of2 ex -> badRequestResponse
 
                     return! serialize(req.With(()), resp)
