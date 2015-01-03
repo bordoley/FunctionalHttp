@@ -16,7 +16,7 @@ type IResource<'TReq, 'TResp> =
     abstract member Handle: HttpRequest<unit> -> Async<HttpResponse<Option<'TResp>>>
     abstract member Accept: HttpRequest<'TReq> -> Async<HttpResponse<Option<'TResp>>>
 
-type IUniformResourceDelegate<'TReq, 'TResp> =
+type IUniformResource<'TReq, 'TResp> =
     abstract member RequireETagForUpdate:bool with get
     abstract member RequireIfUnmodifiedSinceForUpdate:bool with get
     abstract member Route:Route with get
@@ -44,7 +44,7 @@ module Resource =
         }
 
     [<CompiledName("Uniform")>]
-    let uniform (resource: IUniformResourceDelegate<'TReq,'TResp>) = 
+    let uniform (resource: IUniformResource<'TReq,'TResp>) = 
         let optionsResponse = 
             HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None, allowed = resource.Allowed) |> async.Return
 

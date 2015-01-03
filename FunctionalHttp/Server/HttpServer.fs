@@ -36,17 +36,9 @@ module HttpServer =
             async {
                 let app = applicationProvider req
                 let req = app.FilterRequest req
-
                 let resource = app.Route req
-                let req =  resource.FilterRequest req
 
-                let! resp = resource.Handle req
-                let! resp =
-                    if resp.Status <> HttpStatus.informationalContinue
-                    then resp |> async.Return
-                    else resource.Accept req      
-
-                return resp |> resource.FilterResponse |> app.FilterResponse
+                return! resource.Handle req |> Async.map app.FilterResponse
             } 
 
         fun (req:HttpRequest<Stream>) ->
