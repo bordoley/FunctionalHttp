@@ -44,6 +44,23 @@ module StreamResource =
             }
         }
 
+    [<CompiledName("ByteRange")>]
+    let byteRange (resource:IStreamResource) =
+        { new IStreamResource with
+            member this.Route = resource.Route
+
+            member this.Handle req = 
+                async {
+                    let! resp = resource.Handle req
+                    return! 
+                        match (resp.Status, req.Preferences.Ranges) with
+                        | (status, Some range) when status = HttpStatus.successOk ->
+                            // FIXME:
+                            async.Return resp                    
+                        | _ -> async.Return resp
+                }
+        }
+
     [<CompiledName("ContentTypeNegotiating")>]
     let contentTypeNegotiating (parsers: seq<MediaType*RequestParser<'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
         let parsers = Map.ofSeq parsers
