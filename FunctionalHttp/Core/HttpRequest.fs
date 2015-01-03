@@ -285,7 +285,6 @@ module HttpRequestMixins =
                                                     defaultArg referer false, 
                                                     defaultArg userAgent false)                                                           
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpRequest =
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (req:HttpRequest<'TIn>) = 

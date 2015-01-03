@@ -381,7 +381,6 @@ module HttpResponseMixins =
                                                     defaultArg vary false,
                                                     defaultArg warning false) 
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
