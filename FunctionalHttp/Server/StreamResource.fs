@@ -8,7 +8,7 @@ open System.IO
 type RequestParser<'TReq> = HttpRequest<Stream> -> Async<HttpRequest<Choice<'TReq,exn>>>
 type ResponseSerializer<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>> -> Async<HttpResponse<Stream>>
 
-type IServerResource =
+type IStreamResource =
     abstract member Route:Route with get
 
     abstract member FilterRequest: HttpRequest<Stream> -> HttpRequest<Stream>
@@ -17,12 +17,12 @@ type IServerResource =
     abstract member Handle: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
     abstract member Accept: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
 
-module ServerResource =
+module StreamResource =
     [<CompiledName("Create")>]
     let create (parse:RequestParser<'TReq>, serialize:ResponseSerializer<'TResp>) (resource:IResource<'TReq,'TResp>) = 
         let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> Async.result
 
-        {new IServerResource with
+        {new IStreamResource with
             member this.Route = resource.Route
 
             member this.FilterRequest (req: HttpRequest<Stream>) = resource.FilterRequest req
@@ -66,7 +66,7 @@ module ServerResource =
 
         let delegateServerResource = create (parse, serialize) resource
 
-        {new IServerResource with
+        {new IStreamResource with
             member this.Route = delegateServerResource.Route
 
             member this.FilterRequest (req: HttpRequest<Stream>) = delegateServerResource.FilterRequest req

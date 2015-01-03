@@ -8,7 +8,7 @@ open System.IO
 type IHttpApplication =
     abstract FilterRequest: HttpRequest<Stream> -> HttpRequest<Stream>
     abstract FilterResponse: HttpResponse<Stream> -> HttpResponse<Stream>
-    abstract Route: HttpRequest<Stream> -> IServerResource
+    abstract Route: HttpRequest<Stream> -> IStreamResource
      
 module HttpApplication =
     [<CompiledName("SingleResource")>]

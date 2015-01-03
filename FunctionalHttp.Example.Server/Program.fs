@@ -20,7 +20,7 @@ module main =
                   | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
                   | None -> resp.With(Stream.Null) |> fun x -> async { return x }
                    
-            (route, handleAndAccept, handleAndAccept) |> Resource.create |> ServerResource.create (parse, serialize) |> HttpApplication.singleResource 
+            (route, handleAndAccept, handleAndAccept) |> Resource.create |> StreamResource.create (parse, serialize) |> HttpApplication.singleResource 
 
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 
