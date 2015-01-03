@@ -7,32 +7,35 @@ open System.IO
 open System.Net
 open System.Threading
 
-type EchoResource () =
-    let route = Route.Create ["example"]
-
-    interface IServerResource with
-        member this.Route = route
-        member this.Filter (req: HttpRequest<unit>) = req
-        member this.Filter (resp: HttpResponse<obj>) = resp
-        member this.Handle (req:HttpRequest<unit>) = 
-            HttpStatus.successOk
-            |> Status.toResponse
-            |> fun x -> x.With(x.Entity :> obj)
-            |> fun x -> async { return x }
-
-        member this.Accept (req: HttpRequest<obj>) = 
-            HttpStatus.successOk
-            |> Status.toResponse
-            |> fun x -> x.With(x.Entity :> obj)
-            |> fun x -> async { return x }
-
-        member this.Parse (req: HttpRequest<Stream>) = req |> HttpRequest.convert Converters.fromAnyToObject 
-        member this.Serialize (req:HttpRequest<_>, resp:HttpResponse<obj>) = resp.With(Stream.Null) |> fun x -> async { return x }
-
 module main =
     [<EntryPoint>]
     let main argv =
-        let application = HttpApplication.singleResource (EchoResource() :> IServerResource)
+        let echoResource =
+            let route = Route.Create ["example"]
+
+            {new IResource with
+                member this.Route = route
+                member this.Filter (req: HttpRequest<unit>) = req
+                member this.Filter (resp: HttpResponse<obj>) = resp
+                member this.Handle (req:HttpRequest<unit>) = 
+                    HttpStatus.successOk
+                    |> Status.toResponse
+                    |> fun x -> x.With(x.Status.ToString() :> obj)
+                    |> fun x -> async { return x }
+
+                member this.Accept (req: HttpRequest<obj>) = 
+                    HttpStatus.successOk
+                    |> Status.toResponse
+                    |> fun x -> x.With(x.Status.ToString() :> obj)
+                    |> fun x -> async { return x }
+            }
+
+        let application = 
+            echoResource 
+            |> ServerResource.create (Converters.fromStreamToString |> Converters.compose Converters.fromAnyToObject |> HttpRequest.convert, 
+                                      fun (req, resp) -> resp |> (Converters.fromAnyToString |> Converters.compose Converters.fromStringToStream |> HttpResponse.convertOrThrow))              
+            |> HttpApplication.singleResource 
+
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 
         let listener = new HttpListener();

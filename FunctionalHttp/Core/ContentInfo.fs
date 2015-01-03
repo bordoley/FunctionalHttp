@@ -15,8 +15,9 @@ type ContentInfo =
 
     member this.Encodings = this.encodings
     member this.Languages = this.languages
+
     member this.Length = this.length
-    member this.Location = this.Location
+    member this.Location = this.location
     member this.MediaType = this.mediaType
 
     static member None = { encodings = []; languages = []; length = None; location = None; mediaType = None }

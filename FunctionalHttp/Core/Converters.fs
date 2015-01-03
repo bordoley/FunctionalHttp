@@ -8,6 +8,15 @@ open System.Text
 type Converter<'TIn, 'TOut> = ContentInfo*'TIn -> Async<ContentInfo*'TOut>
 
 module Converters =
+    let compose (b:Converter<'TIntermediate, 'TOut>) (a:Converter<'TIn, 'TIntermediate>) =
+        let composed (contentInfo, input) =
+            async {
+                let! result = a (contentInfo, input)
+                return! b result
+            }
+
+        composed
+
     [<CompiledName("FromStreamToString")>]
     let fromStreamToString (contentInfo:ContentInfo, stream:Stream) =
         async {
@@ -54,8 +63,8 @@ module Converters =
             return (contentInfo, stream)
         }
 
-    [<CompiledName("FromObjectToString")>]
-    let fromObjectToString (contentInfo:ContentInfo, obj:obj) =
+    [<CompiledName("FromAnyToString")>]
+    let fromAnyToString (contentInfo:ContentInfo, obj:_) =
         async {
             return (contentInfo, obj.ToString())
         }

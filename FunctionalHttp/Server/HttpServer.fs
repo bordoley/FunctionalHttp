@@ -28,7 +28,7 @@ module HttpServer =
     let virtualHostApplicationProvider (applications:seq<string*IHttpApplication>, defaultApplication:IHttpApplication) =
         let map = Map.ofSeq applications
 
-        fun (req:HttpRequest<Stream>) ->
+        fun (req:HttpRequest<unit>) ->
             map.TryFind req.Uri.DnsSafeHost |> Option.getOrElse defaultApplication
 
     [<CompiledName("Create")>]
@@ -36,27 +36,30 @@ module HttpServer =
         let badRequestResponse =
             HttpResponse<obj>.Create(HttpStatus.clientErrorBadRequest, () :> obj) |> Async.result
 
-        let doProcessRequest req = 
+        let doProcessRequest (req:HttpRequest<Stream>) = 
             async {
                 let app = applicationProvider req
                 let req = app.Filter req
+
                 let resource = app.Route req
-                let reqEntity = req.Entity
-                let req = req.With(())
-                let req = resource.Filter req
+                let requestStream = req.Entity
+                let req = req.With(()) |> resource.Filter
+
                 let! resp = resource.Handle req
                 let! resp =
                     if resp.Status <> HttpStatus.informationalContinue
                     then resp |> Async.result
                     else async {
-                        let! req = req.With(reqEntity) |> resource.Parse 
+                        let! req = req.With(requestStream) |> resource.Parse 
                         return! 
                             match req.Entity with
                             | Choice1Of2 entity -> resource.Accept (req.With(entity))
                             | Choice2Of2 ex -> badRequestResponse
                     }
+
                 let resp = resource.Filter resp
-                return! resource.Serialize (req, resp)
+                let! resp = resource.Serialize (req, resp) 
+                return app.Filter resp
             } 
 
         fun (req:HttpRequest<Stream>) ->

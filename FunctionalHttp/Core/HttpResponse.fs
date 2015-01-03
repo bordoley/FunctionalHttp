@@ -393,6 +393,13 @@ module HttpResponse =
                 | Choice2Of2 exn -> resp.With(Choice2Of2 exn)
         }
 
+    [<CompiledName("ConvertOrThrow")>]
+    let convertOrThrow (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
+        async {
+            let! (contentInfo, out) = converter (resp.ContentInfo, resp.Entity)
+            return resp.With(out, contentInfo = contentInfo)
+        }
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Status =
     let toResponse (status:Status) = HttpResponse<unit>.Create(status, ())
