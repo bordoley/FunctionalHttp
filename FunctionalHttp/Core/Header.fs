@@ -65,6 +65,7 @@ type Header private (header:string) =
     
     static let headerSet = (headers :> IDictionary<string, Header>).Values |> Set.ofSeq
 
+    // FIXME: Most of these should go into a module most likely
     static member internal Parse (header, parser) (headers : Map<Header, obj>) =
         headers.TryFind header
         |> Option.bind (fun x -> 
@@ -79,7 +80,11 @@ type Header private (header:string) =
     static member internal FilterStandardHeaders (headers:Map<Header,obj>) =
         headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
 
-    
+    static member internal HeaderMapFromRawHeaders (headers:seq<string*(string seq)>) =
+        // FIXME: Special case cookies
+        headers 
+        |> Seq.map(fun (k,v) -> (Header.Create k, String.Join (",", v) :> obj)) 
+        |> Map.ofSeq
 
     static member Create(header: string) = 
         match normalize header |> headers.TryFind with

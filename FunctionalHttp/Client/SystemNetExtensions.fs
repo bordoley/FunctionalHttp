@@ -18,12 +18,12 @@ module internal HttpWebResponseExtensions =
             let status = Status.Create(int this.StatusCode)
             let version = HttpVersion.Create(this.ProtocolVersion.Major, this.ProtocolVersion.Minor)
 
-            let headers =
-                this.Headers.AllKeys.SelectMany(fun key -> 
-                    this.Headers.GetValues(key).Select(fun value -> (key,value)))
-  
-            // FIXME:
-            HttpResponse<Stream>.Create(status, version, Map.empty, this.GetResponseStream())
+            let headers = 
+                this.Headers.AllKeys
+                |> Seq.map (fun k -> (k, (this.Headers.GetValues k) :> string seq))
+                |> Header.HeaderMapFromRawHeaders
+
+            HttpResponse<Stream>.Create(status, version, headers, this.GetResponseStream())
 
 [<AutoOpen>]
 module internal HttpResponseMessageExtensions =
@@ -31,14 +31,16 @@ module internal HttpResponseMessageExtensions =
         member this.ToAsyncResponse() =
             async  {
                 let statusCode = Status.Create(int this.StatusCode)
-                let! contentStream = this.Content.ReadAsStreamAsync() |> Async.AwaitTask
-                let headers = this.Headers.SelectMany(fun x -> x.Value.Select(fun v -> (x.Key,v))) 
-                let contentHeaders = this.Content.Headers.SelectMany(fun x -> x.Value.Select(fun v -> (x.Key,v)))
-
                 let version = HttpVersion.Create(this.Version.Major, this.Version.Minor)
 
-                // FIXME:
-                return HttpResponse<Stream>.Create(statusCode, version, Map.empty, contentStream)
+                let headers = 
+                    Seq.concat [ this.Headers :> Headers.HttpHeaders ; this.Content.Headers :> Headers.HttpHeaders]
+                    |> Seq.map (fun kv -> (kv.Key, kv.Value))
+                    |> Header.HeaderMapFromRawHeaders
+
+                let! contentStream = this.Content.ReadAsStreamAsync() |> Async.AwaitTask
+
+                return HttpResponse<Stream>.Create(statusCode, version, headers, contentStream)
             }
 
 [<AutoOpen>]

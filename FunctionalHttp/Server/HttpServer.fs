@@ -62,10 +62,12 @@ module HttpServer =
         let parseRequest (req:HttpListenerRequest) =
             let meth = Parser.parse Method.Parser req.HttpMethod |> Option.get
             let version = HttpVersion.Create(req.ProtocolVersion.Major, req.ProtocolVersion.Minor)
-            let headers = (req.Headers.AllKeys :> seq<string>) |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))
+            let headers = 
+                (req.Headers.AllKeys :> seq<string>) 
+                |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))
+                |> Header.HeaderMapFromRawHeaders
 
-            // FIXME:
-            HttpRequest<Stream>.Create(meth, req.Url, version, Map.empty, req.InputStream)
+            HttpRequest<Stream>.Create(meth, req.Url, version, headers, req.InputStream)
 
         let sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
             async {
