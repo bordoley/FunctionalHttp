@@ -6,170 +6,90 @@ type Status =
         msg:string
     }
 
-    static member internal ClientErrorBadRequest = { code = 400; msg = "Bad Request"}
+    member this.Code = this.code  
 
-    static member internal ClientErrorConflict = { code = 409; msg = "Conflict"}
-
-    static member internal ClientErrorExpectationFailed = { code = 417; msg = "Expectation Failed"}
-
-    static member internal ClientErrorFailedDependency = { code = 424; msg = "Failed Dependency"}
-
-    static member internal ClientErrorForbidden = { code = 403; msg = "Forbidden"}
-
-    static member internal ClientErrorGone = { code = 410; msg = "Gone"}
-
-    static member internal ClientErrorLengthRequired = { code = 411; msg = "Length Required"}
-
-    static member internal ClientErrorLocked = { code = 423; msg = "Locked"}
-
-    static member internal ClientErrorMethodNotAllowed = { code = 405; msg = "Method Not Allowed"}
-
-    static member internal ClientErrorNotAcceptable = { code = 406; msg = "Not Acceptable"}
-
-    static member internal ClientErrorNotFound = { code = 404; msg = "Not Found"}
-
-    static member internal ClientErrorPreconditionFailed = { code = 412; msg = "Precondition Failed"}
-
-    static member internal ClientErrorProxyAuthenticated = { code = 407; msg = "Proxy Authentication Required"}
-
-    static member internal ClientErrorRequestEntityTooLarge = { code = 413; msg = "Request Entity Too Large"}
-
-    static member internal ClientErrorRequestTimeout = { code = 408; msg = "Request Timeout"}
-
-    static member internal ClientErrorRequestUriTooLong = { code = 414; msg = "Request-URI Too Long"}
-
-    static member internal ClientErrorRequestedRangeNotSatisfiable = { code = 416; msg = "Requested Range Not Satisfiable"}
-
-    static member internal ClientErrorUnauthorized = { code = 401; msg = "Unauthorized"}
-
-    static member internal ClientErrorUnprocessableEntity = { code = 422; msg = "Unprocessable Entity"}
-
-    static member internal ClientErrorUnsupportedMediaType = { code = 415; msg = "Unsupported Media Type"}
-
-    static member internal ClientErrorUpgradeRequired = { code = 426; msg = "Upgrade Required"}
-
-    static member internal InformationalContinue = { code = 100; msg = "Continue"}
-
-    static member internal InformationalProcessing = { code = 102; msg = "Processing"}
-    
-    static member internal InformationalSwitchingProtocols = { code = 101; msg = "Switching Protocols"}
-
-    static member internal RedirectionFound = { code = 302; msg = "Found"}
-
-    static member internal RedirectionMovedPermanently = { code = 301; msg = "Moved Permanently"}
-
-    static member internal RedirectionMultipleChoices = { code = 300; msg = "Multiple Choices"}
-
-    static member internal RedirectionNotModified = { code = 304; msg = "Not Modified"}
-
-    static member internal RedirectionSeeOther = { code = 303; msg = "See Other"}
-
-    static member internal RedirectionTemporaryRedirect = { code = 307; msg = "Temporary Redirect"}
-
-    static member internal RedirectionUseProxy = { code = 305; msg = "Use Proxy"}
-
-    static member internal ServerErrorBadGateway = { code = 502; msg = "Bad Gateway"}
-
-    static member internal ServerErrorGatewayTimeout = { code = 504; msg = "Gateway Timeout"}
-
-    static member internal ServerErrorHttpVersionNotSupported = { code = 505; msg = "HTTP Version Not Supported"}
-
-    static member internal ServerErrorInsufficientStorage = { code = 507; msg = "Insufficient Storage"}
-
-    static member internal ServerErrorInternalServerError = { code = 500; msg = "Internal Server Error"}
-
-    static member internal ServerErrorLoopDetected = { code = 508; msg = "Loop Detected"}
-
-    static member internal ServerErrorNotExtended = { code = 510; msg = "Not Extended"}
-
-    static member internal ServerErrorNotImplemented = { code = 501; msg = "Not Implemented"}
-
-    static member internal ServerErrorServiceUnavailable = { code = 503; msg = "Service Unavailable"}
-
-    static member internal ServerErrorVariantAlsoNegotiates = { code = 506; msg = "Variant Also Negotiates"}
-
-    static member internal SuccessAccepted = { code = 202; msg = "Accepted"}
-
-    static member internal SuccessAlreadyReported = { code = 208; msg = "Already Reported"}
-
-    static member internal SuccessCreated = { code = 201; msg = "Created"}
-
-    static member internal SuccessImUsed = { code = 226; msg = "IM Used"}
-
-    static member internal SuccessMultiStatus = { code = 207; msg = "Multi-Status"}
-
-    static member internal SuccessNoContent = { code = 204; msg = "No Content"}
-
-    static member internal SuccessNonAuthoritativeInformation = { code = 203; msg = "Non-Authoritative Information"}
-
-    static member internal SuccessOk = { code = 200; msg = "OK"}
-
-    static member internal SuccessPartialContent = { code = 206; msg = "Partial Content"}
-
-    static member internal SuccessResetContent = { code = 205; msg = "Reset Content"}
-
-    static member Create(code) = Status.Create(code, "")
-
-    static member Create(code, msg) = 
-        match code with
-        | 100 -> Status.InformationalContinue
-        | 101 -> Status.InformationalSwitchingProtocols
-        | 102 -> Status.InformationalProcessing
-        | 200 -> Status.SuccessOk
-        | 201 -> Status.SuccessCreated
-        | 202 -> Status.SuccessCreated
-        | 203 -> Status.SuccessNonAuthoritativeInformation
-        | 204 -> Status.SuccessNoContent
-        | 205 -> Status.SuccessResetContent
-        | 206 -> Status.SuccessPartialContent
-        | 207 -> Status.SuccessMultiStatus
-        | 208 -> Status.SuccessAlreadyReported
-        | 226 -> Status.SuccessImUsed
-        | 300 -> Status.RedirectionMultipleChoices
-        | 301 -> Status.RedirectionMovedPermanently
-        | 302 -> Status.RedirectionFound
-        | 303 -> Status.RedirectionSeeOther
-        | 304 -> Status.RedirectionNotModified
-        | 305 -> Status.RedirectionUseProxy
-        | 307 -> Status.RedirectionTemporaryRedirect
-        | 400 -> Status.ClientErrorBadRequest
-        | 401 -> Status.ClientErrorUnauthorized
-        | 403 -> Status.ClientErrorForbidden
-        | 404 -> Status.ClientErrorNotFound
-        | 405 -> Status.ClientErrorMethodNotAllowed
-        | 406 -> Status.ClientErrorNotAcceptable
-        | 407 -> Status.ClientErrorProxyAuthenticated
-        | 408 -> Status.ClientErrorRequestTimeout
-        | 409 -> Status.ClientErrorConflict
-        | 410 -> Status.ClientErrorGone
-        | 411 -> Status.ClientErrorLengthRequired
-        | 412 -> Status.ClientErrorPreconditionFailed
-        | 413 -> Status.ClientErrorRequestEntityTooLarge
-        | 414 -> Status.ClientErrorRequestUriTooLong
-        | 415 -> Status.ClientErrorUnsupportedMediaType
-        | 416 -> Status.ClientErrorRequestedRangeNotSatisfiable
-        | 417 -> Status.ClientErrorExpectationFailed
-        | 422 -> Status.ClientErrorUnprocessableEntity
-        | 423 -> Status.ClientErrorLocked
-        | 424 -> Status.ClientErrorFailedDependency
-        | 426 -> Status.ClientErrorUpgradeRequired
-        | 500 -> Status.ServerErrorInternalServerError
-        | 501 -> Status.ServerErrorNotImplemented
-        | 502 -> Status.ServerErrorBadGateway
-        | 503 -> Status.ServerErrorServiceUnavailable
-        | 504 -> Status.ServerErrorGatewayTimeout
-        | 505 -> Status.ServerErrorGatewayTimeout
-        | 506 -> Status.ServerErrorVariantAlsoNegotiates
-        | 507 -> Status.ServerErrorInsufficientStorage
-        | 508 -> Status.ServerErrorLoopDetected
-        | 510 -> Status.ServerErrorNotExtended
-        | _ -> { code = code; msg = msg }
-
-    member this.Code = this.code
-    
     member this.Message = this.msg
 
     override this.ToString() = this.Code.ToString() + " " + this.Message
+
+    static member private StandardHeaders =
+        [   (100, "Contine");
+            (101, "Switching Protocols");
+            (102, "Processing");
+            (200, "OK");
+            (201, "Created");
+            (202, "Accepted");
+            (203, "Non-Authoritative Information");
+            (204, "No Content");
+            (205, "Reset Content");
+            (206, "Partial Content");
+            (207, "Multi-Status");
+            (208, "Already Reported");
+            (226, "IM Used");           
+            (300, "Multiple Choices");
+            (301, "Moved Permanently");
+            (302, "Found");
+            (303, "See Other");
+            (304, "Not Modified");
+            (305, "Use Proxy");
+            (307, "Temporary Redirect");
+            (400, "Bad Request");
+            (401, "Unauthorized");
+            (403, "Forbidden");
+            (404, "Not Found");
+            (405, "Method Not Allowed");
+            (406, "Not Acceptable");
+            (407, "Proxy Authentication Required");
+            (408, "Request Timeout");
+            (409, "Conflict");
+            (410, "Gone");
+            (411, "Length Required");
+            (412, "Precondition Failed");
+            (413, "Request Entity Too Large");
+            (414, "Request-URI Too Long");
+            (415, "Unsupported Media Type");
+            (416, "Requested Range Not Satisfiable");
+            (417, "Expectation Failed");
+            (422, "Unprocessable Entity");
+            (423, "Locked");
+            (424, "Failed Dependency");
+            (426, "Upgrade Required");
+            (500, "Internal Server Error");
+            (501, "Not Implemented");
+            (502, "Bad Gateway");
+            (503, "Service Unavailable");
+            (504, "Gateway Timeout");
+            (505, "HTTP Version Not Supported");
+            (506, "Variant Also Negotiates");
+            (507, "Insufficient Storage");
+            (508, "Loop Detected");
+            (510, "Not Extended"); 
+            (1000, "Network Unavailable");
+            (1002, "ConnectFailure");
+            (1003, "ConnectionClosed");
+            (1004, "KeepAliveFailure");
+            (1005, "MessageLengthLimitExceeded");
+            (1006, "NameResolutionFailure");
+            (1008, "PipelineFailure");
+            (1009, "ProtocolError");
+            (1010, "ProxyNameResolutionFailure");
+            (1011, "ReceiveFailure");
+            (1012, "RequestCanceled");
+            (1015, "SecureChannelFailure");
+            (1016, "SendFailure");
+            (1017, "ServerProtocolViolation");
+            (1019, "Timeout");
+            (1020, "TrustFailure");
+            (1021, "UnknownError")]
+        |> Seq.map (fun (k,v) -> (k, { code = k; msg = v }))
+        |> Map.ofSeq
+
+    static member Create(code) = Status.Create(code, "Undefined")
+
+    static member Create(code, msg) = 
+        match Status.StandardHeaders.TryFind code with
+        | Some status -> status
+        | _ -> { code = code; msg = msg }
 
 type StatusClass =    
     | Informational = 100
@@ -195,154 +115,154 @@ module StatusMixins =
 
 module HttpStatus =
     [<CompiledName("ClientErrorBadRequest")>]
-    let clientErrorBadRequest = Status.ClientErrorBadRequest
+    let clientErrorBadRequest = Status.Create(400)
 
     [<CompiledName("ClientErrorConflict")>]
-    let clientErrorConflict = Status.ClientErrorConflict
+    let clientErrorConflict = Status.Create(409)
 
     [<CompiledName("ClientErrorExpectationFailed")>]
-    let clientErrorExpectationFailed = Status.ClientErrorExpectationFailed
+    let clientErrorExpectationFailed = Status.Create(417)
 
     [<CompiledName("ClientErrorFailedDependency")>]
-    let clientErrorFailedDependency = Status.ClientErrorFailedDependency
+    let clientErrorFailedDependency = Status.Create(424)
 
     [<CompiledName("ClientErrorForbidden")>]
-    let clientErrorForbidden = Status.ClientErrorForbidden
+    let clientErrorForbidden = Status.Create(403)
 
     [<CompiledName("ClientErrorGone")>]
-    let clientErrorGone = Status.ClientErrorGone
+    let clientErrorGone = Status.Create(410)
 
     [<CompiledName("ClientErrorLengthRequired")>]
-    let clientErrorLengthRequired = Status.ClientErrorLengthRequired
+    let clientErrorLengthRequired = Status.Create(411)
 
     [<CompiledName("ClientErrorLocked")>]
-    let clientErrorLocked = Status.ClientErrorLocked
+    let clientErrorLocked = Status.Create(423)
 
     [<CompiledName("ClientErrorMethodNotAllowed")>]
-    let clientErrorMethodNotAllowed = Status.ClientErrorMethodNotAllowed
+    let clientErrorMethodNotAllowed = Status.Create(405)
 
     [<CompiledName("ClientErrorNotAcceptable")>]
-    let clientErrorNotAcceptable = Status.ClientErrorNotAcceptable
+    let clientErrorNotAcceptable = Status.Create(406)
 
     [<CompiledName("ClientErrorNotFound")>]
-    let clientErrorNotFound = Status.ClientErrorNotFound
+    let clientErrorNotFound = Status.Create(404)
 
     [<CompiledName("ClientErrorPreconditionFailed")>]
-    let clientErrorPreconditionFailed = Status.ClientErrorPreconditionFailed
+    let clientErrorPreconditionFailed = Status.Create(412)
 
     [<CompiledName("ClientErrorProxyAuthenticated")>]
-    let clientErrorProxyAuthenticated = Status.ClientErrorProxyAuthenticated
+    let clientErrorProxyAuthenticated = Status.Create(407)
 
-    [<CompiledName("ClientError")>]
-    let ClientErrorRequestEntityTooLarge = Status.ClientErrorRequestEntityTooLarge
+    [<CompiledName("ClientErrorRequestEntityTooLarge")>]
+    let ClientErrorRequestEntityTooLarge = Status.Create(413)
 
     [<CompiledName("ClientErrorRequestTimeout")>]
-    let clientErrorRequestTimeout = Status.ClientErrorRequestTimeout
+    let clientErrorRequestTimeout = Status.Create(408)
 
     [<CompiledName("ClientErrorRequestUriTooLong")>]
-    let clientErrorRequestUriTooLong = Status.ClientErrorRequestUriTooLong
+    let clientErrorRequestUriTooLong = Status.Create(414)
 
     [<CompiledName("ClientErrorRangeNotSatisfiable")>]
-    let clientErrorRequestedRangeNotSatisfiable = Status.ClientErrorRequestedRangeNotSatisfiable
+    let clientErrorRequestedRangeNotSatisfiable = Status.Create(416)
 
     [<CompiledName("ClientErrorUnauthorized")>]
-    let clientErrorUnauthorized = Status.ClientErrorUnauthorized
+    let clientErrorUnauthorized = Status.Create(401)
 
     [<CompiledName("ClientErrorUnprocessableEntity")>]
-    let clientErrorUnprocessableEntity = Status.ClientErrorUnprocessableEntity
+    let clientErrorUnprocessableEntity = Status.Create(422)
 
     [<CompiledName("ClientErrorUnsupportedMediaType")>]
-    let clientErrorUnsupportedMediaType = Status.ClientErrorUnsupportedMediaType
+    let clientErrorUnsupportedMediaType = Status.Create(415)
 
     [<CompiledName("ClientErrorUpgradeRequired")>]
-    let clientErrorUpgradeRequired = Status.ClientErrorUpgradeRequired
+    let clientErrorUpgradeRequired = Status.Create(426)
 
     [<CompiledName("InformationalContinue")>]
-    let informationalContinue = Status.InformationalContinue
+    let informationalContinue = Status.Create(100)
 
     [<CompiledName("InformationalProcessing")>]
-    let informationalProcessing = Status.InformationalProcessing
+    let informationalProcessing = Status.Create(102)
 
     [<CompiledName("InformationalSwitchingProtocols")>]
-    let informationalSwitchingProtocols = Status.InformationalSwitchingProtocols
+    let informationalSwitchingProtocols = Status.Create(101)
 
     [<CompiledName("RedirectionFound")>]
-    let redirectionFound = Status.RedirectionFound
+    let redirectionFound = Status.Create(302)
 
     [<CompiledName("RedirectionMovedPermanently")>]
-    let redirectionMovedPermanently = Status.RedirectionMovedPermanently
+    let redirectionMovedPermanently = Status.Create(301)
 
     [<CompiledName("RedirectionMultipleChoices")>]
-    let redirectionMultipleChoices = Status.RedirectionMultipleChoices
+    let redirectionMultipleChoices = Status.Create(300)
 
     [<CompiledName("RedirectionNotModified")>]
-    let redirectionNotModified = Status.RedirectionNotModified
+    let redirectionNotModified = Status.Create(304)
 
     [<CompiledName("RedirectionSeeOther")>]
-    let redirectionSeeOther = Status.RedirectionSeeOther
+    let redirectionSeeOther = Status.Create(303)
 
     [<CompiledName("RedirectionTemporaryRedirect")>]
-    let redirectionTemporaryRedirect = Status.RedirectionTemporaryRedirect
+    let redirectionTemporaryRedirect = Status.Create(307)
 
     [<CompiledName("RedirectionUseProxy")>]
-    let redirectionUseProxy = Status.RedirectionUseProxy
+    let redirectionUseProxy = Status.Create(305)
 
     [<CompiledName("ServerErrorBadGateway")>]
-    let serverErrorBadGateway = Status.ServerErrorBadGateway
+    let serverErrorBadGateway = Status.Create(502)
 
     [<CompiledName("ServerErrorGatewayTimeout")>]
-    let serverErrorGatewayTimeout = Status.ServerErrorGatewayTimeout
+    let serverErrorGatewayTimeout = Status.Create(504)
 
     [<CompiledName("ServerErrorHttpVersionNotSupported")>]
-    let serverErrorHttpVersionNotSupported = Status.ServerErrorHttpVersionNotSupported
+    let serverErrorHttpVersionNotSupported = Status.Create(505)
 
     [<CompiledName("ServerErrorInsufficientStorage")>]
-    let serverErrorInsufficientStorage = Status.ServerErrorInsufficientStorage
+    let serverErrorInsufficientStorage = Status.Create(507)
 
     [<CompiledName("ServerErrorInternalServerError")>]
-    let serverErrorInternalServerError = Status.ServerErrorInternalServerError
+    let serverErrorInternalServerError = Status.Create(500)
 
     [<CompiledName("ServerErrorLoopDetected")>]
-    let serverErrorLoopDetected = Status.ServerErrorLoopDetected
+    let serverErrorLoopDetected = Status.Create(508)
 
     [<CompiledName("ServerErrorNotExtended")>]
-    let serverErrorNotExtended = Status.ServerErrorNotExtended
+    let serverErrorNotExtended = Status.Create(510)
 
     [<CompiledName("ServerErrorNotImplemented")>]
-    let serverErrorNotImplemented = Status.ServerErrorNotImplemented
+    let serverErrorNotImplemented = Status.Create(501)
 
     [<CompiledName("ServerErrorServiceUnavailable")>]
-    let serverErrorServiceUnavailable = Status.ServerErrorServiceUnavailable
+    let serverErrorServiceUnavailable = Status.Create(503)
 
     [<CompiledName("ServerErrorVariantAlsoNegotiates")>]
-    let serverErrorVariantAlsoNegotiates = Status.ServerErrorVariantAlsoNegotiates
+    let serverErrorVariantAlsoNegotiates = Status.Create(506)
 
     [<CompiledName("SuccessAccepted")>]
-    let successAccepted = Status.SuccessAccepted
+    let successAccepted = Status.Create(202)
 
     [<CompiledName("SuccessAlreadyReported")>]
-    let successAlreadyReported = Status.SuccessAlreadyReported
+    let successAlreadyReported = Status.Create(208)
 
     [<CompiledName("SuccessCreated")>]
-    let successCreated = Status.SuccessCreated
+    let successCreated = Status.Create(201)
 
     [<CompiledName("SuccessImUsed")>]
-    let successImUsed = Status.SuccessImUsed
+    let successImUsed = Status.Create(226)
 
     [<CompiledName("SuccessMultiStatus")>]
-    let successMultiStatus = Status.SuccessMultiStatus
+    let successMultiStatus = Status.Create(207)
 
     [<CompiledName("SuccessNoContent")>]
-    let successNoContent = Status.SuccessNoContent
+    let successNoContent = Status.Create(204)
 
     [<CompiledName("SuccessNonAuthoritativeInformation")>]
-    let successNonAuthoritativeInformation = Status.SuccessNonAuthoritativeInformation
+    let successNonAuthoritativeInformation = Status.Create(203)
 
     [<CompiledName("SuccessOk")>]
-    let successOk = Status.SuccessOk
+    let successOk = Status.Create(200)
 
     [<CompiledName("SuccessPartialContent")>]
-    let successPartialContent = Status.SuccessPartialContent
+    let successPartialContent = Status.Create(206)
 
     [<CompiledName("SuccessResetContent")>]
-    let successResetContent = Status.SuccessResetContent
+    let successResetContent = Status.Create(205)
