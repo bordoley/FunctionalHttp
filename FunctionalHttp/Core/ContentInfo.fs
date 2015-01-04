@@ -3,6 +3,7 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Collections
 open System
 open System.Collections.Generic
+open System.Globalization
 
 type ContentInfo =
     private {
@@ -37,13 +38,16 @@ type ContentInfo =
         let encodings:ContentCoding seq = Seq.empty
         let languages:LanguageTag seq = Seq.empty
 
-        let length:Option<int> = None
+        let length:Option<int> = 
+            headers.TryFind HttpHeaders.contentLength
+            |> Option.bind (fun x -> 
+                let result = ref 0
+                if Int32.TryParse (string x, NumberStyles.None, NumberFormatInfo.InvariantInfo, result)
+                then Some !result
+                else None)
 
         let location = 
-            headers.TryFind HttpHeaders.authorization 
-            |> Option.bind (fun x -> 
-                try Uri(string x, UriKind.RelativeOrAbsolute) |> Some
-                with | :?FormatException -> None)
+            HeaderInternal.parseUri HttpHeaders.contentLocation headers
 
         let mediaType:Option<MediaType> =
             HeaderInternal.parse (HttpHeaders.contentType, MediaType.Parser) headers
