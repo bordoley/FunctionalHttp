@@ -13,7 +13,15 @@ module main =
         let application = 
             let route = Route.Create ["example"]
 
-            let handleAndAccept (req:HttpRequest<_>) = HttpResponse<Option<string>>.Create(HttpStatus.successOk, Some (HttpStatus.successOk.ToString())) |> async.Return
+            let handleAndAccept (req:HttpRequest<_>) = 
+                Console.WriteLine req
+                let result = HttpResponse<Option<string>>.Create(
+                                HttpStatus.successOk, 
+                                Some (string req),
+                                allowed = [Method.Get; Method.Put; Method.Post],
+                                location = Uri("http://www.google.com"))
+                Console.WriteLine result
+                result |> async.Return
             let parse = Converters.fromStreamToString |> HttpRequest.convert
             let serialize (req, resp:HttpResponse<Option<string>>) = 
                 match resp.Entity with

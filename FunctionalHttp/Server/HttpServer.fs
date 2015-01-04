@@ -72,10 +72,9 @@ module HttpServer =
         let sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
             async {
                 listenerResponse.StatusCode <- resp.Status.Code
-                resp.Location |> Option.map (fun x -> listenerResponse.RedirectLocation <- x.ToString()) |> ignore
-                resp.ContentInfo.Length 
-                    |> Option.map (fun x -> listenerResponse.ContentLength64 <- int64 x) |> ignore
-                
+
+                resp |> HttpResponse.WriteHeaders listenerResponse.AddHeader
+
                 use entity = resp.Entity
                 use outStream = listenerResponse.OutputStream
                 do! entity.CopyToAsync(outStream) |> Async.AwaitIAsyncResult |> Async.Ignore

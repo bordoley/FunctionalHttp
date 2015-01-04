@@ -33,7 +33,7 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
-            return HttpResponseInternalModule.With<TResp, TResp>(
+            return HttpResponseInternal.With<TResp, TResp>(
                 acceptedRanges.ToFSharpOption(),
                 age.ToFSharpOption(),
                 allowed.ToFSharpOption(),
@@ -82,7 +82,7 @@ namespace FunctionalHttp.Core.Interop
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
-            return HttpResponseInternalModule.With<TResp, TNew>(
+            return HttpResponseInternal.With<TResp, TNew>(
                 acceptedRanges.ToFSharpOption(),
                 age.ToFSharpOption(), 
                 allowed.ToFSharpOption(),
@@ -127,7 +127,7 @@ namespace FunctionalHttp.Core.Interop
             bool vary = false,
             bool warning = false)
         {
-            return HttpResponseInternalModule.Without<TResp>(
+            return HttpResponseInternal.Without<TResp>(
                 acceptedRanges,
                 age, 
                 allowed,

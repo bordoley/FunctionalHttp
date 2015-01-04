@@ -57,6 +57,16 @@ type HttpResponse<'TResp> =
     member this.Version with get() = this.version
     member this.Warning with get() = this.warning
 
+    override this.ToString() = 
+        let builder = StringBuilder()
+        let printHeader (k, v) =
+             Printf.bprintf builder "%O: %O\r\n" k v
+
+        Printf.bprintf builder "%O %O\r\n" this.Status this.Version
+        this |> HttpResponse.WriteHeaders printHeader
+
+        builder.ToString()
+
     static member internal Create(  acceptedRanges,
                                     age,
                                     allowed,
@@ -189,7 +199,28 @@ type HttpResponse<'TResp> =
             version,
             warning) 
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+    static member internal WriteHeaders (f:string*string -> unit) (resp:HttpResponse<'TResp>) =
+        (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) |> HeaderInternal.writeOption f
+        (HttpHeaders.age,               resp.Age               ) |> HeaderInternal.writeOption f 
+        (HttpHeaders.allow,             resp.Allowed           ) |> HeaderInternal.writeSeq f 
+        (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> HeaderInternal.writeSeq f 
+        (HttpHeaders.cacheControl,      resp.CacheControl      ) |> HeaderInternal.writeSeq f 
+
+        resp.ContentInfo |> ContentInfo.write f
+
+        (HttpHeaders.date,              resp.Date              ) |> HeaderInternal.writeDateTime f  
+        (HttpHeaders.etag,              resp.ETag              ) |> HeaderInternal.writeOption f 
+        (HttpHeaders.date,              resp.Expires           ) |> HeaderInternal.writeDateTime f
+        (HttpHeaders.lastModified,      resp.LastModified      ) |> HeaderInternal.writeDateTime f
+        (HttpHeaders.location,          resp.Location          ) |> HeaderInternal.writeOption f
+        (HttpHeaders.proxyAuthenticate, resp.ProxyAuthenticate ) |> HeaderInternal.writeSeq f 
+        (HttpHeaders.retryAfter,        resp.RetryAfter        ) |> HeaderInternal.writeDateTime f
+        (HttpHeaders.server,            resp.Server            ) |> HeaderInternal.writeOption f
+        (HttpHeaders.vary,              resp.Vary              ) |> HeaderInternal.writeOption f
+        (HttpHeaders.warning,           resp.Warning           ) |> HeaderInternal.writeSeq f 
+
+        resp.Headers |> Map.toSeq |> Seq.map (HeaderInternal.writeObject f) |> ignore
+
 module internal HttpResponseInternal =
     [<CompiledName("With")>]
     let with_<'TResp, 'TNew> (  acceptedRanges,

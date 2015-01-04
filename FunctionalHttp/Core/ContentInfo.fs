@@ -5,6 +5,8 @@ open System
 open System.Collections.Generic
 open System.Globalization
 
+// FIXME: ContentRange
+
 type ContentInfo =
     private {
         encodings:ContentCoding seq
@@ -65,7 +67,7 @@ type ContentInfo =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal ContentInfo =
     [<CompiledName("With")>]
-    let with_ (contentInfo:ContentInfo) (encodings, languages, length, location, mediaType) =
+    let with_ (encodings, languages, length, location, mediaType) (contentInfo:ContentInfo) =
         ContentInfo.Create(
             defaultArg encodings contentInfo.Encodings,
             defaultArg languages contentInfo.Languages,
@@ -74,7 +76,7 @@ module internal ContentInfo =
             Option.orElse contentInfo.MediaType mediaType)
 
     [<CompiledName("Without")>]
-    let without (contentInfo:ContentInfo) (encodings, languages, length, location, mediaType) =
+    let without (encodings, languages, length, location, mediaType) (contentInfo:ContentInfo) =
         ContentInfo.Create(
             (if encodings then Seq.empty else contentInfo.Encodings),
             (if languages then Seq.empty else contentInfo.Languages),
@@ -82,15 +84,23 @@ module internal ContentInfo =
             (if location then None else contentInfo.Location),
             (if mediaType then None else contentInfo.MediaType))
 
+    let write (f:string*string -> unit) (contentInfo:ContentInfo)  =
+        (HttpHeaders.contentEncoding, contentInfo.Encodings) |> HeaderInternal.writeSeq f 
+        (HttpHeaders.contentLanguage, contentInfo.Languages) |> HeaderInternal.writeSeq f
+        (HttpHeaders.contentLength,   contentInfo.Length   ) |> HeaderInternal.writeOption f
+        (HttpHeaders.contentLocation, contentInfo.Location ) |> HeaderInternal.writeOption f
+        (HttpHeaders.contentRange,    None                 ) |> HeaderInternal.writeOption f // FIXME
+        (HttpHeaders.contentType,     contentInfo.MediaType) |> HeaderInternal.writeOption f
+
 [<AutoOpen>]
 module ContentInfoMixins =
     type ContentInfo with
         member this.With(?encodings, ?languages, ?length:int, ?location:Uri, ?mediaType:MediaType) =
-            ContentInfo.with_ this (encodings, languages, length, location, mediaType)
+            this |> ContentInfo.with_  (encodings, languages, length, location, mediaType)
 
         member this.Without(?encodings, ?languages, ?length, ?location, ?mediaType) =
-            ContentInfo.without this (  Option.isSome encodings, 
-                                        Option.isSome languages, 
-                                        Option.isSome length, 
-                                        Option.isSome location, 
-                                        Option.isSome mediaType)
+            this |> ContentInfo.without (   Option.isSome encodings, 
+                                            Option.isSome languages, 
+                                            Option.isSome length, 
+                                            Option.isSome location, 
+                                            Option.isSome mediaType)

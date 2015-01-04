@@ -17,12 +17,12 @@ namespace FunctionalHttp.Core.Interop
             MediaType mediaType = null)
         {
             return ContentInfoModule.With(
-                This,
                 encodings.ToFSharpOption(),
                 languages.ToFSharpOption(),
                 length.ToFSharpOption(),
                 location.ToFSharpOption(),
-                mediaType.ToFSharpOption());
+                mediaType.ToFSharpOption(),
+                This);
         }
 
         public static ContentInfo Without(
@@ -33,7 +33,7 @@ namespace FunctionalHttp.Core.Interop
             bool location = false, 
             bool mediaType = false)
         {
-            return ContentInfoModule.Without(This, encodings, languages, length, location, mediaType);
+            return ContentInfoModule.Without(encodings, languages, length, location, mediaType, This);
         }
     }
 }

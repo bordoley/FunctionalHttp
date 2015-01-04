@@ -3,6 +3,7 @@ namespace FunctionalHttp.Core
 open System
 open System.Collections
 open System.Collections.Generic
+open System.Linq
 open FunctionalHttp.Parsing
 
 [<Sealed>]
@@ -124,6 +125,26 @@ module internal HeaderInternal =
         headers 
         |> Seq.map(fun (k,v) -> (Header.Create k, String.Join (",", v) :> obj)) 
         |> Map.ofSeq
+
+    let inline writeOption (f:string*string->unit) (k:Header, v:^T option) =
+        v |> Option.map(fun v -> f (string k, string v)) |> ignore
+
+    let writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
+        let v = String.Join (", ", seq.Cast<obj>()) 
+
+        if String.IsNullOrEmpty v then ()
+        else f (string k, v)
+
+    let writeObject (f:string*string->unit) (k:Header, v:obj) =
+        match v with
+        // String implements IEnumerable in some profiles and not others
+        | :?String as v -> f (string k, string v) 
+        | :?IEnumerable as v -> writeSeq f (k,v)
+        | _ -> f (string k, string v)
+
+    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
+        // FIXME:
+        ()
 
 module HttpHeaders =
     [<CompiledName("Accept")>]

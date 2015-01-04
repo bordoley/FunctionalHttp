@@ -169,7 +169,7 @@ type Status =
     
     member this.Message = this.msg
 
-    override this.ToString() = this.Message
+    override this.ToString() = this.Code.ToString() + " " + this.Message
 
 type StatusClass =    
     | Informational = 100

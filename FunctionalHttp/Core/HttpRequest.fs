@@ -5,6 +5,7 @@ open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
+open System.Text
 
 type HttpRequest<'TReq> = 
     private {  
@@ -42,6 +43,16 @@ type HttpRequest<'TReq> =
     member this.Uri with get() = this.uri     
     member this.UserAgent with get() = this.userAgent
     member this.Version with get() = this.version
+
+    override this.ToString() = 
+        let builder = StringBuilder()
+        let printHeader (k, v) =
+             Printf.bprintf builder "%O: %O\r\n" k v
+
+        Printf.bprintf builder "%O %O %O\r\n" this.Method this.Uri.PathAndQuery this.Version
+        this |> HttpRequest.WriteHeaders printHeader
+
+        builder.ToString()
 
     static member internal Create(  authorization,
                                     cacheControl,
@@ -155,6 +166,25 @@ type HttpRequest<'TReq> =
             uri, 
             userAgent,
             version)
+
+    static member internal WriteHeaders (f:string*string -> unit) (req:HttpRequest<'TReq>) =
+        (HttpHeaders.host,               req.Uri.Authority)      |> HeaderInternal.writeObject f
+        (HttpHeaders.authorization,      req.Authorization)      |> HeaderInternal.writeOption f
+        (HttpHeaders.cacheControl,       req.CacheControl )      |> HeaderInternal.writeSeq f 
+       
+        req.ContentInfo |> ContentInfo.write f
+
+        (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then x |> HeaderInternal.writeObject f 
+        (HttpHeaders.pragma,             req.Pragma       )      |> HeaderInternal.writeSeq f
+
+        // Fixme: req.Preconditions
+        // FIXME: req.preferences
+
+        (HttpHeaders.proxyAuthorization, req.ProxyAuthorization) |> HeaderInternal.writeOption f
+        (HttpHeaders.referer,            req.Referer           ) |> HeaderInternal.writeOption f
+        (HttpHeaders.userAgent,          req.UserAgent         ) |> HeaderInternal.writeOption f
+
+        req.Headers |> Map.toSeq |> Seq.map (HeaderInternal.writeObject f) |> ignore
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpRequestInternal =
