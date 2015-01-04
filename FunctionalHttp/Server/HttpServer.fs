@@ -38,7 +38,7 @@ module HttpServer =
                 let req = app.FilterRequest req
                 let resource = app.Route req
 
-                return! resource.Handle req |> Async.map app.FilterResponse
+                return! resource.Process req |> Async.map app.FilterResponse
             } 
 
         fun (req:HttpRequest<Stream>) ->

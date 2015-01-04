@@ -11,7 +11,7 @@ type ResponseSerializer<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>>
 type IStreamResource =
     abstract member Route:Route with get
 
-    abstract member Handle: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
+    abstract member Process: HttpRequest<Stream> -> Async<HttpResponse<Stream>>
 
 module StreamResource =
     [<CompiledName("Create")>]
@@ -21,7 +21,7 @@ module StreamResource =
         {new IStreamResource with
             member this.Route = resource.Route
 
-            member this.Handle req = 
+            member this.Process req = 
                 async {
                     let req =  resource.FilterRequest req
 
@@ -49,9 +49,9 @@ module StreamResource =
         { new IStreamResource with
             member this.Route = resource.Route
 
-            member this.Handle req = 
+            member this.Process req = 
                 async {
-                    let! resp = resource.Handle req
+                    let! resp = resource.Process req
                     return! 
                         match (resp.Status, req.Preferences.Ranges) with
                         | (status, Some range) when status = HttpStatus.successOk ->
