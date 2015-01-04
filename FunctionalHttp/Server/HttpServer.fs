@@ -71,7 +71,7 @@ module HttpServer =
 
         let sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
             async {
-                listenerResponse.StatusCode <- resp.Status.Code
+                listenerResponse.StatusCode <- int resp.Status.Code
 
                 resp |> HttpResponse.WriteHeaders listenerResponse.AddHeader
 

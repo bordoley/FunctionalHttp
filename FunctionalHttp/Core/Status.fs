@@ -2,7 +2,7 @@ namespace FunctionalHttp.Core
 
 type Status = 
     private {
-        code:int
+        code:uint16
         msg:string
     }
 
@@ -10,7 +10,7 @@ type Status =
 
     member this.Message = this.msg
 
-    override this.ToString() = this.Code.ToString() + " " + this.Message
+    override this.ToString() = sprintf "%u %s" this.Code this.Message
 
     static member private StandardHeaders =
         [   (100, "Contine");
@@ -81,7 +81,7 @@ type Status =
             (1019, "Timeout");
             (1020, "TrustFailure");
             (1021, "UnknownError")]
-        |> Seq.map (fun (k,v) -> (k, { code = k; msg = v }))
+        |> Seq.map (fun (k,v) -> (uint16 k, { code = uint16 k; msg = v }))
         |> Map.ofSeq
 
     static member Create (code) = Status.Create(code, "Undefined")
@@ -92,12 +92,12 @@ type Status =
         | _ -> { code = code; msg = msg }
 
 type StatusClass =    
-    | Informational = 100
-    | Success = 200
-    | Redirection = 300
-    | ClientError = 400
-    | ServerError = 500 
-    | SystemHttpClientError = 1000
+    | Informational = 100us
+    | Success = 200us
+    | Redirection = 300us
+    | ClientError = 400us
+    | ServerError = 500us
+    | SystemHttpClientError = 1000us
 
 [<AutoOpen>]  
 module StatusMixins =
@@ -105,164 +105,164 @@ module StatusMixins =
         member this.Class 
             with get() = 
                 match this.Code with  
-                | x when x >= 100 && x < 200 -> StatusClass.Informational 
-                | x when x >= 200 && x < 300 -> StatusClass.Success 
-                | x when x >= 300 && x < 400 -> StatusClass.Redirection 
-                | x when x >= 400 && x < 500 -> StatusClass.ClientError
-                | x when x >= 500 && x < 600 -> StatusClass.ServerError 
-                | x when x >= 1000 && x < 2000 -> StatusClass.SystemHttpClientError 
+                | x when x >= 100us && x < 200us -> StatusClass.Informational 
+                | x when x >= 200us && x < 300us -> StatusClass.Success 
+                | x when x >= 300us && x < 400us -> StatusClass.Redirection 
+                | x when x >= 400us && x < 500us -> StatusClass.ClientError
+                | x when x >= 500us && x < 600us -> StatusClass.ServerError 
+                | x when x >= 1000us && x < 2000us -> StatusClass.SystemHttpClientError 
                 | _ -> failwith "Invalid status code"  
 
 module HttpStatus =
     [<CompiledName("ClientErrorBadRequest")>]
-    let clientErrorBadRequest = Status.Create(400)
+    let clientErrorBadRequest = Status.Create(400us)
 
     [<CompiledName("ClientErrorConflict")>]
-    let clientErrorConflict = Status.Create(409)
+    let clientErrorConflict = Status.Create(409us)
 
     [<CompiledName("ClientErrorExpectationFailed")>]
-    let clientErrorExpectationFailed = Status.Create(417)
+    let clientErrorExpectationFailed = Status.Create(417us)
 
     [<CompiledName("ClientErrorFailedDependency")>]
-    let clientErrorFailedDependency = Status.Create(424)
+    let clientErrorFailedDependency = Status.Create(424us)
 
     [<CompiledName("ClientErrorForbidden")>]
-    let clientErrorForbidden = Status.Create(403)
+    let clientErrorForbidden = Status.Create(403us)
 
     [<CompiledName("ClientErrorGone")>]
-    let clientErrorGone = Status.Create(410)
+    let clientErrorGone = Status.Create(410us)
 
     [<CompiledName("ClientErrorLengthRequired")>]
-    let clientErrorLengthRequired = Status.Create(411)
+    let clientErrorLengthRequired = Status.Create(411us)
 
     [<CompiledName("ClientErrorLocked")>]
-    let clientErrorLocked = Status.Create(423)
+    let clientErrorLocked = Status.Create(423us)
 
     [<CompiledName("ClientErrorMethodNotAllowed")>]
-    let clientErrorMethodNotAllowed = Status.Create(405)
+    let clientErrorMethodNotAllowed = Status.Create(405us)
 
     [<CompiledName("ClientErrorNotAcceptable")>]
-    let clientErrorNotAcceptable = Status.Create(406)
+    let clientErrorNotAcceptable = Status.Create(406us)
 
     [<CompiledName("ClientErrorNotFound")>]
-    let clientErrorNotFound = Status.Create(404)
+    let clientErrorNotFound = Status.Create(404us)
 
     [<CompiledName("ClientErrorPreconditionFailed")>]
-    let clientErrorPreconditionFailed = Status.Create(412)
+    let clientErrorPreconditionFailed = Status.Create(412us)
 
     [<CompiledName("ClientErrorProxyAuthenticated")>]
-    let clientErrorProxyAuthenticated = Status.Create(407)
+    let clientErrorProxyAuthenticated = Status.Create(407us)
 
     [<CompiledName("ClientErrorRequestEntityTooLarge")>]
-    let ClientErrorRequestEntityTooLarge = Status.Create(413)
+    let ClientErrorRequestEntityTooLarge = Status.Create(413us)
 
     [<CompiledName("ClientErrorRequestTimeout")>]
-    let clientErrorRequestTimeout = Status.Create(408)
+    let clientErrorRequestTimeout = Status.Create(408us)
 
     [<CompiledName("ClientErrorRequestUriTooLong")>]
-    let clientErrorRequestUriTooLong = Status.Create(414)
+    let clientErrorRequestUriTooLong = Status.Create(414us)
 
     [<CompiledName("ClientErrorRangeNotSatisfiable")>]
-    let clientErrorRequestedRangeNotSatisfiable = Status.Create(416)
+    let clientErrorRequestedRangeNotSatisfiable = Status.Create(416us)
 
     [<CompiledName("ClientErrorUnauthorized")>]
-    let clientErrorUnauthorized = Status.Create(401)
+    let clientErrorUnauthorized = Status.Create(401us)
 
     [<CompiledName("ClientErrorUnprocessableEntity")>]
-    let clientErrorUnprocessableEntity = Status.Create(422)
+    let clientErrorUnprocessableEntity = Status.Create(422us)
 
     [<CompiledName("ClientErrorUnsupportedMediaType")>]
-    let clientErrorUnsupportedMediaType = Status.Create(415)
+    let clientErrorUnsupportedMediaType = Status.Create(415us)
 
     [<CompiledName("ClientErrorUpgradeRequired")>]
-    let clientErrorUpgradeRequired = Status.Create(426)
+    let clientErrorUpgradeRequired = Status.Create(426us)
 
     [<CompiledName("InformationalContinue")>]
-    let informationalContinue = Status.Create(100)
+    let informationalContinue = Status.Create(100us)
 
     [<CompiledName("InformationalProcessing")>]
-    let informationalProcessing = Status.Create(102)
+    let informationalProcessing = Status.Create(102us)
 
     [<CompiledName("InformationalSwitchingProtocols")>]
-    let informationalSwitchingProtocols = Status.Create(101)
+    let informationalSwitchingProtocols = Status.Create(101us)
 
     [<CompiledName("RedirectionFound")>]
-    let redirectionFound = Status.Create(302)
+    let redirectionFound = Status.Create(302us)
 
     [<CompiledName("RedirectionMovedPermanently")>]
-    let redirectionMovedPermanently = Status.Create(301)
+    let redirectionMovedPermanently = Status.Create(301us)
 
     [<CompiledName("RedirectionMultipleChoices")>]
-    let redirectionMultipleChoices = Status.Create(300)
+    let redirectionMultipleChoices = Status.Create(300us)
 
     [<CompiledName("RedirectionNotModified")>]
-    let redirectionNotModified = Status.Create(304)
+    let redirectionNotModified = Status.Create(304us)
 
     [<CompiledName("RedirectionSeeOther")>]
-    let redirectionSeeOther = Status.Create(303)
+    let redirectionSeeOther = Status.Create(303us)
 
     [<CompiledName("RedirectionTemporaryRedirect")>]
-    let redirectionTemporaryRedirect = Status.Create(307)
+    let redirectionTemporaryRedirect = Status.Create(307us)
 
     [<CompiledName("RedirectionUseProxy")>]
-    let redirectionUseProxy = Status.Create(305)
+    let redirectionUseProxy = Status.Create(305us)
 
     [<CompiledName("ServerErrorBadGateway")>]
-    let serverErrorBadGateway = Status.Create(502)
+    let serverErrorBadGateway = Status.Create(502us)
 
     [<CompiledName("ServerErrorGatewayTimeout")>]
-    let serverErrorGatewayTimeout = Status.Create(504)
+    let serverErrorGatewayTimeout = Status.Create(504us)
 
     [<CompiledName("ServerErrorHttpVersionNotSupported")>]
-    let serverErrorHttpVersionNotSupported = Status.Create(505)
+    let serverErrorHttpVersionNotSupported = Status.Create(505us)
 
     [<CompiledName("ServerErrorInsufficientStorage")>]
-    let serverErrorInsufficientStorage = Status.Create(507)
+    let serverErrorInsufficientStorage = Status.Create(507us)
 
     [<CompiledName("ServerErrorInternalServerError")>]
-    let serverErrorInternalServerError = Status.Create(500)
+    let serverErrorInternalServerError = Status.Create(500us)
 
     [<CompiledName("ServerErrorLoopDetected")>]
-    let serverErrorLoopDetected = Status.Create(508)
+    let serverErrorLoopDetected = Status.Create(508us)
 
     [<CompiledName("ServerErrorNotExtended")>]
-    let serverErrorNotExtended = Status.Create(510)
+    let serverErrorNotExtended = Status.Create(510us)
 
     [<CompiledName("ServerErrorNotImplemented")>]
-    let serverErrorNotImplemented = Status.Create(501)
+    let serverErrorNotImplemented = Status.Create(501us)
 
     [<CompiledName("ServerErrorServiceUnavailable")>]
-    let serverErrorServiceUnavailable = Status.Create(503)
+    let serverErrorServiceUnavailable = Status.Create(503us)
 
     [<CompiledName("ServerErrorVariantAlsoNegotiates")>]
-    let serverErrorVariantAlsoNegotiates = Status.Create(506)
+    let serverErrorVariantAlsoNegotiates = Status.Create(506us)
 
     [<CompiledName("SuccessAccepted")>]
-    let successAccepted = Status.Create(202)
+    let successAccepted = Status.Create(202us)
 
     [<CompiledName("SuccessAlreadyReported")>]
-    let successAlreadyReported = Status.Create(208)
+    let successAlreadyReported = Status.Create(208us)
 
     [<CompiledName("SuccessCreated")>]
-    let successCreated = Status.Create(201)
+    let successCreated = Status.Create(201us)
 
     [<CompiledName("SuccessImUsed")>]
-    let successImUsed = Status.Create(226)
+    let successImUsed = Status.Create(226us)
 
     [<CompiledName("SuccessMultiStatus")>]
-    let successMultiStatus = Status.Create(207)
+    let successMultiStatus = Status.Create(207us)
 
     [<CompiledName("SuccessNoContent")>]
-    let successNoContent = Status.Create(204)
+    let successNoContent = Status.Create(204us)
 
     [<CompiledName("SuccessNonAuthoritativeInformation")>]
-    let successNonAuthoritativeInformation = Status.Create(203)
+    let successNonAuthoritativeInformation = Status.Create(203us)
 
     [<CompiledName("SuccessOk")>]
-    let successOk = Status.Create(200)
+    let successOk = Status.Create(200us)
 
     [<CompiledName("SuccessPartialContent")>]
-    let successPartialContent = Status.Create(206)
+    let successPartialContent = Status.Create(206us)
 
     [<CompiledName("SuccessResetContent")>]
-    let successResetContent = Status.Create(205)
+    let successResetContent = Status.Create(205us)

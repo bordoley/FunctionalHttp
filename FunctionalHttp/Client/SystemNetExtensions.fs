@@ -15,7 +15,7 @@ open System.Runtime.CompilerServices
 module internal HttpWebResponseExtensions =
     type HttpWebResponse with
         member this.ToResponse () =
-            let status = Status.Create(int this.StatusCode)
+            let status = Status.Create(uint16 this.StatusCode)
             let version = HttpVersion.Create(this.ProtocolVersion.Major, this.ProtocolVersion.Minor)
 
             let headers = 
@@ -30,7 +30,7 @@ module internal HttpResponseMessageExtensions =
     type HttpResponseMessage with
         member this.ToAsyncResponse() =
             async  {
-                let statusCode = Status.Create(int this.StatusCode)
+                let statusCode = Status.Create(uint16 this.StatusCode)
                 let version = HttpVersion.Create(this.Version.Major, this.Version.Minor)
 
                 let headers = 
