@@ -2,7 +2,7 @@ namespace FunctionalHttp.Core
 
 open System
 
-type AnyTag = |AnyTag
+type AnyTag = private |AnyTag
 
 type RequestPreconditions =
     private {

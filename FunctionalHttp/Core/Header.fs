@@ -64,7 +64,7 @@ type Header private (header:string) =
           Header("X-HTTP-Method-Override");
           Header("X-Method-Override")] |> Seq.map (fun x -> (x.Normalized, x)) |> Map.ofSeq
     
-    static member Create(header: string) = 
+    static member Create (header: string) = 
         match normalize header |> Header.StandardHeaders.TryFind with
         | Some header -> header
         | None ->

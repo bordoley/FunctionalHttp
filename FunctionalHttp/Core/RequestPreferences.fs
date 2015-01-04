@@ -21,6 +21,12 @@ type RequestPreferences =
         ranges: Option<Range>
     } 
 
+    member this.AcceptedCharset = this.acceptedCharsets
+    member this.AcceptedEncodings = this.acceptedEncodings
+    member this.AcceptedLanguages = this.acceptedLanguages
+    member this.AcceptedMediaRanges = this.acceptedMediaRanges
+    member this.Ranges = this.ranges
+
     static member None = { 
             acceptedCharsets = Set.empty
             acceptedEncodings = Set.empty 
@@ -32,9 +38,3 @@ type RequestPreferences =
     static member Create(headers:Map<Header, obj>) = 
         // FIXME:
        RequestPreferences.None
-
-    member this.AcceptedCharset = this.acceptedCharsets
-    member this.AcceptedEncodings = this.acceptedEncodings
-    member this.AcceptedLanguages = this.acceptedLanguages
-    member this.AcceptedMediaRanges = this.acceptedMediaRanges
-    member this.Ranges = this.ranges

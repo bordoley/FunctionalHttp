@@ -84,9 +84,9 @@ type Status =
         |> Seq.map (fun (k,v) -> (k, { code = k; msg = v }))
         |> Map.ofSeq
 
-    static member Create(code) = Status.Create(code, "Undefined")
+    static member Create (code) = Status.Create(code, "Undefined")
 
-    static member Create(code, msg) = 
+    static member Create (code, msg) = 
         match Status.StandardHeaders.TryFind code with
         | Some status -> status
         | _ -> { code = code; msg = msg }
