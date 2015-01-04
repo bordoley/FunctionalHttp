@@ -13,8 +13,7 @@ type Product =
 
     static member internal Parser =
         token <+> optional (parseChar '/' <+> token)
-        |> map (fun result ->
-            match result with
+        |> map (function
             | (name, Some(_, version)) -> { name = name; version = version; }
             | (name, _)-> { name = name; version = ""; })
 

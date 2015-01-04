@@ -44,8 +44,7 @@ type Challenge =
         | Choice1Of2 token68 -> token68
         | Choice2Of2 parameters -> 
             Map.toSeq parameters
-            |> Seq.map (fun (key,value) -> 
-                match (key, value) with
+            |> Seq.map (function
                 | (key, value) when value.Length = 0 -> key
                 | (key, value) when key = "realm" ->
                     key + "=" + HttpEncoding.asQuotedString value

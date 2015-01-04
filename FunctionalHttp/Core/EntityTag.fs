@@ -20,10 +20,9 @@ type EntityTag =
         let weak = pstring "W/"
 
         (optional weak) <+> opaque_tag
-        |> map (fun (w, tag) ->
-            match (w, tag) with
-            | (Some _, _) -> { tag = tag; isWeak = true } 
-            | _ -> { tag = tag; isWeak = false })
+        |> map (function
+            | (Some _, tag) -> { tag = tag; isWeak = true } 
+            | (_, tag) -> { tag = tag; isWeak = false })
 
     member this.Tag with get() = this.tag
             

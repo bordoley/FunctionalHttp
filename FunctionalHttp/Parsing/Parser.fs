@@ -110,7 +110,7 @@ module internal Parser =
         | _ -> Success(None, input)
 
     let orElse (p:Parser<'TResult>) (alt:'TResult) =
-        p |> optional |> map (fun opt -> match opt with| Some x -> x | _ -> alt)
+        p |> optional |> map (function | Some x -> x | _ -> alt)
     
     let parseStream (p:Parser<'TResult>) (input:CharStream) =
         match p input with

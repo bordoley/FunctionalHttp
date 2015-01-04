@@ -22,11 +22,9 @@ type MediaType =
             // The type, subtype, and parameter name tokens are case-insensitive.
             match x with | (key, _), value -> (key.ToLowerInvariant(), value))
 
-        let parameters = OWS_SEMICOLON_OWS <+> parameter |> map (fun x -> 
-            match x with | (_, pair) -> pair) |> many
+        let parameters = OWS_SEMICOLON_OWS <+> parameter |> map (function (_, pair) -> pair) |> many
 
-        token <+> (parseChar '/') <+> token <+> parameters |>  map (fun x ->
-            match x with 
+        token <+> (parseChar '/') <+> token <+> parameters |>  map (function
             | (((_type, _), subType), parameters) ->  
                 let charset = ref None
 
