@@ -157,14 +157,14 @@ type HttpResponse<'TResp> =
         let etag = None
         let expires = None
         let lastModified = None
-        let location = Header.ParseUri HttpHeaders.location headers
+        let location = HeaderInternal.parseUri HttpHeaders.location headers
         let proxyAuthenticate = Set.empty
         let retryAfter = None
         let server = None
         let vary = None
         let warning = []
 
-        let headers = Header.FilterStandardHeaders headers
+        let headers = HeaderInternal.filterStandardHeaders headers
 
         HttpResponse<'TResp>.Create(   
             acceptedRanges,

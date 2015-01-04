@@ -65,7 +65,7 @@ module HttpServer =
             let headers = 
                 (req.Headers.AllKeys :> seq<string>) 
                 |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))
-                |> Header.HeaderMapFromRawHeaders
+                |> HeaderInternal.headerMapFromRawHeaders
 
             HttpRequest<Stream>.Create(meth, req.Url, version, headers, req.InputStream)
 

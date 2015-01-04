@@ -21,7 +21,7 @@ module internal HttpWebResponseExtensions =
             let headers = 
                 this.Headers.AllKeys
                 |> Seq.map (fun k -> (k, (this.Headers.GetValues k) :> string seq))
-                |> Header.HeaderMapFromRawHeaders
+                |> HeaderInternal.headerMapFromRawHeaders
 
             HttpResponse<Stream>.Create(status, version, headers, this.GetResponseStream())
 
@@ -36,7 +36,7 @@ module internal HttpResponseMessageExtensions =
                 let headers = 
                     Seq.concat [ this.Headers :> Headers.HttpHeaders ; this.Content.Headers :> Headers.HttpHeaders]
                     |> Seq.map (fun kv -> (kv.Key, kv.Value))
-                    |> Header.HeaderMapFromRawHeaders
+                    |> HeaderInternal.headerMapFromRawHeaders
 
                 let! contentStream = this.Content.ReadAsStreamAsync() |> Async.AwaitTask
 

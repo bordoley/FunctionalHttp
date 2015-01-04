@@ -113,7 +113,7 @@ type HttpRequest<'TReq> =
             defaultArg version HttpVersion.Http1_1)
 
     static member internal Create(meth:Method, uri:Uri, version:HttpVersion, headers:Map<Header, obj>, entity:'TReq, ?id) =
-        let authorization = Header.Parse (HttpHeaders.authorization, Credentials.Parser) headers
+        let authorization = HeaderInternal.parse (HttpHeaders.authorization, Credentials.Parser) headers
 
         let cacheControl:Set<CacheDirective>  = Set.empty
 
@@ -130,13 +130,13 @@ type HttpRequest<'TReq> =
 
         let preferences:RequestPreferences = RequestPreferences.Create headers
 
-        let proxyAuthorization = Header.Parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
+        let proxyAuthorization = HeaderInternal.parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
 
-        let referer:Option<Uri> = Header.ParseUri  HttpHeaders.authorization headers
+        let referer:Option<Uri> = HeaderInternal.parseUri  HttpHeaders.authorization headers
 
         let userAgent:Option<UserAgent> = None
 
-        let headers = Header.FilterStandardHeaders headers
+        let headers = HeaderInternal.filterStandardHeaders headers
 
         HttpRequest<'TReq>.Create (
             authorization,

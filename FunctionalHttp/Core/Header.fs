@@ -9,7 +9,7 @@ open FunctionalHttp.Parsing
 type Header private (header:string) = 
     static let normalize (header:string) = header.ToLowerInvariant() 
 
-    static let headers  =
+    static member internal StandardHeaders  =
         [ Header("Accept") ;
           Header("Accept-Charset");
           Header("Accept-Encoding");
@@ -63,31 +63,8 @@ type Header private (header:string) =
           Header("X-HTTP-Method-Override");
           Header("X-Method-Override")] |> Seq.map (fun x -> (x.Normalized, x)) |> Map.ofSeq
     
-    static let headerSet = (headers :> IDictionary<string, Header>).Values |> Set.ofSeq
-
-    // FIXME: Most of these should go into a module most likely
-    static member internal Parse (header, parser) (headers : Map<Header, obj>) =
-        headers.TryFind header
-        |> Option.bind (fun x -> 
-            string x |> Parser.parse parser)
-
-    static member internal ParseUri header (headers : Map<Header, obj>) =
-        headers.TryFind header
-        |> Option.bind (fun x -> 
-            try Uri(string x, UriKind.RelativeOrAbsolute) |> Some
-            with | :?FormatException -> None)
-
-    static member internal FilterStandardHeaders (headers:Map<Header,obj>) =
-        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
-
-    static member internal HeaderMapFromRawHeaders (headers:seq<string*(string seq)>) =
-        // FIXME: Special case cookies
-        headers 
-        |> Seq.map(fun (k,v) -> (Header.Create k, String.Join (",", v) :> obj)) 
-        |> Map.ofSeq
-
     static member Create(header: string) = 
-        match normalize header |> headers.TryFind with
+        match normalize header |> Header.StandardHeaders.TryFind with
         | Some header -> header
         | None ->
             match Parser.parse Header.Parser header with 
@@ -102,7 +79,7 @@ type Header private (header:string) =
     static member internal Parser = 
         HttpParsers.token 
         |> Parser.map (fun header -> 
-            match normalize header |> headers.TryFind with
+            match normalize header |> Header.StandardHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
 
@@ -129,6 +106,29 @@ type Header private (header:string) =
     override this.GetHashCode() = hash this.Normalized
 
     override this.ToString () = header
+
+module internal HeaderInternal =
+    let internal headerSet = (Header.StandardHeaders :> IDictionary<string, Header>).Values |> Set.ofSeq
+
+    let filterStandardHeaders (headers:Map<Header,obj>) =
+        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
+
+    let parse (header, parser) (headers : Map<Header, obj>) =
+        headers.TryFind header
+        |> Option.bind (fun x -> 
+            string x |> Parser.parse parser)
+
+    let parseUri header (headers : Map<Header, obj>) =
+        headers.TryFind header
+        |> Option.bind (fun x -> 
+            try Uri(string x, UriKind.RelativeOrAbsolute) |> Some
+            with | :?FormatException -> None)
+
+    let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
+        // FIXME: Special case cookies
+        headers 
+        |> Seq.map(fun (k,v) -> (Header.Create k, String.Join (",", v) :> obj)) 
+        |> Map.ofSeq
 
 module HttpHeaders =
     [<CompiledName("Accept")>]

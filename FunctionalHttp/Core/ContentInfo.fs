@@ -46,8 +46,7 @@ type ContentInfo =
                 with | :?FormatException -> None)
 
         let mediaType:Option<MediaType> =
-            Header.Parse (HttpHeaders.contentType, MediaType.Parser) headers
-
+            HeaderInternal.parse (HttpHeaders.contentType, MediaType.Parser) headers
 
         ContentInfo.Create(encodings, languages, length, location, mediaType)
 
