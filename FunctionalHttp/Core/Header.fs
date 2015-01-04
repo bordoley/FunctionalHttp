@@ -70,11 +70,6 @@ type Header private (header:string) =
             match Parser.parse Header.Parser header with 
             | Some header -> header
             | _ -> invalidArg "header" "not a header"
-    
-    static member internal CreateHeaderMap(headers:seq<string*seq<string>>) =
-            headers 
-            |> (Seq.map <| fun (k,v) -> (Header.Create k, String.Join(", ", v) :> obj))
-            |> Map.ofSeq
 
     static member internal Parser = 
         HttpParsers.token 
