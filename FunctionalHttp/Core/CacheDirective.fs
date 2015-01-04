@@ -10,6 +10,14 @@ type CacheDirective =
         value:String
     }
 
+    member this.Directive with get() = this.Directive
+    member this.Value with get() = this.value
+
+    override this.ToString() =
+        if this.value.Length = 0
+            then this.Directive
+        else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
+
     static member NoStore = { directive = "no-store"; value  ="" }
     static member NoTransform = { directive = "no-transform"; value ="" }
     static member OnlyIfCached = { directive = "only-if-cached"; value ="" }
@@ -37,13 +45,6 @@ type CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-    member this.Directive with get() = this.Directive
-    member this.Value with get() = this.value
-
-    override this.ToString() =
-        if this.value.Length = 0
-            then this.Directive
-        else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
 [<AutoOpen>]
 module CacheDirectiveMixins =

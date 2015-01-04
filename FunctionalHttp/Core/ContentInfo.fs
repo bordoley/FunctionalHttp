@@ -4,6 +4,7 @@ open FunctionalHttp.Collections
 open System
 open System.Collections.Generic
 open System.Globalization
+open System.Text
 
 // FIXME: ContentRange
 
@@ -22,6 +23,14 @@ type ContentInfo =
     member this.Length = this.length
     member this.Location = this.location
     member this.MediaType = this.mediaType
+
+    override this.ToString() =
+        let builder = StringBuilder()
+        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+
+        this |> ContentInfo.WriteHeaders writeHeaderLine
+
+        string builder
 
     static member None = { encodings = []; languages = []; length = None; location = None; mediaType = None }
 
@@ -64,6 +73,14 @@ type ContentInfo =
             location, 
             mediaType)
 
+    static member internal WriteHeaders (f:string*string -> unit) (contentInfo:ContentInfo)  =
+        (HttpHeaders.contentEncoding, contentInfo.Encodings) |> HeaderInternal.writeSeq f 
+        (HttpHeaders.contentLanguage, contentInfo.Languages) |> HeaderInternal.writeSeq f
+        (HttpHeaders.contentLength,   contentInfo.Length   ) |> HeaderInternal.writeOption f
+        (HttpHeaders.contentLocation, contentInfo.Location ) |> HeaderInternal.writeOption f
+        (HttpHeaders.contentRange,    None                 ) |> HeaderInternal.writeOption f // FIXME
+        (HttpHeaders.contentType,     contentInfo.MediaType) |> HeaderInternal.writeOption f
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal ContentInfo =
     [<CompiledName("With")>]
@@ -83,14 +100,6 @@ module internal ContentInfo =
             (if length then  None else contentInfo.Length),
             (if location then None else contentInfo.Location),
             (if mediaType then None else contentInfo.MediaType))
-
-    let write (f:string*string -> unit) (contentInfo:ContentInfo)  =
-        (HttpHeaders.contentEncoding, contentInfo.Encodings) |> HeaderInternal.writeSeq f 
-        (HttpHeaders.contentLanguage, contentInfo.Languages) |> HeaderInternal.writeSeq f
-        (HttpHeaders.contentLength,   contentInfo.Length   ) |> HeaderInternal.writeOption f
-        (HttpHeaders.contentLocation, contentInfo.Location ) |> HeaderInternal.writeOption f
-        (HttpHeaders.contentRange,    None                 ) |> HeaderInternal.writeOption f // FIXME
-        (HttpHeaders.contentType,     contentInfo.MediaType) |> HeaderInternal.writeOption f
 
 [<AutoOpen>]
 module ContentInfoMixins =

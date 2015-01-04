@@ -46,13 +46,12 @@ type HttpRequest<'TReq> =
 
     override this.ToString() = 
         let builder = StringBuilder()
-        let printHeader (k, v) =
-             Printf.bprintf builder "%O: %O\r\n" k v
+        let writeHeaderLine = HeaderInternal.headerLineFunc builder
 
         Printf.bprintf builder "%O %O %O\r\n" this.Method this.Uri.PathAndQuery this.Version
-        this |> HttpRequest.WriteHeaders printHeader
+        this |> HttpRequest.WriteHeaders writeHeaderLine
 
-        builder.ToString()
+        string builder
 
     static member internal Create(  authorization,
                                     cacheControl,
@@ -172,19 +171,19 @@ type HttpRequest<'TReq> =
         (HttpHeaders.authorization,      req.Authorization)      |> HeaderInternal.writeOption f
         (HttpHeaders.cacheControl,       req.CacheControl )      |> HeaderInternal.writeSeq f 
        
-        req.ContentInfo |> ContentInfo.write f
+        req.ContentInfo |> ContentInfo.WriteHeaders f
 
         (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then x |> HeaderInternal.writeObject f 
         (HttpHeaders.pragma,             req.Pragma       )      |> HeaderInternal.writeSeq f
 
-        // Fixme: req.Preconditions
-        // FIXME: req.preferences
+        req.Preconditions |> RequestPreconditions.WriteHeaders f
+        req.preferences |> RequestPreferences.WriteHeaders f
 
         (HttpHeaders.proxyAuthorization, req.ProxyAuthorization) |> HeaderInternal.writeOption f
         (HttpHeaders.referer,            req.Referer           ) |> HeaderInternal.writeOption f
         (HttpHeaders.userAgent,          req.UserAgent         ) |> HeaderInternal.writeOption f
 
-        req.Headers |> Map.toSeq |> Seq.map (HeaderInternal.writeObject f) |> ignore
+        req.Headers |> Map.toSeq |> HeaderInternal.writeAll f
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpRequestInternal =

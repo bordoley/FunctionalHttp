@@ -3,7 +3,7 @@ namespace FunctionalHttp.Core
 type Preference<'T> =
     private {
         range:'T
-        score:int
+        score:uint16
     }
 
 type PreferenceWithParams<'T when 'T : comparison> =
@@ -27,6 +27,10 @@ type RequestPreferences =
     member this.AcceptedMediaRanges = this.acceptedMediaRanges
     member this.Ranges = this.ranges
 
+    override this.ToString() =
+        // FIXME:
+        ""
+
     static member None = { 
             acceptedCharsets = Set.empty
             acceptedEncodings = Set.empty 
@@ -38,3 +42,5 @@ type RequestPreferences =
     static member Create(headers:Map<Header, obj>) = 
         // FIXME:
        RequestPreferences.None
+
+    static member internal WriteHeaders (f:string*string -> unit) (requestPreferences:RequestPreferences) = ()

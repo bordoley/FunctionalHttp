@@ -1,3 +1,3 @@
 namespace FunctionalHttp.Core
 
-type Warning = | Warning
+type Warning = private | Warning

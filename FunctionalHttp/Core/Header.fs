@@ -134,17 +134,24 @@ module internal HeaderInternal =
 
         if String.IsNullOrEmpty v then ()
         else f (string k, v)
+    
+    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
+        // FIXME:
+        ()
 
     let writeObject (f:string*string->unit) (k:Header, v:obj) =
         match v with
         // String implements IEnumerable in some profiles and not others
         | :?String as v -> f (string k, string v) 
-        | :?IEnumerable as v -> writeSeq f (k,v)
+        | :?DateTime as v -> writeDateTime f (k, Some v)
+        | :?IEnumerable as v -> writeSeq f (k, v)
         | _ -> f (string k, string v)
 
-    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
-        // FIXME:
-        ()
+    let writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
+        pairs |> Seq.map (writeObject f) |> ignore
+
+    let headerLineFunc builder (k:string, v:string) =
+        Printf.bprintf builder "%O: %s\r\n" k v
 
 module HttpHeaders =
     [<CompiledName("Accept")>]

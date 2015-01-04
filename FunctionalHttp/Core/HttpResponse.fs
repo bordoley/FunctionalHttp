@@ -55,13 +55,12 @@ type HttpResponse<'TResp> =
 
     override this.ToString() = 
         let builder = StringBuilder()
-        let printHeader (k, v) =
-             Printf.bprintf builder "%O: %O\r\n" k v
+        let writeHeaderLine = HeaderInternal.headerLineFunc builder
 
         Printf.bprintf builder "%O %O\r\n" this.Status this.Version
-        this |> HttpResponse.WriteHeaders printHeader
+        this |> HttpResponse.WriteHeaders writeHeaderLine
 
-        builder.ToString()
+        string builder
 
     static member internal Create(  acceptedRanges,
                                     age,
@@ -202,7 +201,7 @@ type HttpResponse<'TResp> =
         (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> HeaderInternal.writeSeq f 
         (HttpHeaders.cacheControl,      resp.CacheControl      ) |> HeaderInternal.writeSeq f 
 
-        resp.ContentInfo |> ContentInfo.write f
+        resp.ContentInfo |> ContentInfo.WriteHeaders f
 
         (HttpHeaders.date,              resp.Date              ) |> HeaderInternal.writeDateTime f  
         (HttpHeaders.etag,              resp.ETag              ) |> HeaderInternal.writeOption f 
@@ -215,7 +214,7 @@ type HttpResponse<'TResp> =
         (HttpHeaders.vary,              resp.Vary              ) |> HeaderInternal.writeOption f
         (HttpHeaders.warning,           resp.Warning           ) |> HeaderInternal.writeSeq f 
 
-        resp.Headers |> Map.toSeq |> Seq.map (HeaderInternal.writeObject f) |> ignore
+        resp.Headers |> Map.toSeq |> HeaderInternal.writeAll f
 
 module internal HttpResponseInternal =
     [<CompiledName("With")>]
