@@ -1,7 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Collections.Async
 open System
 open System.IO
 open System.Text
@@ -10,7 +9,7 @@ type Converter<'TIn, 'TOut> = ContentInfo*'TIn -> Async<ContentInfo*'TOut>
 
 module Converters =
     let bind (b:Converter<'TIntermediate, 'TOut>) (a:Converter<'TIn, 'TIntermediate>) =
-        let composed (contentInfo, input) = (contentInfo, input) |> a >>= b
+        let composed (contentInfo, input) = (contentInfo, input) |> a |> Async.bind b
         composed
 
     [<CompiledName("FromStreamToString")>]

@@ -1,9 +1,7 @@
 ﻿namespace FunctionalHttp.Server
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Collections.Async
 open FunctionalHttp.Core
-open FunctionalHttp.Parsing
 open System.IO
 open System.Text 
 
@@ -60,7 +58,7 @@ module HttpServer =
     [<CompiledName("AsListenerConnector"); Extension>]
     let asListenerConnector (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>) =
         let parseRequest (req:HttpListenerRequest) =
-            let meth = Parser.parse Method.Parser req.HttpMethod |> Option.get
+            let meth = Method.Create req.HttpMethod
             let version = HttpVersion.Create(req.ProtocolVersion.Major, req.ProtocolVersion.Minor)
             let headers = 
                 (req.Headers.AllKeys :> seq<string>) 
@@ -83,7 +81,7 @@ module HttpServer =
         let processRequest (ctx:HttpListenerContext) =
             async {
                 try
-                    do! ctx.Request |> parseRequest |> server >>= sendResponse ctx.Response
+                    do! ctx.Request |> parseRequest |> server |> Async.bind (sendResponse ctx.Response)
                 with | ex -> Console.WriteLine ex // FIXME: Use a logging framework?
             }
 
