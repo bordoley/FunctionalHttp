@@ -15,12 +15,15 @@ open System.Runtime.CompilerServices
 module internal HttpWebResponseExtensions =
     type HttpWebResponse with
         member this.ToResponse () =
-            let statusCode = Status.Create(int this.StatusCode)
+            let status = Status.Create(int this.StatusCode)
+            let version = HttpVersion.Create(this.ProtocolVersion.Major, this.ProtocolVersion.Minor)
+
             let headers =
                 this.Headers.AllKeys.SelectMany(fun key -> 
                     this.Headers.GetValues(key).Select(fun value -> (key,value)))
-
-            HttpResponse<Stream>.Create(statusCode, this.GetResponseStream(), headers)
+  
+            // FIXME:
+            HttpResponse<Stream>.Create(status, version, Map.empty, this.GetResponseStream())
 
 [<AutoOpen>]
 module internal HttpResponseMessageExtensions =
@@ -31,7 +34,11 @@ module internal HttpResponseMessageExtensions =
                 let! contentStream = this.Content.ReadAsStreamAsync() |> Async.AwaitTask
                 let headers = this.Headers.SelectMany(fun x -> x.Value.Select(fun v -> (x.Key,v))) 
                 let contentHeaders = this.Content.Headers.SelectMany(fun x -> x.Value.Select(fun v -> (x.Key,v)))
-                return HttpResponse<Stream>.Create(statusCode,contentStream, headers.Concat(contentHeaders))
+
+                let version = HttpVersion.Create(this.Version.Major, this.Version.Minor)
+
+                // FIXME:
+                return HttpResponse<Stream>.Create(statusCode, version, Map.empty, contentStream)
             }
 
 [<AutoOpen>]
@@ -73,7 +80,9 @@ module internal WebExceptionExtensions =
                 match this.Response with
                 | :? HttpWebResponse as resp -> resp.ToResponse()
                 | _ -> Exception("ProtocolError didn't include HttpWebResponse", this) |> raise
-            | _ ->  HttpResponse<Stream>.Create(this.ToStatus(), Stream.Null)
+            | _ ->  
+                let version = Unchecked.defaultof<FunctionalHttp.Core.HttpVersion>
+                HttpResponse<Stream>.Create(this.ToStatus(), version, Map.empty, Stream.Null)
 
 [<AbstractClass; Sealed; Extension>]
 type internal HttpRequestExtensions private () =

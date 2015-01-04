@@ -29,6 +29,10 @@ type RequestPreferences =
             ranges = None
         }
 
+    static member Create(headers:Map<Header, obj>) = 
+        // FIXME:
+       RequestPreferences.None
+
     member this.AcceptedCharset = this.acceptedCharsets
     member this.AcceptedEncodings = this.acceptedEncodings
     member this.AcceptedLanguages = this.acceptedLanguages

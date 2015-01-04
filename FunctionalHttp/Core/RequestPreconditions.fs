@@ -14,3 +14,7 @@ type RequestPreconditions =
     }
     
     static member None = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }
+
+    static member Create(headers:Map<Header, obj>) = 
+        // FIXME:
+        RequestPreconditions.None

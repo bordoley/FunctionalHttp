@@ -64,7 +64,8 @@ module HttpServer =
             let version = HttpVersion.Create(req.ProtocolVersion.Major, req.ProtocolVersion.Minor)
             let headers = (req.Headers.AllKeys :> seq<string>) |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))
 
-            HttpRequest<Stream>.Create(meth, req.Url, version,  req.InputStream, headers)
+            // FIXME:
+            HttpRequest<Stream>.Create(meth, req.Url, version, Map.empty, req.InputStream)
 
         let sendResponse (listenerResponse:HttpListenerResponse) (resp:HttpResponse<Stream>) =
             async {

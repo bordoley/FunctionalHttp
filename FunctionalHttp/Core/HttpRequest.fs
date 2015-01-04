@@ -1,6 +1,7 @@
 namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
+open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 open System.Runtime.CompilerServices
@@ -111,24 +112,49 @@ type HttpRequest<'TReq> =
             userAgent,
             defaultArg version HttpVersion.Http1_1)
 
-    static member internal Create(meth:Method, uri:Uri, version:HttpVersion, entity:'TReq, headers:IEnumerable<String*IEnumerable<String>>, ?id) =
-            HttpRequest<'TReq>.Create (
-                Option.None,
-                Set.empty,
-                ContentInfo.None,
-                entity,
-                false,
-                Map.empty,
-                Guid.NewGuid(),
-                meth, 
-                Set.empty,
-                RequestPreconditions.None,
-                RequestPreferences.None,
-                Option.None,
-                Option.None,           
-                uri, 
-                Option.None,
-                version)
+    static member internal Create(meth:Method, uri:Uri, version:HttpVersion, headers:Map<Header, obj>, entity:'TReq, ?id) =
+        let authorization = Header.Parse (HttpHeaders.authorization, Credentials.Parser) headers
+
+        let cacheControl:Set<CacheDirective>  = Set.empty
+
+        let contentInfo = ContentInfo.Create headers
+
+        let expectContinue =
+            headers.TryFind HttpHeaders.expect
+            |> Option.map (fun x -> string x = "100-continue")
+            |> Option.getOrElse false
+
+        let pragma:Set<CacheDirective> = Set.empty
+
+        let preconditions:RequestPreconditions = RequestPreconditions.Create headers
+
+        let preferences:RequestPreferences = RequestPreferences.Create headers
+
+        let proxyAuthorization = Header.Parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
+
+        let referer:Option<Uri> = Header.ParseUri  HttpHeaders.authorization headers
+
+        let userAgent:Option<UserAgent> = None
+
+        let headers = Header.FilterStandardHeaders headers
+
+        HttpRequest<'TReq>.Create (
+            authorization,
+            cacheControl,
+            contentInfo,
+            entity,
+            expectContinue,
+            headers,
+            Guid.NewGuid(),
+            meth, 
+            pragma,
+            preconditions,
+            preferences,
+            proxyAuthorization,
+            referer,           
+            uri, 
+            userAgent,
+            version)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpRequestInternal =

@@ -146,29 +146,48 @@ type HttpResponse<'TResp> =
             defaultArg version HttpVersion.Http1_1,
             List.ofSeq <| defaultArg warning Seq.empty)
 
-    static member internal Create(status, entity, headers:IEnumerable<String*String>, ?id) =
+    static member internal Create(status, version, headers:Map<Header, obj>, entity, ?id) =
+        let acceptedRanges = None
+        let age = None
+        let allowed = Set.empty
+        let authenticate = Set.empty
+        let cacheControl = Set.empty
+        let contentInfo = ContentInfo.Create headers
+        let date = None
+        let etag = None
+        let expires = None
+        let lastModified = None
+        let location = Header.ParseUri HttpHeaders.location headers
+        let proxyAuthenticate = Set.empty
+        let retryAfter = None
+        let server = None
+        let vary = None
+        let warning = []
+
+        let headers = Header.FilterStandardHeaders headers
+
         HttpResponse<'TResp>.Create(   
-            None,
-            None, //age,
-            Set.empty, //allowed
-            Set.empty,
-            Set.empty, //cacheControl,
-            ContentInfo.None, //ContentInfo.Create(headers),
-            None,
+            acceptedRanges,
+            age,
+            allowed,
+            authenticate,
+            cacheControl,
+            contentInfo,
+            date,
             entity, 
-            None,
-            None, //expires
-            Map.empty,
+            etag,
+            expires,
+            headers,
             defaultArg id (Guid.NewGuid()),
-            None,
-            None, //location
-            Set.empty,
-            None,
-            None,
+            lastModified,
+            location,
+            proxyAuthenticate,
+            retryAfter,
+            server,
             status,
-            None,
-            HttpVersion.Http1_1,
-            []) 
+            vary,
+            version,
+            warning) 
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpResponseInternal =

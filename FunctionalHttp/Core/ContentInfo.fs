@@ -32,6 +32,24 @@ type ContentInfo =
                 location = location; 
                 mediaType = mediaType 
             }
+         
+    static member Create(headers:Map<Header, obj>) = 
+        let encodings:ContentCoding seq = Seq.empty
+        let languages:LanguageTag seq = Seq.empty
+
+        let length:Option<int> = None
+
+        let location = 
+            headers.TryFind HttpHeaders.authorization 
+            |> Option.bind (fun x -> 
+                try Uri(string x, UriKind.RelativeOrAbsolute) |> Some
+                with | :?FormatException -> None)
+
+        let mediaType:Option<MediaType> =
+            Header.Parse (HttpHeaders.contentType, MediaType.Parser) headers
+
+
+        ContentInfo.Create(encodings, languages, length, location, mediaType)
 
     static member Create(?encodings, ?languages, ?length, ?location, ?mediaType) =
         ContentInfo.Create(
