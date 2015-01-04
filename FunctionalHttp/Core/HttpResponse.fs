@@ -6,10 +6,6 @@ open System.Collections.Generic
 open System.IO
 open System.Text
 
-type Vary =
-    | Headers of Header seq
-    | Any
-
 type HttpResponse<'TResp> =
     private {
         acceptedRanges:Option<AcceptableRanges>
