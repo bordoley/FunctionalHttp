@@ -2,13 +2,11 @@ namespace FunctionalHttp.Core
 
 open System
 
-type AnyTag = private |AnyTag
-
 type RequestPreconditions =
     private {
-        ifMatch: Choice<AnyTag, Set<EntityTag>> option
+        ifMatch: Choice<Any, Set<EntityTag>> option
         ifModifiedSince: DateTime option
-        ifNoneMatch: Choice<AnyTag, Set<EntityTag>> option
+        ifNoneMatch: Choice<Any, Set<EntityTag>> option
         ifUnmodifiedSince: DateTime option
         ifRange: Choice<EntityTag, DateTime> option
     }

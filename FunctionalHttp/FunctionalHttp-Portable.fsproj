@@ -45,6 +45,7 @@
     <Compile Include="Parsing\CharMatchers.fs" />
     <Compile Include="Core\HttpGrammar.fs" />
     <Compile Include="Core\Header.fs" />
+    <Compile Include="Core\Any.fs" />
     <Compile Include="Core\CacheDirective.fs" />
     <Compile Include="Core\Challenge.fs" />
     <Compile Include="Core\Charset.fs" />
@@ -59,7 +60,6 @@
     <Compile Include="Core\UserAgent.fs" />
     <Compile Include="Core\Server.fs" />
     <Compile Include="Core\Warning.fs" />
-    <Compile Include="Core\Vary.fs" />
     <Compile Include="Core\Method.fs" />
     <Compile Include="Core\HeaderParsers.fs" />
     <Compile Include="Core\ContentInfo.fs" />
