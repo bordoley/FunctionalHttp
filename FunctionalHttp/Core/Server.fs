@@ -9,3 +9,8 @@ type Server =
 
     static member internal Parser = 
         UserAgent.Parser |>> (fun x -> { userAgent = x })
+
+    static member Create server =
+        match parse Server.Parser server with
+        | Some server -> server
+        | None -> invalidArg "server" "Not a valid Server string"

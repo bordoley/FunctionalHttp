@@ -21,3 +21,8 @@ type UserAgent =
         let additional = many (RWS >>. (Product.Parser <^> Comment.Parser))
         Product.Parser .>>. additional |>> fun (product, additional) -> 
             { product = product; additional = List.ofSeq additional }
+
+    static member Create ua =
+        match parse UserAgent.Parser ua with
+        | Some ua -> ua
+        | None -> invalidArg "ua" "Not a valid User-Agent string"

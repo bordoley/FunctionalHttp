@@ -7,7 +7,7 @@ open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Core.HttpCharMatchers
 
-type Comment = 
+type internal Comment = 
     private { parts : Choice<string,Comment> list }
 
     override this.ToString() =  

@@ -49,11 +49,9 @@ type ContentInfo =
         let encodings:ContentCoding seq = Seq.empty
         let languages:LanguageTag seq = Seq.empty
 
-        let length = HeaderParsers.parseUInt64 HttpHeaders.contentLength headers
-
-        let location = HeaderParsers.parseUri HttpHeaders.contentLocation headers
-
-        let mediaType = HeaderParsers.parse (HttpHeaders.contentType, MediaType.Parser) headers
+        let length = HeaderParsers.length headers
+        let location = HeaderParsers.contentLocation headers
+        let mediaType = HeaderParsers.contentType headers
 
         ContentInfo.Create(encodings, languages, length, location, mediaType)
 

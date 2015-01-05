@@ -123,29 +123,20 @@ type HttpRequest<'TReq> =
             defaultArg version HttpVersion.Http1_1)
 
     static member internal Create(meth:Method, uri:Uri, version:HttpVersion, headers:Map<Header, obj>, entity:'TReq, ?id) =
-        let authorization = HeaderParsers.parse (HttpHeaders.authorization, Credentials.Parser) headers
-
-        let cacheControl= HeaderParsers.parseSeq (HttpHeaders.cacheControl, HeaderParsers.cacheDirectiveSeq) headers |> Set.ofSeq
+        let authorization = HeaderParsers.authorization headers
+        let cacheControl= HeaderParsers.cacheControl headers
 
         let contentInfo = ContentInfo.Create headers
 
-        let expectContinue =
-            headers.TryFind HttpHeaders.expect
-            |> Option.map (fun x -> string x = "100-continue")
-            |> Option.getOrElse false
+        let expectContinue = HeaderParsers.expectContinue headers
+        let pragma = HeaderParsers.pragma headers
 
-        let pragma = HeaderParsers.parseSeq (HttpHeaders.pragma
-        , HeaderParsers.cacheDirectiveSeq) headers |> Set.ofSeq
+        let preconditions = RequestPreconditions.Create headers
+        let preferences = RequestPreferences.Create headers
 
-        let preconditions:RequestPreconditions = RequestPreconditions.Create headers
-
-        let preferences:RequestPreferences = RequestPreferences.Create headers
-
-        let proxyAuthorization = HeaderParsers.parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
-
-        let referer:Option<Uri> = HeaderParsers.parseUri HttpHeaders.referer headers
-
-        let userAgent = HeaderParsers.parse (HttpHeaders.userAgent, UserAgent.Parser) headers
+        let proxyAuthorization = HeaderParsers.proxyAuthorization headers
+        let referer = HeaderParsers.referer headers
+        let userAgent = HeaderParsers.userAgent headers
 
         let headers = HeaderInternal.filterStandardHeaders headers
 

@@ -15,11 +15,13 @@ module main =
 
             let handleAndAccept (req:HttpRequest<_>) = 
                 Console.WriteLine req
+                let server = "FunctionalHttp/0.0.1" |> Server.Create
                 let result = HttpResponse<Option<string>>.Create(
                                 HttpStatus.successOk, 
                                 Some (string req),
                                 allowed = [Method.Get; Method.Put; Method.Post],
-                                location = Uri("http://www.google.com"))
+                                location = Uri("http://www.google.com"),
+                                server = server)
                 Console.WriteLine result
                 result |> async.Return
             let parse = Converters.fromStreamToString |> HttpRequest.convert
