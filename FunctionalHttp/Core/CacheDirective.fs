@@ -54,13 +54,8 @@ type CacheDirective =
         { directive = "private"; value = String.Join(", ", headers) }  
 
 module CacheDirectives =
-    let private deltaSecondsParser = 
-        (CharMatchers.many1 CharMatchers.DIGIT) |>> (fun d -> 
-            match System.Int32.TryParse(d) with
-            | (true, int) -> Some(int)
-            | _ -> None)
-
+    // FIXME: Add an interop extension method
     let valueAsDeltaSeconds (directive:CacheDirective) =
-        match parse deltaSecondsParser directive.Value with
-                | Some result -> result
-                | _ -> None
+        match UInt32.TryParse(directive.Value) with
+            | (true, int) -> Some (TimeSpan(10000000L * int64 int))
+            | _ -> None

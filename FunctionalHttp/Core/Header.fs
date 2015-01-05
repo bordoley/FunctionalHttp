@@ -129,6 +129,9 @@ module internal HeaderInternal =
         // FIXME:
         ()
 
+    let writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
+        v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
+
     let writeObject (f:string*string->unit) (k:Header, v:obj) =
         match v with
         // String implements IEnumerable in some profiles and not others

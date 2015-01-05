@@ -153,7 +153,7 @@ type HttpResponse<'TResp> =
 
     static member internal Create(status, version, headers:Map<Header, obj>, entity, ?id) =
         let acceptedRanges = HeaderParsers.acceptedRanges headers
-        let age = None
+        let age = HeaderParsers.age headers
         let allowed = HeaderParsers.allowed headers
         let authenticate = HeaderParsers.wwwAuthenticate headers
         let cacheControl = HeaderParsers.cacheControl headers
@@ -202,7 +202,7 @@ type HttpResponse<'TResp> =
             | (header, _) -> (header, "" :> obj)
         |> HeaderInternal.writeObject f
 
-        (HttpHeaders.age,               resp.Age               ) |> HeaderInternal.writeOption f 
+        (HttpHeaders.age,               resp.Age               ) |> HeaderInternal.writeDeltaSecond f
         (HttpHeaders.allow,             resp.Allowed           ) |> HeaderInternal.writeSeq f 
         (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> HeaderInternal.writeSeq f 
         (HttpHeaders.cacheControl,      resp.CacheControl      ) |> HeaderInternal.writeSeq f 

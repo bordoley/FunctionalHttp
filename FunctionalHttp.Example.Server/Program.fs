@@ -15,12 +15,14 @@ module main =
 
             let handleAndAccept (req:HttpRequest<_>) = 
                 Console.WriteLine req
+                let age = TimeSpan(0,0,2)
                 let server = "FunctionalHttp/0.0.1" |> Server.Create
                 let acceptedRanges = Choice1Of2 ([RangeUnit.Bytes] |> Set.ofSeq)
                 let result = HttpResponse<Option<string>>.Create(
                                 HttpStatus.successOk, 
                                 Some (string req),
                                 acceptedRanges = acceptedRanges,
+                                age = age,
                                 allowed = [Method.Get; Method.Put; Method.Post],
                                 location = Uri("http://www.google.com"),
                                 server = server)

@@ -29,6 +29,12 @@ module internal HeaderParsers =
     let private parseSeq (header, parser:Parser<seq<_>>) (headers : Map<Header, obj>) =
         (parse (header, parser) headers) |> Option.getOrElse Seq.empty
 
+    let private parseNonNegativeTimeSpan header (headers : Map<Header, obj>) =
+        headers.TryFind header |> Option.bind (fun x ->
+            match UInt32.TryParse (string x) with
+            | (true, int) -> Some (TimeSpan(10000000L * int64 int))
+            | _ -> None)
+
     let private cacheDirectiveSeq = CacheDirective.Parser|> HttpParsers.httpList
     let private challengeSeq = Challenge.Parser |> HttpParsers.httpList
 
@@ -49,7 +55,7 @@ module internal HeaderParsers =
     let private acceptRangesParser = (RangeUnit.Parser |> HttpParsers.httpList|>> Set.ofSeq) <^> AcceptsNone.Parser
     let acceptedRanges headers = parse (HttpHeaders.acceptRanges, acceptRangesParser) headers
 
-    //let age = None
+    let age headers = parseNonNegativeTimeSpan HttpHeaders.age headers
     let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
     let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
     //let date = None
