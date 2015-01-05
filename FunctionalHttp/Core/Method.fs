@@ -3,6 +3,8 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Collections
 open FunctionalHttp.Parsing
 
+open FunctionalHttp.Parsing.Parser
+
 type Method =
     private {
         meth:string
@@ -30,7 +32,7 @@ type Method =
             | _ -> invalidArg "m" "not a method"
 
     static member internal Parser = 
-        HttpParsers.token |> Parser.map (fun token -> 
+        HttpParsers.token |>> (fun token -> 
             token |> Method.Methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
     
     static member Delete = Method.Create "DELETE"

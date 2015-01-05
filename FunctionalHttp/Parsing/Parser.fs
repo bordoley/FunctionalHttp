@@ -98,8 +98,8 @@ module internal Parser =
             let resultValue = input.Item 0
             Success(resultValue, input.SubSequence(1))
         
-    // NOTE: FParsec equivalent is (|>>)
-    let map f (p:Parser<'TResult>) (input:CharStream) =
+    // map
+    let (|>>) (p:Parser<'TResult>) f (input:CharStream) =
         let result = p input
         match result with
         | Fail _ -> Fail input
@@ -111,9 +111,9 @@ module internal Parser =
         | Success (result, next) -> Success(Some result, next)
         | _ -> Success(None, input)
 
-    // NOTE: orElse
+    // orElse
     let (<|>%) (p:Parser<'TResult>) (alt:'TResult) =
-        p |> opt |> map (function | Some x -> x | _ -> alt)
+        p |> opt |>> (function | Some x -> x | _ -> alt)
     
     let private parseStream (p:Parser<'TResult>) (input:CharStream) =
         match p input with
@@ -128,8 +128,8 @@ module internal Parser =
         | Success (result,_) -> Some result  
 
     let sepBy1 (delim:Parser<_>) (p:Parser<'TResult>) =
-        let additional = (delim .>>. p) |> map(fun (sep, value) -> value) |> many
-        p .>>. additional |> map (fun (fst, additional) -> Seq.append [fst] additional) 
+        let additional = (delim .>>. p) |>> (fun (sep, value) -> value) |> many
+        (p .>>. additional) |>> (fun (fst, additional) -> Seq.append [fst] additional) 
 
     let sepBy (delim:Parser<_>) (p:Parser<'TResult>) =
         (sepBy1 delim p) <|>% Seq.empty

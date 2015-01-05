@@ -54,8 +54,7 @@ type CacheDirective =
 [<AutoOpen>]
 module CacheDirectiveMixins =
     let private deltaSecondsParser = 
-        CharMatchers.many1 CharMatchers.DIGIT 
-        |> Parser.map (fun d -> 
+        (CharMatchers.many1 CharMatchers.DIGIT) |>> (fun d -> 
             match System.Int32.TryParse(d) with
             | (true, int) -> Some(int)
             | _ -> None)

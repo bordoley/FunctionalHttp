@@ -21,6 +21,6 @@ type Product =
 
     static member internal Parser =
         token .>>. opt (pchar '/' .>>. token)
-        |> map (function
+        |>> (function
             | (name, Some(_, version)) -> { name = name; version = version; }
             | (name, _)-> { name = name; version = ""; })

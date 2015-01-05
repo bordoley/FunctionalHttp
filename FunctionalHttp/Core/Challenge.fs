@@ -31,21 +31,17 @@ type Challenge =
         let auth_scheme = token
         let auth_param = 
             token .>>. BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS .>>. (token <|> quoted_string) 
-            |> Parser.map (fun ((((key, _), _ ), _), value) -> (key.ToLowerInvariant(), value))
+            |>> (fun ((((key, _), _ ), _), value) -> (key.ToLowerInvariant(), value))
         
         let auth_params =
-             (opt auth_param) 
-             |> sepBy1 OWS_COMMA_OWS
-             |> map (fun pairs -> 
-                pairs 
-                |> Seq.filter (fun pair -> Option.isSome pair)
-                |> Seq.map (fun pair -> pair.Value))
-             |> Parser.map (fun pairs -> Map.ofSeq pairs)
+             (opt auth_param) |> sepBy1 OWS_COMMA_OWS |>> (fun pairs -> 
+                pairs |> Seq.filter Option.isSome |> Seq.map Option.get)
+             |>> Map.ofSeq
 
         let data = token68 |> followedBy (Parser.eof <^> (OWS .>>. pchar ','))
 
         auth_scheme .>>. (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
-        |> Parser.map (fun ((scheme, _), dataOrParameters) -> 
+        |>> (fun ((scheme, _), dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; })
         
     static member OAuthToken token = 

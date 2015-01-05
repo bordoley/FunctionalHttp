@@ -4,6 +4,7 @@ open FunctionalHttp.Parsing
 open System
 open System.Text
 
+open FunctionalHttp.Parsing.Parser
 open HttpParsers
 
 type Charset =
@@ -22,7 +23,7 @@ type Charset =
     static member UTF_8 = { charset =  "UTF-8" }
 
     static member internal Parser : Parser<Charset> = 
-        token |> Parser.map (fun parsed -> 
+        token |>> (fun parsed -> 
             match parsed.ToUpperInvariant() with
             | x when x = Charset.Any.ToString() -> Charset.Any
             | x when x = Charset.UTF_8.ToString() -> Charset.UTF_8

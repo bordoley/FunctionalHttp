@@ -65,7 +65,7 @@ type Comment =
 
         let comment =
             (pchar '(') .>>. (many comment_segment) .>>. (pchar ')') 
-            |> Parser.map(fun ((_, segments),_) -> Comment (List.ofSeq segments))
+            |>> (fun ((_, segments),_) -> Comment (List.ofSeq segments))
 
         comment_segment_impl := comment_text <^> comment
          

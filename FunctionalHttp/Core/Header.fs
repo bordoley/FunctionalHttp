@@ -6,6 +6,8 @@ open System.Collections.Generic
 open System.Linq
 open FunctionalHttp.Parsing
 
+open FunctionalHttp.Parsing.Parser
+
 [<Sealed>]
 type Header private (header:string) = 
     static let normalize (header:string) = header.ToLowerInvariant() 
@@ -97,8 +99,7 @@ type Header private (header:string) =
             | _ -> invalidArg "header" "not a header"
 
     static member internal Parser = 
-        HttpParsers.token 
-        |> Parser.map (fun header -> 
+        HttpParsers.token |>> (fun header -> 
             match normalize header |> Header.StandardHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
