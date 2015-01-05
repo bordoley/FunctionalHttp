@@ -26,7 +26,7 @@ type HttpResponse<'TResp> =
         retryAfter:Option<DateTime>
         server:Option<Server>
         status:Status
-        vary:Option<Vary>
+        vary:Option<Choice<Set<Header>, Any>>
         version:HttpVersion
         warning:Warning list
     }
@@ -166,7 +166,7 @@ type HttpResponse<'TResp> =
         let proxyAuthenticate = HeaderParsers.proxyAuthenticate headers
         let retryAfter = None
         let server = HeaderParsers.server headers
-        let vary = None
+        let vary = HeaderParsers.vary headers
         let warning = []
 
         let headers = HeaderInternal.filterStandardHeaders headers
@@ -217,7 +217,14 @@ type HttpResponse<'TResp> =
         (HttpHeaders.proxyAuthenticate, resp.ProxyAuthenticate ) |> HeaderInternal.writeSeq f 
         (HttpHeaders.retryAfter,        resp.RetryAfter        ) |> HeaderInternal.writeDateTime f
         (HttpHeaders.server,            resp.Server            ) |> HeaderInternal.writeOption f
-        (HttpHeaders.vary,              resp.Vary              ) |> HeaderInternal.writeOption f
+
+        (HttpHeaders.vary,              resp.Vary              ) 
+        |> function
+            | (header, Some (Choice1Of2 headers)) -> (header, headers :> obj)
+            | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
+            | (header, _) -> (header, "" :> obj)
+        |> HeaderInternal.writeObject f
+
         (HttpHeaders.warning,           resp.Warning           ) |> HeaderInternal.writeSeq f 
 
         resp.Headers |> Map.toSeq |> HeaderInternal.writeAll f
@@ -329,7 +336,7 @@ module HttpResponseMixins =
                             ?retryAfter:DateTime,
                             ?server:Server,
                             ?status:Status,
-                            ?vary: Vary,
+                            ?vary: Choice<Set<Header>, Any>,
                             ?version:HttpVersion,
                             ?warning: Warning seq) =
             this |> HttpResponseInternal.with_ (acceptedRanges,
@@ -372,7 +379,7 @@ module HttpResponseMixins =
                             ?retryAfter:DateTime,
                             ?server:Server,
                             ?status:Status,
-                            ?vary: Vary,
+                            ?vary: Choice<Set<Header>, Any>,
                             ?version:HttpVersion,
                             ?warning: Warning seq) =
             this |> HttpResponseInternal.with_ (acceptedRanges,

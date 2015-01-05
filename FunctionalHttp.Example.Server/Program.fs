@@ -18,6 +18,7 @@ module main =
                 let age = TimeSpan(0,0,2)
                 let server = "FunctionalHttp/0.0.1" |> Server.Create
                 let acceptedRanges = Choice1Of2 ([RangeUnit.Bytes] |> Set.ofSeq)
+                let vary = Choice2Of2 Any.Instance
                 let result = HttpResponse<Option<string>>.Create(
                                 HttpStatus.successOk, 
                                 Some (string req),
@@ -25,7 +26,8 @@ module main =
                                 age = age,
                                 allowed = [Method.Get; Method.Put; Method.Post],
                                 location = Uri("http://www.google.com"),
-                                server = server)
+                                server = server,
+                                vary = vary)
                 Console.WriteLine result
                 result |> async.Return
             let parse = Converters.fromStreamToString |> HttpRequest.convert

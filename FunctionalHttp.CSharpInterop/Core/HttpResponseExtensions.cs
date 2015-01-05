@@ -31,7 +31,9 @@ namespace FunctionalHttp.Core.Interop
             DateTime? retryAfter = null,
             Server server = null,
             Status status = null,
-            Vary vary = null,
+
+            // FIXME: Prefer not to expose FSharpChoice in an interop API.
+            FSharpChoice<FSharpSet<Header>, Any> vary = null,
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {
@@ -82,7 +84,9 @@ namespace FunctionalHttp.Core.Interop
             DateTime? retryAfter = null,
             Server server = null,
             Status status = null,
-            Vary vary = null,
+
+            // FIXME: Prefer not to expose FSharpChoice in an interop API.
+            FSharpChoice<FSharpSet<Header>, Any> vary = null,
             HttpVersion? version = null,
             IEnumerable<Warning> warning = null)
         {

@@ -48,5 +48,5 @@ type HttpResponseExtensions private () =
         Option.tryGetValue this.Server &server
            
     [<Extension>]
-    static member TryGetVary(this:HttpResponse<'TResp>, vary : byref<Vary>) = 
+    static member TryGetVary(this:HttpResponse<'TResp>, vary : byref<Choice<Set<Header>, Any>>) = 
         Option.tryGetValue (this.Vary) &vary       

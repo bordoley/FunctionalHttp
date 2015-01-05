@@ -39,7 +39,7 @@ module internal HeaderParsers =
     let private challengeSeq = Challenge.Parser |> HttpParsers.httpList
 
     // Request
-    let authorization headers = parse (HttpHeaders.authorization, Credentials.Parser) headers
+    let authorization = parse (HttpHeaders.authorization, Credentials.Parser)
     let cacheControl headers = parseSeq (HttpHeaders.cacheControl, cacheDirectiveSeq) headers |> Set.ofSeq
     let expectContinue (headers : Map<Header, obj>) =
         headers.TryFind HttpHeaders.expect
@@ -47,36 +47,38 @@ module internal HeaderParsers =
         |> Option.getOrElse false
 
     let pragma headers = parseSeq (HttpHeaders.pragma, cacheDirectiveSeq) headers |> Set.ofSeq
-    let proxyAuthorization headers = parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
-    let referer headers = parseUri HttpHeaders.referer headers
-    let userAgent headers = parse (HttpHeaders.userAgent, UserAgent.Parser) headers
+    let proxyAuthorization = parse (HttpHeaders.proxyAuthorization, Credentials.Parser)
+    let referer = parseUri HttpHeaders.referer 
+    let userAgent = parse (HttpHeaders.userAgent, UserAgent.Parser)
 
     // Response
-    let private acceptRangesParser = (RangeUnit.Parser |> HttpParsers.httpList|>> Set.ofSeq) <^> AcceptsNone.Parser
-    let acceptedRanges headers = parse (HttpHeaders.acceptRanges, acceptRangesParser) headers
+    let private acceptRangesParser = (RangeUnit.Parser |> HttpParsers.httpList1 |>> Set.ofSeq) <^> AcceptsNone.Parser
+    let acceptedRanges = parse (HttpHeaders.acceptRanges, acceptRangesParser)
 
-    let age headers = parseNonNegativeTimeSpan HttpHeaders.age headers
+    let age = parseNonNegativeTimeSpan HttpHeaders.age
     let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
     let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
     //let date = None
-    let etag headers = parse (HttpHeaders.etag, EntityTag.Parser) headers
+    let etag = parse (HttpHeaders.etag, EntityTag.Parser)
     //let expires = None
     //let lastModified = None
-    let location headers = parseUri HttpHeaders.location headers
+    let location = parseUri HttpHeaders.location
     let proxyAuthenticate headers = parseSeq (HttpHeaders.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
     //let retryAfter = None
-    let server headers = parse (HttpHeaders.server, Server.Parser) headers
-    //let vary = None
+    let server = parse (HttpHeaders.server, Server.Parser)
+
+    let private varyParser = (Header.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
+    let vary = parse (HttpHeaders.vary, varyParser)
     //let warning = []
 
     // ContentInfo
     //let encodings:ContentCoding seq = Seq.empty
     //let languages:LanguageTag seq = Seq.empty
 
-    let length headers = parseUInt64 HttpHeaders.contentLength headers
+    let length = parseUInt64 HttpHeaders.contentLength
 
-    let contentLocation headers = parseUri HttpHeaders.contentLocation headers
+    let contentLocation = parseUri HttpHeaders.contentLocation
 
-    let contentType headers = parse (HttpHeaders.contentType, MediaType.Parser) headers
+    let contentType = parse (HttpHeaders.contentType, MediaType.Parser)
 
     //let contentRange
