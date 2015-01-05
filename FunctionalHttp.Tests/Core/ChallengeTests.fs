@@ -5,7 +5,9 @@ open FsUnit
 
 open FunctionalHttp.Parsing
 open FunctionalHttp.Core
-(*
+
+open System
+
 module ChallengeTests =
     [<Test>]
     let ``test parsing with base64 data`` () =
@@ -44,4 +46,3 @@ module ChallengeTests =
                 | Choice2Of2 parameters-> parameters |> should equal (expectedParams |> Map.ofSeq)
                 | _ -> failwith ("Parse failed for test: " + test)
             | _ -> failwith ("Parse failed for test: " + test)
-*)

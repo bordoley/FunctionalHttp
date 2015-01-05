@@ -25,12 +25,12 @@ type Challenge =
                     key + "=" + HttpEncoding.asQuotedString value
                 | (key, value) ->
                     key + "=" + HttpEncoding.asTokenOrQuotedString value)
-            |> System.String.Concat      
+            |> String.concat ", "
 
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token .>> (BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS) .>>. (token <|> quoted_string) 
+            token .>> (BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS) .>>. (token <|> quoted_string)
             |>> fun (k, v) -> 
                 (k.ToLowerInvariant(), v)
 

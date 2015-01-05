@@ -15,7 +15,7 @@ type IAuthorizer =
 module Authorizer =
     [<CompiledName("Basic")>]
     let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
-        let challengeString = sprintf "basic realm=\"%s\", encoding=\"UTF-8\"" realm
+        let challengeString = sprintf "Basic realm=\"%s\", encoding=\"UTF-8\"" realm
       
         let challenge = challengeString |> Parser.parse Challenge.Parser |> Option.get
 

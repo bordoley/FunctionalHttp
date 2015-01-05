@@ -36,7 +36,7 @@ type Comment =
 
             let rec doParse index =
                 if index = input.Length
-                    then Eof input
+                    then Eof
                 else 
                     match input.Item index with
                     | c when c = ESCAPE_CHAR -> 
@@ -44,21 +44,21 @@ type Comment =
                             then builder := StringBuilder(input.SubSequence(0, index).ToString())
 
                         match index + 1 with
-                        | index when index = input.Length -> Eof input
+                        | index when index = input.Length -> Eof
                         | index when ctext (input.Item index) ->
                             (!builder).Append(input.Item index) |> ignore
-                            doParse (index+1)      
-                        | _ -> Fail input
+                            doParse (index + 1)      
+                        | index -> Fail index
                     | c when ctext c ->
                         if !builder <> null then (!builder).Append(c) |> ignore
                         doParse (index + 1)      
                     | _ -> 
                         if !builder = null 
-                            then Success(input.SubSequence(0, index).ToString(), input.SubSequence(index))
-                        else Success(builder.ToString(), input.SubSequence(index))
+                            then Success(input.SubSequence(0, index).ToString(), index, input.SubSequence(index))
+                        else Success(builder.ToString(), index, input.SubSequence(index))
     
             if (input.Length = 0)
-                then Eof input
+                then Eof
             else doParse 0
         
         let (comment_segment, comment_segment_impl)  = createParserForwardedToRef ()

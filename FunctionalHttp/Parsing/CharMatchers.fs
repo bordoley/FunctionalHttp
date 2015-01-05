@@ -28,13 +28,13 @@ module internal CharMatchers =
 
         let result = findLast 0
 
-        Success ((input.SubSequence(0, result).ToString()), input.SubSequence(result))
+        Success ((input.SubSequence(0, result).ToString()), result, input.SubSequence(result))
 
     let many1 (matcher:CharMatcher) (input: CharStream) =
         let result = many matcher input
         match result with
-        | Success (value, next) -> 
-            if value.Length = 0 then Fail input else result
+        | Success (value, i, next) -> 
+            if value.Length = 0 then Fail 0 else result
         | _ -> result
 
     let none (c:char) = false
@@ -76,7 +76,7 @@ module internal CharMatchers =
 
     let DASH = is '-'
 
-    let DQUOTE = is (char 22)
+    let DQUOTE = is (char 34)
 
     let FORWARD_SLASH = '/'
 
