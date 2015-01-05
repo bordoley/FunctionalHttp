@@ -61,10 +61,10 @@
     <Compile Include="Core\Server.fs" />
     <Compile Include="Core\Warning.fs" />
     <Compile Include="Core\Vary.fs" />
+    <Compile Include="Core\Method.fs" />
     <Compile Include="Core\HeaderParsers.fs" />
     <Compile Include="Core\ContentInfo.fs" />
     <Compile Include="Core\HttpVersion.fs" />
-    <Compile Include="Core\Method.fs" />
     <Compile Include="Core\RequestPreconditions.fs" />
     <Compile Include="Core\RequestPreferences.fs" />
     <Compile Include="Core\Status.fs" />

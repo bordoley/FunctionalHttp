@@ -30,6 +30,7 @@ module internal HeaderParsers =
         (parse (header, parser) headers) |> Option.getOrElse Seq.empty
 
     let private cacheDirectiveSeq = CacheDirective.Parser|> HttpParsers.httpList
+    let private challengeSeq = Challenge.Parser |> HttpParsers.httpList
 
     // Request
     let authorization headers = parse (HttpHeaders.authorization, Credentials.Parser) headers
@@ -44,18 +45,17 @@ module internal HeaderParsers =
     let referer headers = parseUri HttpHeaders.referer headers
     let userAgent headers = parse (HttpHeaders.userAgent, UserAgent.Parser) headers
 
-
     // Response
     //let acceptedRanges = None
     //let age = None
-    //let allowed headers = HeaderParsers.parseSeq (HttpHeaders.allow, 
-    //let authenticate = Set.empty
+    let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
+    let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
     //let date = None
-    //let etag = None
+    let etag headers = parse (HttpHeaders.etag, EntityTag.Parser) headers
     //let expires = None
     //let lastModified = None
     let location headers = parseUri HttpHeaders.location headers
-    //let proxyAuthenticate = Set.empty
+    let proxyAuthenticate headers = parseSeq (HttpHeaders.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
     //let retryAfter = None
     let server headers = parse (HttpHeaders.server, Server.Parser) headers
     //let vary = None
@@ -70,3 +70,5 @@ module internal HeaderParsers =
     let contentLocation headers = parseUri HttpHeaders.contentLocation headers
 
     let contentType headers = parse (HttpHeaders.contentType, MediaType.Parser) headers
+
+    //let contentRange
