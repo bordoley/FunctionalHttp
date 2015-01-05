@@ -17,6 +17,20 @@ type MediaType =
          parameters:Map<string, string>
     }
 
+    member this.Type with get() = this._type
+
+    member this.SubType with get() = this.subType
+
+    member this.Charset with get() = this.charset
+
+    member this.Parameters with get() = this.parameters
+
+    // FIXME: Parameters
+    override this.ToString() =
+            this.Type + "/" + 
+            this.SubType + 
+            if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "" //+
+
     static member internal Parser = 
         let parameter = token <+> (parseChar '=') <+> (token <|> quoted_string) |> map (fun x ->
             // The type, subtype, and parameter name tokens are case-insensitive.
@@ -45,21 +59,6 @@ type MediaType =
                 // The type, subtype, and parameter name tokens are case-insensitive.
                 { _type = _type.ToLowerInvariant(); subType = subType.ToLowerInvariant(); charset = None; parameters = parameters}
         )
-
-    member this.Type with get() = this._type
-
-    member this.SubType with get() = this.subType
-
-    member this.Charset with get() = this.charset
-
-    member this.Parameters with get() = this.parameters
-
-    // FIXME: Parameters
-    override this.ToString() =
-            this.Type + "/" + 
-            this.SubType + 
-            if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "" //+
-            
 
 [<AutoOpen>]
 module MediaTypeExtension =

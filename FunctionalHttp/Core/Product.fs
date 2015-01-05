@@ -19,7 +19,6 @@ type Product =
             then this.name
         else sprintf "%s/%s" this.name this.version
 
-
     static member internal Parser =
         token <+> optional (parseChar '/' <+> token)
         |> map (function

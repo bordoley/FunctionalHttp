@@ -11,6 +11,8 @@ type Charset =
         charset:string
     }
 
+    override this.ToString() = this.charset  
+
     static member Any = { charset = "*" }
     static member ISO_8859_1 = { charset = "ISO-8859-1" }
     static member US_ASCII  = { charset = "US-ASCII" }
@@ -27,8 +29,6 @@ type Charset =
             | x when x = Charset.ISO_8859_1.ToString() -> Charset.ISO_8859_1
             | x when x = Charset.US_ASCII.ToString() -> Charset.US_ASCII
             | x -> { charset = x })
-
-    override this.ToString() = this.charset    
 
 [<AutoOpen>]
 module CharsetMixins =

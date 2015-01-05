@@ -10,6 +10,30 @@ open FunctionalHttp.Parsing
 type Header private (header:string) = 
     static let normalize (header:string) = header.ToLowerInvariant() 
 
+    member val private Normalized = header.ToLowerInvariant()
+
+    interface IComparable<Header> with
+        member this.CompareTo(other) = this.Normalized.CompareTo(other.Normalized)
+
+    interface IComparable with
+        member this.CompareTo(other) =
+            match other with
+            | :? Header as other -> (this :> IComparable<Header>).CompareTo(other)
+            | _ -> invalidArg "obj" "not a Header" 
+
+    interface IEquatable<Header> with
+        member this.Equals that =
+            this.Normalized = that.Normalized
+
+    override this.Equals that =
+        match that with
+        | :? Header as that -> (this :> IEquatable<Header>).Equals that
+        | _ -> false
+
+    override this.GetHashCode() = hash this.Normalized
+
+    override this.ToString () = header
+
     static member internal StandardHeaders  =
         [ Header("Accept") ;
           Header("Accept-Charset");
@@ -78,30 +102,6 @@ type Header private (header:string) =
             match normalize header |> Header.StandardHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
-
-    member val private Normalized = header.ToLowerInvariant()
-
-    interface IComparable<Header> with
-        member this.CompareTo(other) = this.Normalized.CompareTo(other.Normalized)
-
-    interface IComparable with
-        member this.CompareTo(other) =
-            match other with
-            | :? Header as other -> (this :> IComparable<Header>).CompareTo(other)
-            | _ -> invalidArg "obj" "not a Header" 
-
-    interface IEquatable<Header> with
-        member this.Equals that =
-            this.Normalized = that.Normalized
-
-    override this.Equals that =
-        match that with
-        | :? Header as that -> (this :> IEquatable<Header>).Equals that
-        | _ -> false
-
-    override this.GetHashCode() = hash this.Normalized
-
-    override this.ToString () = header
 
 module internal HeaderInternal =
     let internal headerSet = (Header.StandardHeaders :> IDictionary<string, Header>).Values |> Set.ofSeq

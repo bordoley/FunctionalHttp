@@ -6,10 +6,6 @@ type internal Router =
         resource: IStreamResource option
         children: Map<string,Router>
     }
-    static member Empty = { resource = Option.None; children = Map.empty }
-
-    static member private routeSegmentToKey (segment:string) =
-        if segment.StartsWith(":") then ":" else segment
 
     member this.Item (path: string list) =
         match path with
@@ -50,4 +46,9 @@ type internal Router =
     member this.Add (resource:IStreamResource) = this.DoAdd (resource.Route.ToList()) resource
 
     member this.AddAll (resources:IStreamResource seq) =
-        resources |> Seq.fold (fun (router:Router) resource -> router.Add resource) this           
+        resources |> Seq.fold (fun (router:Router) resource -> router.Add resource) this  
+
+    static member Empty = { resource = Option.None; children = Map.empty }
+
+    static member private routeSegmentToKey (segment:string) =
+        if segment.StartsWith(":") then ":" else segment         

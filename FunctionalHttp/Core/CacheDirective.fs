@@ -45,7 +45,6 @@ type CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-
 [<AutoOpen>]
 module CacheDirectiveMixins =
     let private deltaSecondsParser = 

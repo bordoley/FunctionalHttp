@@ -12,6 +12,16 @@ type EntityTag =
         isWeak: bool;    
     }
 
+    member this.Tag with get() = this.tag
+            
+    member this.IsWeak with get() = this.isWeak
+
+    override this.ToString() = 
+        if this.isWeak 
+            then sprintf "\\W\"%s\"" this.Tag
+        else 
+            sprintf "\"%s\"" this.Tag
+
     static member internal Parser =
         let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> HttpCharMatchers.obs_text
         let opaque_tag = 
@@ -24,12 +34,3 @@ type EntityTag =
             | (Some _, tag) -> { tag = tag; isWeak = true } 
             | (_, tag) -> { tag = tag; isWeak = false })
 
-    member this.Tag with get() = this.tag
-            
-    member this.IsWeak with get() = this.isWeak
-
-    override this.ToString() = 
-        if this.isWeak 
-            then sprintf "\\W\"%s\"" this.Tag
-        else 
-            sprintf "\"%s\"" this.Tag

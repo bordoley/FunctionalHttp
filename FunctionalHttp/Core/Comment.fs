@@ -10,6 +10,24 @@ open FunctionalHttp.Core.HttpCharMatchers
 type Comment =
     private | Comment of list<Choice<string,Comment>>
 
+    override this.ToString() =  
+        let builder:StringBuilder = StringBuilder()
+        
+        builder.Append('(') |> ignore
+
+        match this with 
+        | Comment parts -> 
+            parts
+            |> Seq.iter (fun e ->
+                let value = 
+                    match e with 
+                    | Choice1Of2 commentText -> Comment.EncodeCommentText commentText
+                    | Choice2Of2 comment -> comment.ToString()
+ 
+                builder.Append value |> ignore)
+
+        builder.Append(')').ToString()
+
     static member internal Parser =
         let ESCAPE_CHAR = '\\';
 
@@ -67,21 +85,3 @@ type Comment =
         if (!builder) <> null 
             then (!builder).ToString()
         else text
-
-    override this.ToString() =  
-        let builder:StringBuilder = StringBuilder()
-        
-        builder.Append('(') |> ignore
-
-        match this with 
-        | Comment parts -> 
-            parts
-            |> Seq.iter (fun e ->
-                let value = 
-                    match e with 
-                    | Choice1Of2 commentText -> Comment.EncodeCommentText commentText
-                    | Choice2Of2 comment -> comment.ToString()
- 
-                builder.Append value |> ignore)
-
-        builder.Append(')').ToString()

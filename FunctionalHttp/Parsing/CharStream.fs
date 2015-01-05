@@ -9,8 +9,6 @@ open System.Diagnostics.Contracts
 type internal CharStream private (str: string, offset:int, length:int) =    
     new (str) = CharStream(str, 0, str.Length)
 
-    static member val Empty = Unchecked.defaultof<CharStream>
-
     member this.Length with get() = length
 
     member this.Item(index:int) =
@@ -35,6 +33,8 @@ type internal CharStream private (str: string, offset:int, length:int) =
         match str with
         | null -> ""
         | _ -> str.Substring(offset,length)
+
+    static member val Empty = Unchecked.defaultof<CharStream>
 
 [<AutoOpen>]
 module internal CharStreamMixins =
