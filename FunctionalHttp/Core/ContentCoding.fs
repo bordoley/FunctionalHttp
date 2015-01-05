@@ -1,11 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
 type ContentCoding =
-    private
-    | ContentCoding
+    private { contentCoding: string }
 
-type Codings =
-    private
-    | ContentCoding of ContentCoding
-    | Identity
-    | Any
+    static member Identity = { contentCoding = "identity" }

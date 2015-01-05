@@ -3,10 +3,10 @@ namespace FunctionalHttp.Core
 type Preference<'T> =
     private {
         range:'T
-        score:uint16
+        weight:uint16
     }
 
-type PreferenceWithParams<'T when 'T : comparison> =
+type PreferenceWithParams<'T> =
     private {
         preference:Preference<'T>
         parameters:List<string*string>
@@ -14,11 +14,11 @@ type PreferenceWithParams<'T when 'T : comparison> =
 
 type RequestPreferences =
     private {
-        acceptedCharsets: Set<Preference<Charset>> // FIXME:  Certainly wrong as any is not a charset
-        acceptedEncodings: Set<Preference<Codings>>
-        acceptedLanguages: Set<Preference<LanguageRange>>
+        acceptedCharsets: Set<Preference<Choice<Charset,Any>>>
+        acceptedEncodings: Set<Preference<Choice<ContentCoding, Any>>>
+        acceptedLanguages: Set<Preference<Choice<LanguageTag, Any>>>
         acceptedMediaRanges: Set<PreferenceWithParams<MediaRange>>
-        ranges: Option<Range>
+        ranges: Option<Choice<ByteRangesSpecifier, OtherRangesSpecifier>>
     } 
 
     member this.AcceptedCharset = this.acceptedCharsets

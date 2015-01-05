@@ -5,9 +5,6 @@ open FunctionalHttp.Parsing
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Core.HttpParsers
 
-type Range = private | Range
-
-
 type RangeUnit = 
     private { unit: string }
 
@@ -30,3 +27,15 @@ type AcceptsNone =
 
     static member internal Parser =
         pstring "none" |>> fun _ -> AcceptsNone
+
+type ByteRangeSpec =
+    private { firstBytePos:uint64; lastBytePos:uint64 }
+
+type SuffixByteRangeSpec =
+    private { suffixeLength:uint64 }
+
+type ByteRangesSpecifier = 
+    private { byteRangeSet: Choice<ByteRangeSpec, SuffixByteRangeSpec> Set }
+
+type OtherRangesSpecifier = 
+    private { unit:string; rangeSet:string }
