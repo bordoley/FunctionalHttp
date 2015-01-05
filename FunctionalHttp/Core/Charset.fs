@@ -14,22 +14,32 @@ type Charset =
 
     override this.ToString() = this.charset  
 
-    static member Any = { charset = "*" }
-    static member ISO_8859_1 = { charset = "ISO-8859-1" }
-    static member US_ASCII  = { charset = "US-ASCII" }
-    static member UTF_16 = { charset = "UTF-16" }
-    static member UTF_16BE = { charset = "UTF-16BE" }
-    static member UTF_16LE = { charset = "UTF-16LE" }
-    static member UTF_8 = { charset =  "UTF-8" }
+    static member private Charsets =
+        ["ISO-8859-1"; "US-ASCII"; "UTF-16"; "UTF-16BE"; "UTF-16LE"; "UTF-8"]
+        |> Seq.map (fun x -> (x, { charset = x }))
+        |> Map.ofSeq
+
+    static member Create (charset:string) =
+        match charset.ToUpperInvariant() |> Charset.Charsets.TryFind  with
+        | Some charset -> charset
+        | None -> 
+            match parse Charset.Parser charset with 
+            | Some charset -> charset
+            | _ -> invalidArg "charset" "not a charset"
+
+    static member ISO_8859_1 = Charset.Create "ISO-8859-1"
+    static member US_ASCII  = Charset.Create "US-ASCII"
+    static member UTF_16 = Charset.Create "UTF-16" 
+    static member UTF_16BE = Charset.Create "UTF-16BE" 
+    static member UTF_16LE = Charset.Create "UTF-16LE" 
+    static member UTF_8 = Charset.Create  "UTF-8" 
 
     static member internal Parser : Parser<Charset> = 
         token |>> (fun parsed -> 
-            match parsed.ToUpperInvariant() with
-            | x when x = Charset.Any.ToString() -> Charset.Any
-            | x when x = Charset.UTF_8.ToString() -> Charset.UTF_8
-            | x when x = Charset.ISO_8859_1.ToString() -> Charset.ISO_8859_1
-            | x when x = Charset.US_ASCII.ToString() -> Charset.US_ASCII
-            | x -> { charset = x })
+            let parsed = parsed.ToUpperInvariant()
+            match Charset.Charsets.TryFind parsed with
+            | Some charset -> charset
+            | None -> { charset =  })
 
 [<AutoOpen>]
 module CharsetMixins =
