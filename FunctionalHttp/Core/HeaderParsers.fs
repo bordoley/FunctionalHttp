@@ -82,3 +82,13 @@ module internal HeaderParsers =
     let contentType = parse (HttpHeaders.contentType, MediaType.Parser)
 
     //let contentRange
+
+
+
+    // Request Preconditions
+    let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
+    let ifMatch =  parse (HttpHeaders.ifMatch, eTagPreconditionParser)
+    // let ifModifiedSince
+    let ifNoneMatch =parse (HttpHeaders.ifNoneMatch, eTagPreconditionParser)
+    // let ifUnmodifiedSince
+    //let ifRange: Choice<EntityTag, DateTime> option

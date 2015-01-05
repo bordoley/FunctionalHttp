@@ -222,7 +222,7 @@ module HttpHeaders =
     let host = Header.Create("Host")
 
     [<CompiledName("ifMatch")>]
-    let IfMatch = Header.Create("If-Match")
+    let ifMatch = Header.Create("If-Match")
 
     [<CompiledName("IfModifiedSince")>]
     let ifModifiedSince = Header.Create("If-Modified-Since")
