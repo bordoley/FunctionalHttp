@@ -12,7 +12,9 @@ namespace FunctionalHttp.Core.Interop
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,
-            AcceptableRanges acceptedRanges = null,
+
+            // FIXME: Prefer not to expose FSharpChoice in an interop API.
+            FSharpChoice<FSharpSet<RangeUnit>, AcceptsNone> acceptedRanges = null,
             TimeSpan? age = null,
             IEnumerable<Method> allowed = null,
             IEnumerable<Challenge> authenticate = null,
@@ -61,7 +63,9 @@ namespace FunctionalHttp.Core.Interop
         public static HttpResponse<TNew> With<TResp, TNew>(
             this HttpResponse<TResp> This,
             TNew entity,
-            AcceptableRanges acceptedRanges = null,
+
+            // FIXME: Prefer not to expose FSharpChoice in an interop API.
+            FSharpChoice<FSharpSet<RangeUnit>, AcceptsNone> acceptedRanges = null,
             TimeSpan? age = null,
             IEnumerable<Method> allowed = null,
             IEnumerable<Challenge> authenticate = null,

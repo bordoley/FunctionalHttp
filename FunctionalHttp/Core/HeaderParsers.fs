@@ -46,7 +46,9 @@ module internal HeaderParsers =
     let userAgent headers = parse (HttpHeaders.userAgent, UserAgent.Parser) headers
 
     // Response
-    //let acceptedRanges = None
+    let private acceptRangesParser = (RangeUnit.Parser |> HttpParsers.httpList|>> Set.ofSeq) <^> AcceptsNone.Parser
+    let acceptedRanges headers = parse (HttpHeaders.acceptRanges, acceptRangesParser) headers
+
     //let age = None
     let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
     let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq

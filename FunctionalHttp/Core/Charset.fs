@@ -39,7 +39,7 @@ type Charset =
             let parsed = parsed.ToUpperInvariant()
             match Charset.Charsets.TryFind parsed with
             | Some charset -> charset
-            | None -> { charset =  })
+            | None -> { charset = parsed })
 
 [<AutoOpen>]
 module CharsetMixins =

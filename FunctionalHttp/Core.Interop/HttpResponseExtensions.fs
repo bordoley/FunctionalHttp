@@ -9,8 +9,10 @@ open System.Runtime.CompilerServices
 
 [<AbstractClass; Sealed; Extension>]
 type HttpResponseExtensions private () =
+
+    // FIXME: Prefer not to expose FSharpChoice in an interop API.
     [<Extension>]
-    static member TryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<AcceptableRanges>) = 
+    static member TryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<Choice<Set<RangeUnit>, AcceptsNone>>) = 
         Option.tryGetValue this.AcceptedRanges &acceptedRanges
 
     [<Extension>]

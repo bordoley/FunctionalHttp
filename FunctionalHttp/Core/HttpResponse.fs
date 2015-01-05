@@ -8,7 +8,7 @@ open System.Text
 
 type HttpResponse<'TResp> =
     private {
-        acceptedRanges:Option<AcceptableRanges>
+        acceptedRanges:Option<Choice<Set<RangeUnit>, AcceptsNone>>
         age:Option<TimeSpan>
         allowed:Set<Method>
         authenticate:Set<Challenge>
@@ -128,9 +128,9 @@ type HttpResponse<'TResp> =
                             ?vary,
                             ?version,
                             ?warning) =
-        HttpResponse<'TResp>.Create(
-            age,
+        HttpResponse<'TResp>.Create(          
             acceptedRanges,
+            age,
             Set.ofSeq <| defaultArg allowed Seq.empty,
             Set.ofSeq <| defaultArg authenticate Seq.empty,
             Set.ofSeq <| defaultArg cacheControl Seq.empty,
@@ -152,7 +152,7 @@ type HttpResponse<'TResp> =
             List.ofSeq <| defaultArg warning Seq.empty)
 
     static member internal Create(status, version, headers:Map<Header, obj>, entity, ?id) =
-        let acceptedRanges = None
+        let acceptedRanges = HeaderParsers.acceptedRanges headers
         let age = None
         let allowed = HeaderParsers.allowed headers
         let authenticate = HeaderParsers.wwwAuthenticate headers
@@ -195,7 +195,13 @@ type HttpResponse<'TResp> =
             warning) 
 
     static member internal WriteHeaders (f:string*string -> unit) (resp:HttpResponse<'TResp>) =
-        (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) |> HeaderInternal.writeOption f
+        (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) 
+        |> function
+            | (header, Some (Choice1Of2 rangeUnits)) -> (header, rangeUnits :> obj)
+            | (header, Some (Choice2Of2 none)) -> (header, none :> obj)
+            | (header, _) -> (header, "" :> obj)
+        |> HeaderInternal.writeObject f
+
         (HttpHeaders.age,               resp.Age               ) |> HeaderInternal.writeOption f 
         (HttpHeaders.allow,             resp.Allowed           ) |> HeaderInternal.writeSeq f 
         (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> HeaderInternal.writeSeq f 
@@ -306,7 +312,7 @@ module internal HttpResponseInternal =
 [<AutoOpen>]
 module HttpResponseMixins =
     type HttpResponse<'TResp> with
-        member this.With (  ?acceptedRanges:AcceptableRanges,
+        member this.With (  ?acceptedRanges:Choice<Set<RangeUnit>, AcceptsNone>,
                             ?age:TimeSpan, 
                             ?allowed: Method seq,
                             ?authenticate:Challenge seq,
@@ -349,7 +355,7 @@ module HttpResponseMixins =
                                                 warning)
 
         member this.With (  entity:'TNew,
-                            ?acceptedRanges:AcceptableRanges,
+                            ?acceptedRanges:Choice<Set<RangeUnit>, AcceptsNone>,
                             ?age:TimeSpan, 
                             ?allowed: Method seq,
                             ?authenticate:Challenge seq,

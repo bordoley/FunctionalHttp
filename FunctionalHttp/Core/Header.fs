@@ -132,10 +132,12 @@ module internal HeaderInternal =
     let writeObject (f:string*string->unit) (k:Header, v:obj) =
         match v with
         // String implements IEnumerable in some profiles and not others
-        | :?String as v -> f (string k, string v) 
+        | :?String as v when v.Length > 0 -> f (string k, string v) 
         | :?DateTime as v -> writeDateTime f (k, Some v)
         | :?IEnumerable as v -> writeSeq f (k, v)
-        | _ -> f (string k, string v)
+        | _ -> 
+            let v = string v
+            if v.Length > 0 then f (string k, v)
 
     let writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
         pairs |> Seq.map (writeObject f) |> ignore
