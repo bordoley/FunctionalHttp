@@ -145,7 +145,7 @@ type HttpRequest<'TReq> =
 
         let referer:Option<Uri> = HeaderParsers.parseUri HttpHeaders.referer headers
 
-        let userAgent:Option<UserAgent> = None
+        let userAgent = HeaderParsers.parse (HttpHeaders.userAgent, UserAgent.Parser) headers
 
         let headers = HeaderInternal.filterStandardHeaders headers
 

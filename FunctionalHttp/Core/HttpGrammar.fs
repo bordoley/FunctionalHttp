@@ -14,7 +14,7 @@ module internal HttpCharMatchers =
     let ctext = 
         HTAB <||> 
         SP <||> 
-        inRange (char 0x21) (char 0x5B) <||> 
+        inRange (char 0x21) (char 0x27) <||> 
         inRange (char 0x2A) (char 0x5B) <||> 
         inRange (char 0x5D) (char 0x7E) <||> 
         obs_text

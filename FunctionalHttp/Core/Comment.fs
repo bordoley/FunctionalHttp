@@ -7,26 +7,16 @@ open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Core.HttpCharMatchers
 
-type Comment =
-    private | Comment of list<Choice<string,Comment>>
+type Comment = 
+    private { parts : Choice<string,Comment> list }
 
     override this.ToString() =  
-        let builder:StringBuilder = StringBuilder()
-        
-        builder.Append('(') |> ignore
-
-        match this with 
-        | Comment parts -> 
-            parts
-            |> Seq.iter (fun e ->
-                let value = 
-                    match e with 
-                    | Choice1Of2 commentText -> Comment.EncodeCommentText commentText
-                    | Choice2Of2 comment -> comment.ToString()
- 
-                builder.Append value |> ignore)
-
-        builder.Append(')').ToString()
+        "(" +
+        (this.parts 
+        |> Seq.map (function
+            | Choice1Of2 commentText -> Comment.EncodeCommentText commentText
+            | Choice2Of2 comment -> string comment)
+        |> String.concat " ") + ")"
 
     static member internal Parser =
         let ESCAPE_CHAR = '\\';
@@ -45,7 +35,7 @@ type Comment =
 
                         match index + 1 with
                         | index when index = input.Length -> Eof
-                        | index when ctext (input.Item index) ->
+                        | index when quoted_pair_char (input.Item index) ->
                             (!builder).Append(input.Item index) |> ignore
                             doParse (index + 1)      
                         | index -> Fail index
@@ -53,19 +43,17 @@ type Comment =
                         if !builder <> null then (!builder).Append(c) |> ignore
                         doParse (index + 1)      
                     | _ -> 
-                        if !builder = null 
+                        if index = 0 then Fail 0
+                        else if !builder = null 
                             then Success(input.SubSequence(0, index).ToString(), index, input.SubSequence(index))
                         else Success(builder.ToString(), index, input.SubSequence(index))
-    
-            if (input.Length = 0)
-                then Eof
-            else doParse 0
+            doParse 0
         
         let (comment_segment, comment_segment_impl)  = createParserForwardedToRef ()
 
         let comment =
-            (pchar '(') .>>. (many comment_segment) .>>. (pchar ')') 
-            |>> (fun ((_, segments),_) -> Comment (List.ofSeq segments))
+            (pchar '(') >>. (many comment_segment) .>> (pchar ')') 
+            |>> (fun segments -> { parts = List.ofSeq segments })
 
         comment_segment_impl := comment_text <^> comment
          
@@ -74,7 +62,7 @@ type Comment =
     static member private EncodeCommentText (text:string) = 
         let builder:StringBuilder ref = ref null
 
-        for i = 0 to text.Length do
+        for i = 0 to text.Length - 1 do
             match text.Chars 0 with
             | c when HttpCharMatchers.ctext c ->     
                 if (!builder) <> null then (!builder).Append c |> ignore

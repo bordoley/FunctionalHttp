@@ -41,10 +41,11 @@ module internal Parser =
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) (input:CharStream) = 
         match (p1 input) with 
-        | Success (result, i, next) -> Success ((Choice1Of2 result), i, next)
+        | Success (result, i, next) -> 
+            Success (Choice1Of2 result, i, next)
         | _ -> 
             match (p2 input) with
-            | Success (result, i, next) -> Success ((Choice2Of2 result), i, next)
+            | Success (result, i, next) -> Success (Choice2Of2 result, i, next)
             | Fail i -> Fail i
             | Eof -> Eof
 

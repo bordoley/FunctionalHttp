@@ -39,6 +39,7 @@
     <Compile Include="Core\ChallengeTests.fs" />
     <Compile Include="Core\CharsetTests.fs" />
     <Compile Include="Core\EntityTagTests.fs" />
+    <Compile Include="Core\UserAgentTests.fs" />
     <Content Include="app.config" />
   </ItemGroup>
   <ItemGroup>

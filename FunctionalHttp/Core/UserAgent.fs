@@ -1,5 +1,23 @@
 ﻿namespace FunctionalHttp.Core
 
-type UserAgent = 
-    private | UserAgent of Product*(Choice<Product,Comment> seq)
+open FunctionalHttp.Parsing
+open System.Text
 
+open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Core.HttpParsers
+
+type UserAgent = 
+    private { product:Product; additional:Choice<Product,Comment> list }
+
+    override this.ToString() =  
+        string this.product + " " +
+        (this.additional 
+            |> Seq.map (function
+                | Choice1Of2 product -> string product
+                | Choice2Of2 comment -> string comment)
+            |> String.concat " ")
+
+    static member internal Parser =
+        let additional = many (RWS >>. (Product.Parser <^> Comment.Parser))
+        Product.Parser .>>. additional |>> fun (product, additional) -> 
+            { product = product; additional = List.ofSeq additional }
