@@ -94,7 +94,7 @@ type Header private (header:string) =
         match normalize header |> Header.StandardHeaders.TryFind with
         | Some header -> header
         | None ->
-            match Parser.parse Header.Parser header with 
+            match parse Header.Parser header with 
             | Some header -> header
             | _ -> invalidArg "header" "not a header"
 

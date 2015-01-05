@@ -27,8 +27,11 @@ module main =
                 match resp.Entity with
                   | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
                   | None -> resp.With(Stream.Null) |> async.Return
-                   
-            (route, handleAndAccept, handleAndAccept) |> Resource.create |> StreamResource.create (parse, serialize) |> HttpApplication.singleResource 
+
+            (route, handleAndAccept, handleAndAccept) 
+            |> Resource.create 
+            |> Resource.authorizing [Authorizer.basic "test" (fun _ -> async.Return true)]
+            |> StreamResource.create (parse, serialize) |> HttpApplication.singleResource 
 
         let server = HttpServer.create ((fun _ -> application), HttpServer.internalErrorResponseWithStackTrace)
 

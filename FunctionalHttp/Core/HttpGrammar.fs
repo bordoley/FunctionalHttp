@@ -93,6 +93,6 @@ module internal HttpEncoding =
         retval.ToString()
 
     let asTokenOrQuotedString (input:string) =
-        match Parser.parse HttpParsers.token input with
+        match parse HttpParsers.token input with
         | Some result -> result
         | None -> asQuotedString input

@@ -27,7 +27,7 @@ type Method =
         match Method.Methods.TryFind m with
         | Some m -> m
         | _ -> 
-            match Parser.parse Method.Parser m with 
+            match parse Method.Parser m with 
             | Some m -> m
             | _ -> invalidArg "m" "not a method"
 

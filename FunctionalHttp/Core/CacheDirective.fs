@@ -61,6 +61,6 @@ module CacheDirectives =
             | _ -> None)
 
     let valueAsDeltaSeconds (directive:CacheDirective) =
-        match Parser.parse deltaSecondsParser directive.Value with
+        match parse deltaSecondsParser directive.Value with
                 | Some result -> result
                 | _ -> None

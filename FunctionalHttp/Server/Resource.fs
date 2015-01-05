@@ -108,8 +108,8 @@ module Resource =
     }
 
     [<CompiledName("Authorizing")>]
-    let authorizing (authorizers: seq<string*IAuthorizer>, resource:IResource<'TReq,'TResp>) =
-        let authorizers = authorizers |> Map.ofSeq
+    let authorizing (authorizers: seq<IAuthorizer>) (resource:IResource<'TReq,'TResp>) =
+        let authorizers = authorizers |> Seq.map (fun x -> (x.Scheme, x)) |> Map.ofSeq
 
         let unauthorizedResponse = 
             let challenges = authorizers |> Map.toSeq |> Seq.map (fun (k,v) -> v.AuthenticationChallenge)
@@ -142,7 +142,7 @@ module Resource =
         } 
 
     [<CompiledName("WithFilters")>]
-    let withFilters ( requestFilter: RequestFilter<unit>, responseFilter: ResponseFilter<unit>) (resource:IResource<'TReq, 'TResp>) =
+    let withFilters (requestFilter: RequestFilter<unit>, responseFilter: ResponseFilter<unit>) (resource:IResource<'TReq, 'TResp>) =
         { new IResource<'TReq, 'TResp> with
             member this.Route with get() = resource.Route
 

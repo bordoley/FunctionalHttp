@@ -35,6 +35,9 @@ module internal Parser =
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
 
+    let (.>>) (p1:Parser<_>) (p2:Parser<_>) = 
+        p1 .>>. p2 |>> fun (r1,r2) -> r1
+
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) (input:CharStream) = 
         match (p1 input) with 

@@ -30,22 +30,24 @@ type Challenge =
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token .>>. BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS .>>. (token <|> quoted_string) 
-            |>> (fun ((((key, _), _ ), _), value) -> (key.ToLowerInvariant(), value))
-        
+            token .>> (BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS) .>>. (token <|> quoted_string) 
+            |>> fun (k, v) -> 
+                (k.ToLowerInvariant(), v)
+
         let auth_params =
              (opt auth_param) |> sepBy1 OWS_COMMA_OWS |>> (fun pairs -> 
                 pairs |> Seq.filter Option.isSome |> Seq.map Option.get)
              |>> Map.ofSeq
 
-        let data = token68 |> followedBy (Parser.eof <^> (OWS .>>. pchar ','))
+        let data = token68 |> followedBy (eof <^> (OWS .>>. pchar ','))
 
-        auth_scheme .>>. (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
-        |>> (fun ((scheme, _), dataOrParameters) -> 
-            { scheme = scheme; dataOrParameters = dataOrParameters; })
+        auth_scheme .>> (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
+        |>> fun (scheme, dataOrParameters) -> 
+            { scheme = scheme; dataOrParameters = dataOrParameters; }
         
     static member OAuthToken token = 
-        // FIXME: Validate the token is base64 data
-        {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
+        match token |> parse token68 with
+        | Some x -> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
+        | _ -> invalidArg "token" "Token must be valid base64 data"
       
 type Credentials = Challenge
