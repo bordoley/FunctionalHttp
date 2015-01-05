@@ -12,7 +12,7 @@ namespace FunctionalHttp.Core.Interop
             this ContentInfo This, 
             IEnumerable<ContentCoding> encodings = null,
             IEnumerable<LanguageTag> languages = null,
-            int? length = null, 
+            UInt64? length = null, 
             Uri location = null, 
             MediaType mediaType = null)
         {

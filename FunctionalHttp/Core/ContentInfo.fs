@@ -12,7 +12,7 @@ type ContentInfo =
     private {
         encodings:ContentCoding seq
         languages:LanguageTag seq
-        length:Option<int>
+        length:Option<uint64>
         location: Option<Uri>
         mediaType:Option<MediaType>
     }
@@ -49,11 +49,11 @@ type ContentInfo =
         let encodings:ContentCoding seq = Seq.empty
         let languages:LanguageTag seq = Seq.empty
 
-        let length:Option<int> = 
+        let length:Option<uint64> = 
             headers.TryFind HttpHeaders.contentLength
             |> Option.bind (fun x -> 
-                let result = ref 0
-                if Int32.TryParse (string x, NumberStyles.None, NumberFormatInfo.InvariantInfo, result)
+                let result = ref 0UL
+                if UInt64.TryParse (string x, NumberStyles.None, NumberFormatInfo.InvariantInfo, result)
                 then Some !result
                 else None)
 
@@ -104,7 +104,7 @@ module internal ContentInfo =
 [<AutoOpen>]
 module ContentInfoMixins =
     type ContentInfo with
-        member this.With(?encodings, ?languages, ?length:int, ?location:Uri, ?mediaType:MediaType) =
+        member this.With(?encodings, ?languages, ?length:uint64, ?location:Uri, ?mediaType:MediaType) =
             this |> ContentInfo.with_  (encodings, languages, length, location, mediaType)
 
         member this.Without(?encodings, ?languages, ?length, ?location, ?mediaType) =

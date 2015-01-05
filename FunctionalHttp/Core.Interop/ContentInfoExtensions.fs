@@ -8,7 +8,7 @@ open System.Runtime.CompilerServices
 [<AbstractClass; Sealed; Extension>]
 type ContentInfoExtensions private () = 
     [<Extension>]
-    static member TryGetLength(this:ContentInfo, length : byref<int>) = 
+    static member TryGetLength(this:ContentInfo, length : byref<uint64>) = 
         Option.tryGetValue this.Length &length
 
     [<Extension>]

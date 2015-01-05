@@ -53,7 +53,7 @@ module Converters =
             let bytes = Encoding.UTF8.GetBytes(str.ToString().ToCharArray())
 
             // FIXME: ContentInfo is incomplete here
-            let contentInfo = contentInfo.With(length = bytes.Length)
+            let contentInfo = contentInfo.With(length = uint64 bytes.Length)
             let stream = new MemoryStream(bytes) :> Stream
             return (contentInfo, stream)
         }

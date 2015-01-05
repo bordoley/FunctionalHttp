@@ -17,7 +17,7 @@ module HttpServer =
         // FIXME: ContentInfo is incomplete here
         // FIXME: Maybe add a serialization package that does this so that it can be reused for
         // both request and response serialization
-        let contentInfo = ContentInfo.Create(length = bytes.Length)
+        let contentInfo = ContentInfo.Create(length = uint64 bytes.Length)
         let stream = new MemoryStream(bytes) :> Stream
         HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, stream, contentInfo = contentInfo) |> async.Return
 
@@ -59,7 +59,7 @@ module HttpServer =
     let asListenerConnector (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>) =
         let parseRequest (req:HttpListenerRequest) =
             let meth = Method.Create req.HttpMethod
-            let version = HttpVersion.Create(req.ProtocolVersion.Major, req.ProtocolVersion.Minor)
+            let version = HttpVersion.Create(uint32 req.ProtocolVersion.Major, uint32 req.ProtocolVersion.Minor)
             let headers = 
                 (req.Headers.AllKeys :> seq<string>) 
                 |> Seq.map(fun key -> (key, req.Headers.GetValues(key) :> string seq))

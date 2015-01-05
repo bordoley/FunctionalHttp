@@ -16,7 +16,7 @@ module internal HttpWebResponseExtensions =
     type HttpWebResponse with
         member this.ToResponse () =
             let status = Status.Create(uint16 this.StatusCode)
-            let version = HttpVersion.Create(this.ProtocolVersion.Major, this.ProtocolVersion.Minor)
+            let version = HttpVersion.Create(uint32 this.ProtocolVersion.Major, uint32 this.ProtocolVersion.Minor)
 
             let headers = 
                 this.Headers.AllKeys
@@ -31,7 +31,7 @@ module internal HttpResponseMessageExtensions =
         member this.ToAsyncResponse() =
             async  {
                 let statusCode = Status.Create(uint16 this.StatusCode)
-                let version = HttpVersion.Create(this.Version.Major, this.Version.Minor)
+                let version = HttpVersion.Create(uint32 this.Version.Major, uint32 this.Version.Minor)
 
                 let headers = 
                     Seq.concat [ this.Headers :> Headers.HttpHeaders ; this.Content.Headers :> Headers.HttpHeaders]
