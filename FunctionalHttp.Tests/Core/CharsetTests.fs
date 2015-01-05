@@ -11,7 +11,6 @@ module CharsetTests =
     [<Test>]
     let ``test parsing valid charsets`` () =
         let tests = [ 
-            ("*", Charset.Any);
             ("ISO-8859-1", Charset.ISO_8859_1); 
             ("iso-8859-1", Charset.ISO_8859_1);
             ("iSo-8859-1", Charset.ISO_8859_1);

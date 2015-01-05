@@ -53,8 +53,8 @@
     <Compile Include="Core\ContentCoding.fs" />
     <Compile Include="Core\EntityTag.fs" />
     <Compile Include="Core\LanguageTag.fs" />
-    <Compile Include="Core\MediaRange.fs" />
     <Compile Include="Core\MediaType.fs" />
+    <Compile Include="Core\MediaRange.fs" />
     <Compile Include="Core\Range.fs" />
     <Compile Include="Core\Product.fs" />
     <Compile Include="Core\Comment.fs" />

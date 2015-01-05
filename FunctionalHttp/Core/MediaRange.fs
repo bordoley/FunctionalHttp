@@ -6,4 +6,5 @@ type MediaTypeSubRange =
     }
 
 type MediaRange = 
-    private | MediaRange
+    private 
+    | MediaRange

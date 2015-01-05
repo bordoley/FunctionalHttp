@@ -67,15 +67,19 @@ module internal HeaderParsers =
     //let retryAfter = None
     let server = parse (HttpHeaders.server, Server.Parser)
 
-    let private varyParser = (Header.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
+    let private varyParser = 
+        // Header is a token and tchar includes "*". So try parsing "*" .>> eof first and if that fails fall back
+        (Any.Parser .>> eof) <^>  (Header.Parser |> HttpParsers.httpList1 |>> Set.ofSeq) |>> function
+            | Choice1Of2 any -> Choice2Of2 any
+            | Choice2Of2 headers -> Choice1Of2 headers
     let vary = parse (HttpHeaders.vary, varyParser)
     //let warning = []
 
     // ContentInfo
-    //let encodings:ContentCoding seq = Seq.empty
+    let contentEncoding = parseSeq (HttpHeaders.contentEncoding, ContentCoding.Parser |> HttpParsers.httpList)
     //let languages:LanguageTag seq = Seq.empty
 
-    let length = parseUInt64 HttpHeaders.contentLength
+    let contentLength = parseUInt64 HttpHeaders.contentLength
 
     let contentLocation = parseUri HttpHeaders.contentLocation
 
