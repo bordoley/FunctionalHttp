@@ -53,19 +53,14 @@ type CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-[<AutoOpen>]
-module CacheDirectiveMixins =
+module CacheDirectives =
     let private deltaSecondsParser = 
         (CharMatchers.many1 CharMatchers.DIGIT) |>> (fun d -> 
             match System.Int32.TryParse(d) with
             | (true, int) -> Some(int)
             | _ -> None)
 
-    type CacheDirective with
-        member this.ValueAsDeltaSeconds 
-            with get() = 
-                match Parser.parse deltaSecondsParser this.Value with
+    let valueAsDeltaSeconds (directive:CacheDirective) =
+        match Parser.parse deltaSecondsParser directive.Value with
                 | Some result -> result
                 | _ -> None
-        //member this.ValueAsHeaders
-            
