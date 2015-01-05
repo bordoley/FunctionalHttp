@@ -123,9 +123,9 @@ type HttpRequest<'TReq> =
             defaultArg version HttpVersion.Http1_1)
 
     static member internal Create(meth:Method, uri:Uri, version:HttpVersion, headers:Map<Header, obj>, entity:'TReq, ?id) =
-        let authorization = HeaderInternal.parse (HttpHeaders.authorization, Credentials.Parser) headers
+        let authorization = HeaderParsers.parse (HttpHeaders.authorization, Credentials.Parser) headers
 
-        let cacheControl:Set<CacheDirective>  = Set.empty
+        let cacheControl= HeaderParsers.parseSeq (HttpHeaders.cacheControl, HeaderParsers.cacheDirectiveSeq) headers |> Set.ofSeq
 
         let contentInfo = ContentInfo.Create headers
 
@@ -134,15 +134,16 @@ type HttpRequest<'TReq> =
             |> Option.map (fun x -> string x = "100-continue")
             |> Option.getOrElse false
 
-        let pragma:Set<CacheDirective> = Set.empty
+        let pragma = HeaderParsers.parseSeq (HttpHeaders.pragma
+        , HeaderParsers.cacheDirectiveSeq) headers |> Set.ofSeq
 
         let preconditions:RequestPreconditions = RequestPreconditions.Create headers
 
         let preferences:RequestPreferences = RequestPreferences.Create headers
 
-        let proxyAuthorization = HeaderInternal.parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
+        let proxyAuthorization = HeaderParsers.parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
 
-        let referer:Option<Uri> = HeaderInternal.parseUri  HttpHeaders.authorization headers
+        let referer:Option<Uri> = HeaderParsers.parseUri HttpHeaders.authorization headers
 
         let userAgent:Option<UserAgent> = None
 
@@ -173,7 +174,7 @@ type HttpRequest<'TReq> =
        
         req.ContentInfo |> ContentInfo.WriteHeaders f
 
-        (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then x |> HeaderInternal.writeObject f 
+        (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then (x |> HeaderInternal.writeObject f)
         (HttpHeaders.pragma,             req.Pragma       )      |> HeaderInternal.writeSeq f
 
         req.Preconditions |> RequestPreconditions.WriteHeaders f

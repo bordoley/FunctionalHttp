@@ -110,17 +110,6 @@ module internal HeaderInternal =
     let filterStandardHeaders (headers:Map<Header,obj>) =
         headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
 
-    let parse (header, parser) (headers : Map<Header, obj>) =
-        headers.TryFind header
-        |> Option.bind (fun x -> 
-            string x |> Parser.parse parser)
-
-    let parseUri header (headers : Map<Header, obj>) =
-        headers.TryFind header
-        |> Option.bind (fun x -> 
-            try Uri(string x, UriKind.RelativeOrAbsolute) |> Some
-            with | :?FormatException -> None)
-
     let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
         // FIXME: Special case cookies
         headers 

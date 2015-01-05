@@ -49,19 +49,11 @@ type ContentInfo =
         let encodings:ContentCoding seq = Seq.empty
         let languages:LanguageTag seq = Seq.empty
 
-        let length:Option<uint64> = 
-            headers.TryFind HttpHeaders.contentLength
-            |> Option.bind (fun x -> 
-                let result = ref 0UL
-                if UInt64.TryParse (string x, NumberStyles.None, NumberFormatInfo.InvariantInfo, result)
-                then Some !result
-                else None)
+        let length = HeaderParsers.parseUInt64 HttpHeaders.contentLength headers
 
-        let location = 
-            HeaderInternal.parseUri HttpHeaders.contentLocation headers
+        let location = HeaderParsers.parseUri HttpHeaders.contentLocation headers
 
-        let mediaType:Option<MediaType> =
-            HeaderInternal.parse (HttpHeaders.contentType, MediaType.Parser) headers
+        let mediaType = HeaderParsers.parse (HttpHeaders.contentType, MediaType.Parser) headers
 
         ContentInfo.Create(encodings, languages, length, location, mediaType)
 

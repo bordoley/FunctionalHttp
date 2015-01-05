@@ -26,12 +26,12 @@ type CacheDirective =
             | (key, Some value) -> { directive = key; value = value }
             | (key, None) -> { directive = key; value = "" }
 
-    static member NoStore = { directive = "no-store"; value  ="" }
-    static member NoTransform = { directive = "no-transform"; value ="" }
-    static member OnlyIfCached = { directive = "only-if-cached"; value ="" }
-    static member MustRevalidate = { directive = "must-revalidate"; value ="" }
-    static member Public = { directive = "public"; value ="" }
-    static member ProxyRevalidate = { directive = "proxy-revalidate"; value ="" }
+    static member NoStore = { directive = "no-store"; value  = "" }
+    static member NoTransform = { directive = "no-transform"; value = "" }
+    static member OnlyIfCached = { directive = "only-if-cached"; value = "" }
+    static member MustRevalidate = { directive = "must-revalidate"; value = "" }
+    static member Public = { directive = "public"; value = "" }
+    static member ProxyRevalidate = { directive = "proxy-revalidate"; value = "" }
 
     static member MaxAge (value:TimeSpan) =
         { directive = "max-age"; value = (int value.TotalSeconds).ToString() }

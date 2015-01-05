@@ -73,6 +73,9 @@ module internal HttpParsers =
             then Fail input
         else doParse 1
 
+    let httpList p =
+        p |> sepBy OWS_COMMA_OWS
+
 module internal HttpEncoding =
     let private DQUOTE_CHAR = (char 22)
     let private ESCAPE_CHAR = '\\';

@@ -13,7 +13,7 @@ type internal CharStream private (str: string, offset:int, length:int) =
 
     member this.Item(index:int) =
         if index < 0 then ArgumentOutOfRangeException "index" |> raise 
-        if (offset + index) >= length then ArgumentOutOfRangeException "index" |> raise
+        if index >= length then ArgumentOutOfRangeException "index" |> raise
         Contract.EndContractBlock()
 
         str.Chars(offset + index)
