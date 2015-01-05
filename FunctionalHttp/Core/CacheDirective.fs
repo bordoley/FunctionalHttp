@@ -22,7 +22,9 @@ type CacheDirective =
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
     static member internal Parser =
-        token .>>. ((pchar '=') .>>. (token <|> quoted_string)) |> opt
+        token .>>. opt ((pchar '=') >>. (token <|> quoted_string)) |>> function 
+            | (key, Some value) -> { directive = key; value = value }
+            | (key, None) -> { directive = key; value = "" }
 
     static member NoStore = { directive = "no-store"; value  ="" }
     static member NoTransform = { directive = "no-transform"; value ="" }
