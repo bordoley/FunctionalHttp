@@ -20,7 +20,7 @@ type Product =
         else sprintf "%s/%s" this.name this.version
 
     static member internal Parser =
-        token .>>. opt (pchar '/' .>>. token)
+        token .>>. opt (pchar '/' >>. token)
         |>> (function
-            | (name, Some(_, version)) -> { name = name; version = version; }
-            | (name, _)-> { name = name; version = ""; })
+            | (name, Some(version)) -> { name = name; version = version; }
+            | (name, _) -> { name = name; version = ""; })

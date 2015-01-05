@@ -24,9 +24,7 @@ type EntityTag =
 
     static member internal Parser =
         let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> HttpCharMatchers.obs_text
-        let opaque_tag = 
-            (pchar '"') .>>. (CharMatchers.many etagc) .>>. (pchar '"')
-            |>> (fun ((_, token), _) -> token)
+        let opaque_tag = (pchar '"') >>. (CharMatchers.many etagc) .>> (pchar '"')
         let weak = pstring "W/"
 
         (opt weak) .>>. opaque_tag |>> (function

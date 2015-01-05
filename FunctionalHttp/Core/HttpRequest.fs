@@ -143,7 +143,7 @@ type HttpRequest<'TReq> =
 
         let proxyAuthorization = HeaderParsers.parse (HttpHeaders.proxyAuthorization, Credentials.Parser) headers
 
-        let referer:Option<Uri> = HeaderParsers.parseUri HttpHeaders.authorization headers
+        let referer:Option<Uri> = HeaderParsers.parseUri HttpHeaders.referer headers
 
         let userAgent:Option<UserAgent> = None
 

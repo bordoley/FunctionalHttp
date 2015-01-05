@@ -33,13 +33,13 @@ type MediaType =
 
     static member internal Parser = 
         let parameter = 
-            token .>>. (pchar '=') .>>. (token <|> quoted_string) 
+            token .>> (pchar '=') .>>. (token <|> quoted_string) 
             // The type, subtype, and parameter name tokens are case-insensitive.
-            |>> function | (key, _), value -> (key.ToLowerInvariant(), value)
+            |>> function (key, value) -> (key.ToLowerInvariant(), value)
 
-        let parameters = OWS_SEMICOLON_OWS .>>. parameter |>> (fun (_, pair) -> pair) |> many
+        let parameters = OWS_SEMICOLON_OWS >>. parameter |> many
 
-        token .>>. (pchar '/') .>>. token .>>. parameters |>> (fun (((_type, _), subType), parameters) ->  
+        token .>> (pchar '/') .>>. token .>>. parameters |>> (fun ((_type, subType), parameters) ->  
                 let charset = ref None
 
                 let parameters =
@@ -57,7 +57,7 @@ type MediaType =
                     |> Map.ofSeq
 
                 // The type, subtype, and parameter name tokens are case-insensitive.
-                { _type = _type.ToLowerInvariant(); subType = subType.ToLowerInvariant(); charset = None; parameters = parameters}
+                { _type = _type.ToLowerInvariant(); subType = subType.ToLowerInvariant(); charset = !charset; parameters = parameters}
         )
 
 [<AutoOpen>]
