@@ -61,10 +61,10 @@ type Comment =
                 then Eof input
             else doParse 0
         
-        let (comment_segment, comment_segment_impl)  = forwardedToRef ()
+        let (comment_segment, comment_segment_impl)  = createParserForwardedToRef ()
 
         let comment =
-            (parseChar '(') <+> (many comment_segment) <+> (parseChar ')') 
+            (pchar '(') .>>. (many comment_segment) .>>. (pchar ')') 
             |> Parser.map(fun ((_, segments),_) -> Comment (List.ofSeq segments))
 
         comment_segment_impl := comment_text <^> comment

@@ -4,6 +4,9 @@ open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 
+open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Core.HttpParsers
+
 type CacheDirective =
     private {
         directive:String
@@ -17,6 +20,9 @@ type CacheDirective =
         if this.value.Length = 0
             then this.Directive
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
+
+    static member internal Parser =
+        token .>>. ((pchar '=') .>>. (token <|> quoted_string)) |> opt
 
     static member NoStore = { directive = "no-store"; value  ="" }
     static member NoTransform = { directive = "no-transform"; value ="" }

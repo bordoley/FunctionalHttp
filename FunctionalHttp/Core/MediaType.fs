@@ -32,13 +32,13 @@ type MediaType =
             if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "" //+
 
     static member internal Parser = 
-        let parameter = token <+> (parseChar '=') <+> (token <|> quoted_string) |> map (fun x ->
+        let parameter = token .>>. (pchar '=') .>>. (token <|> quoted_string) |> map (fun x ->
             // The type, subtype, and parameter name tokens are case-insensitive.
             match x with | (key, _), value -> (key.ToLowerInvariant(), value))
 
-        let parameters = OWS_SEMICOLON_OWS <+> parameter |> map (function (_, pair) -> pair) |> many
+        let parameters = OWS_SEMICOLON_OWS .>>. parameter |> map (function (_, pair) -> pair) |> many
 
-        token <+> (parseChar '/') <+> token <+> parameters |>  map (function
+        token .>>. (pchar '/') .>>. token .>>. parameters |>  map (function
             | (((_type, _), subType), parameters) ->  
                 let charset = ref None
 

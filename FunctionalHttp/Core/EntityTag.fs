@@ -25,11 +25,11 @@ type EntityTag =
     static member internal Parser =
         let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> HttpCharMatchers.obs_text
         let opaque_tag = 
-            (parseChar '"') <+> (CharMatchers.many etagc) <+> (parseChar '"')
+            (pchar '"') .>>. (CharMatchers.many etagc) .>>. (pchar '"')
             |> Parser.map(fun ((_, token), _) -> token)
         let weak = pstring "W/"
 
-        (optional weak) <+> opaque_tag
+        (opt weak) .>>. opaque_tag
         |> map (function
             | (Some _, tag) -> { tag = tag; isWeak = true } 
             | (_, tag) -> { tag = tag; isWeak = false })

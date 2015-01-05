@@ -29,13 +29,13 @@ module internal HttpParsers =
     
     let RWS : Parser<string> = CharMatchers.many1 WSP
 
-    let OWS_SEMICOLON_OWS : Parser<string> = OWS <+> (parseChar ';') <+> OWS |> map (fun _ -> ";");
+    let OWS_SEMICOLON_OWS : Parser<string> = OWS .>>. (pchar ';') .>>. OWS |> map (fun _ -> ";");
     
-    let OWS_COMMA_OWS : Parser<string> = OWS <+> (parseChar ',') <+> OWS |> map (fun _ -> ",");
+    let OWS_COMMA_OWS : Parser<string> = OWS .>>. (pchar ',') .>>. OWS |> map (fun _ -> ",");
 
     let token : Parser<string> = CharMatchers.many1 tchar
 
-    let token68 : Parser<string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) <+> (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
+    let token68 : Parser<string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) .>>. (CharMatchers.many EQUALS) |> map (fun (a,b) -> a + b)
 
     let private DQUOTE_CHAR = (char 22)
     let private ESCAPE_CHAR = '\\';

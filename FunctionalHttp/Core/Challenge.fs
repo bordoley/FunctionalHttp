@@ -30,11 +30,11 @@ type Challenge =
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token <+> BWS <+> (matches CharMatchers.EQUALS) <+> BWS <+> (token <|> quoted_string) 
+            token .>>. BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS .>>. (token <|> quoted_string) 
             |> Parser.map (fun ((((key, _), _ ), _), value) -> (key.ToLowerInvariant(), value))
         
         let auth_params =
-             (optional auth_param) 
+             (opt auth_param) 
              |> sepBy1 OWS_COMMA_OWS
              |> map (fun pairs -> 
                 pairs 
@@ -42,9 +42,9 @@ type Challenge =
                 |> Seq.map (fun pair -> pair.Value))
              |> Parser.map (fun pairs -> Map.ofSeq pairs)
 
-        let data = token68 |> followedBy (Parser.eof <^> (OWS <+> parseChar ','))
+        let data = token68 |> followedBy (Parser.eof <^> (OWS .>>. pchar ','))
 
-        auth_scheme <+> (CharMatchers.many1 CharMatchers.SP) <+> ( data  <^> auth_params )
+        auth_scheme .>>. (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
         |> Parser.map (fun ((scheme, _), dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; })
         
