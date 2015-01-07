@@ -188,5 +188,5 @@ module internal HttpEncoding =
 
     let asTokenOrQuotedString (input:string) =
         match parse HttpParsers.token input with
-        | Some result -> result
-        | None ->  asQuotedString input
+        | Success (result, _) -> result
+        | _->  asQuotedString input

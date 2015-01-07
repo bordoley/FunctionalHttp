@@ -50,7 +50,7 @@ type Challenge =
         
     static member OAuthToken token = 
         match token |> parse token68 with
-        | Some x -> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
+        | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
         | _ -> invalidArg "token" "Token must be valid base64 data"
       
 type Credentials = Challenge

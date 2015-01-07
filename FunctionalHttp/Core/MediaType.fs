@@ -48,7 +48,7 @@ type MediaType =
                         match (k, !charset) with
                         | ("charset", None) ->
                             match parse Charset.Parser v with
-                            | Some result ->
+                            | Success (result, _) ->
                                 charset := Some result
                                 false
                             | _ -> false

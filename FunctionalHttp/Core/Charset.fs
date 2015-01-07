@@ -24,7 +24,7 @@ type Charset =
         | Some charset -> charset
         | None -> 
             match parse Charset.Parser charset with 
-            | Some charset -> charset
+            | Success (charset, _) -> charset
             | _ -> invalidArg "charset" "not a charset"
 
     static member ISO_8859_1 = Charset.Create "ISO-8859-1"

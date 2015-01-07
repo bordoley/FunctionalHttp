@@ -24,5 +24,5 @@ type UserAgent =
 
     static member Create ua =
         match parse UserAgent.Parser ua with
-        | Some ua -> ua
-        | None -> invalidArg "ua" "Not a valid User-Agent string"
+        | Success (ua, _) -> ua
+        | _ -> invalidArg "ua" "Not a valid User-Agent string"

@@ -18,13 +18,10 @@ module internal Parser =
         | Success (result, next) -> Success (f result, next)
 
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) (input:CharStream) = 
-        let fstResult = p1 input
-        match fstResult with
+        match p1 input with
         | Fail i -> Fail i
         | Success (result1, next) -> 
-            let sndResult = input.SubSequence(next) |> p2 
-
-            match sndResult with
+            match input.SubSequence(next) |> p2 with
             | Fail next2 -> Fail (next + next2)
             | Success (result2, next2) -> Success ((result1, result2), next + next2)
      
@@ -36,11 +33,11 @@ module internal Parser =
 
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) (input:CharStream) = 
-        match (p1 input) with 
+        match p1 input with 
         | Success (result, next) -> 
             Success (Choice1Of2 result, next)
         | _ -> 
-            match (p2 input) with
+            match p2 input with
             | Success (result, next) -> Success (Choice2Of2 result, next)
             | Fail i -> Fail i
 
@@ -54,7 +51,7 @@ module internal Parser =
 
     let eof (input:CharStream) =
         if input.Length = 0 
-        then Success((), 0)
+        then Success ((), 0)
         else Fail 0
 
     let followedBy (pnext:Parser<_>) (input:CharStream) =
@@ -87,7 +84,7 @@ module internal Parser =
         Success (result, !index)
      
     let many1 (p:Parser<_>) (input:CharStream) =   
-       match (many p input) with
+       match many p input with
        | Fail i -> Fail i
        | Success (result, next) as success ->
            if Seq.isEmpty result
@@ -110,17 +107,12 @@ module internal Parser =
     // orElse
     let (<|>%) (p:Parser<_>) alt =
         p |> opt |>> (function | Some x -> x | _ -> alt)
-    
-    let private parseStream (p:Parser<_>) (input:CharStream) =
-        match p input with
-        | Success (result, next) -> 
-            if next = input.Length then  Success (result, next) else Fail next
-        | Fail i -> Fail i
 
-    let parse (p:Parser<_>) (input:String) =
-        match parseStream p (CharStream input) with
-        | Fail i -> None
-        | Success (result, _) -> Some result  
+    let parse (p:Parser<_>) =
+        let p = p .>> eof
+
+        let parse (input:String) = p (CharStream.Create input)  
+        parse
 
     let sepBy1 (delim:Parser<_>) (p:Parser<_>) =
         let additional = (delim .>>. p) |>> (fun (sep, value) -> value) |> many
@@ -129,8 +121,7 @@ module internal Parser =
     let sepBy (delim:Parser<_>) (p:Parser<_>) =
         (sepBy1 delim p) <|>% Seq.empty
 
-    let pchar c (input:CharStream) =
-        satisfy (fun i -> i = c) input
+    let pchar c  = satisfy (fun i -> i = c)
 
     let pstring (str:string) (input:CharStream) =
         if input.Length < str.Length

@@ -1,5 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
+open FunctionalHttp.Parsing
 open FunctionalHttp.Parsing.Parser
 
 type Server = 
@@ -12,5 +13,5 @@ type Server =
 
     static member Create server =
         match parse Server.Parser server with
-        | Some server -> server
-        | None -> invalidArg "server" "Not a valid Server string"
+        | Success (server, _) -> server
+        | _ -> invalidArg "server" "Not a valid Server string"

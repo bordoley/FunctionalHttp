@@ -28,7 +28,7 @@ type Method =
         | Some m -> m
         | _ -> 
             match parse Method.Parser m with 
-            | Some m -> m
+            | Success (m, _) -> m
             | _ -> invalidArg "m" "not a method"
 
     static member internal Parser = 

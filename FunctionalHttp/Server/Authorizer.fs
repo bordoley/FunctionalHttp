@@ -17,7 +17,9 @@ module Authorizer =
     let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
         let challengeString = sprintf "Basic realm=\"%s\", encoding=\"UTF-8\"" realm
       
-        let challenge = challengeString |> Parser.parse Challenge.Parser |> Option.get
+        let challenge = challengeString |> Parser.parse Challenge.Parser |> function
+            | Success (challenge, _) -> challenge
+            | _ -> invalidArg "realm" "realm is invalid"
 
         { new IAuthorizer with
             member this.AuthenticationChallenge with get () = challenge

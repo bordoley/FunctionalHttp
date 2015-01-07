@@ -95,7 +95,7 @@ type Header private (header:string) =
         | Some header -> header
         | None ->
             match parse Header.Parser header with 
-            | Some header -> header
+            | Success (header, _) -> header
             | _ -> invalidArg "header" "not a header"
 
     static member internal Parser = 

@@ -11,7 +11,9 @@ module internal HeaderParsers =
     let private parse (header, parser) (headers : Map<Header, obj>) =
         headers.TryFind header
         |> Option.bind (fun x -> 
-            string x |> parse parser)
+            string x |> parse parser |> function
+                | Success (x, _) -> Some x
+                | _ -> None)
 
     let private parseUri header (headers : Map<Header, obj>) =
         headers.TryFind header

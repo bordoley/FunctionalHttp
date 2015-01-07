@@ -15,7 +15,7 @@ module ChallengeTests =
 
         for (test, expected) in tests do
             match Parser.parse Challenge.Parser test with
-            | Some result -> 
+            | Success (result, _) -> 
                 match result.DataOrParameters with
                 | Choice1Of2 data-> data |> should equal expected
                 | _ -> failwith ("Parse failed for test: " + test)
@@ -40,7 +40,7 @@ module ChallengeTests =
                      
         for (test, expectedScheme, expectedParams) in tests do
             match Parser.parse Challenge.Parser test with
-            | Some result -> 
+            | Success (result, _) -> 
                 result.Scheme |> should equal expectedScheme
                 match result.DataOrParameters with
                 | Choice2Of2 parameters-> parameters |> should equal (expectedParams |> Map.ofSeq)
