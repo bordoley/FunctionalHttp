@@ -3,6 +3,7 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
 type Product =

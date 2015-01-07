@@ -87,14 +87,6 @@ module internal Parser =
            then Fail 0
            else success
 
-    let satisfy (f:char -> bool) (input:CharStream) =
-        if input.Length = 0 then Fail 0
-        else 
-            let result = input.Item 0
-            if f result 
-            then  Success(result, 1)
-            else Fail 0
-
     let opt (p:Parser<'TResult>) (input:CharStream) =
         match p input with
         | Success (result, next) -> Success(Some result, next)
@@ -115,8 +107,6 @@ module internal Parser =
 
     let sepBy (delim:Parser<_>) (p:Parser<_>) =
         (sepBy1 delim p) <|>% Seq.empty
-
-    let pchar c  = satisfy (fun i -> i = c)
 
     let pstring (str:string) (input:CharStream) =
         if input.Length < str.Length

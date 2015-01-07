@@ -44,3 +44,5 @@ module internal CharParsers =
             if f result 
             then  Success(result, 1)
             else Fail 0
+
+    let pchar c  = satisfy (fun i -> i = c)

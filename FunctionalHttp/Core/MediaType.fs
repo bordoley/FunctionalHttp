@@ -7,6 +7,7 @@ open System.Linq
 
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
 type MediaType = 

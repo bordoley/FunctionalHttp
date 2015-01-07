@@ -5,6 +5,7 @@ open System.Text
 
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpCharMatchers
 
 type internal Comment = 
