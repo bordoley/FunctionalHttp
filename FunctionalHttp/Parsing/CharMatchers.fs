@@ -27,9 +27,20 @@ module internal CharParsers =
 
         Success (input.ToString(0, result), result)
 
-    let many1Satisfy (matcher:CharMatcher) (input: CharStream) =
-        let result = manySatisfy matcher input
+    let many1Satisfy (matcher:CharMatcher) =
+        let p = manySatisfy matcher
 
-        match result with
-        | Success (value, next) when value.Length = 0 -> Fail 0
-        | _ -> result
+        let doParse input = 
+            match p input with
+            | Success (value, next) when value.Length = 0 -> Fail 0
+            | result -> result
+
+        doParse
+            
+    let satisfy (f:char -> bool) (input:CharStream) =
+        if input.Length = 0 then Fail 0
+        else 
+            let result = input.Item 0
+            if f result 
+            then  Success(result, 1)
+            else Fail 0
