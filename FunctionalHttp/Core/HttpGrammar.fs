@@ -7,6 +7,7 @@ open FunctionalHttp.Parsing.CharMatchers
 
 module internal HttpCharMatchers = 
     open Abnf
+    open CharConstants
 
     let tchar = ALPHA_NUMERIC <||> isAnyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
@@ -26,6 +27,7 @@ module internal HttpParsers =
     open FunctionalHttp.Parsing.Parser
     open FunctionalHttp.Parsing.CharParsers
     open FunctionalHttp.Parsing.Abnf
+    open FunctionalHttp.Parsing.CharConstants
 
     let OWS : Parser<string> = manySatisfy WSP
 

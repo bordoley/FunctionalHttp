@@ -6,13 +6,16 @@ type internal CharMatcher = char -> bool
 
 module internal CharMatchers =
     let isAnyOf (chars:string) =
+        // FIXME: Probably add some heuristics here based upon the number of chars in the string
+        // and switch the implementation
         let chars = chars.ToCharArray()
         Array.sortInPlace chars
         fun c -> Array.BinarySearch(chars, c) > 0
 
     let inRange (start:char) (last:char) (c:char) = 
         c >= start && c <= last
-    
+
+// FIXME: These are so generic that it seems they should be in terms of 'T
     let is (arg:char) (c:char) = 
         c = arg
 
@@ -40,25 +43,14 @@ module internal CharParsers =
             if value.Length = 0 then Fail 0 else result
         | _ -> result
 
-module internal Abnf = 
+module internal CharConstants = 
     open CharMatchers
-
-    // See http://tools.ietf.org/html/rfc5234#appendix-B.1
-    let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
-
-    let DIGIT = inRange '0' '9'
-
-    let ALPHA_NUMERIC = ALPHA <||> DIGIT
 
     let AMPERSAND = is '&'
 
     let ASTERISK = is '*'
 
     let BACK_SLASH = is '\\'
-
-    let BIT = inRange '0' '1'
-
-    let CHAR = inRange (char 1) (char 127)
 
     let CLOSE_PAREN = is ')'
 
@@ -68,8 +60,6 @@ module internal Abnf =
 
     let CR = is (char 13)
 
-    let CTL = (inRange (char 0) (char 0x1F)) <||> (is (char 0x7F))
-
     let EQUALS = is '='
 
     let DASH = is '-'
@@ -78,14 +68,9 @@ module internal Abnf =
 
     let FORWARD_SLASH = '/'
 
-    // HEXDIG as defined in HTTP. Major difference from standard ABNF is that alpha characters are case insensitive
-    let HEXDIG = (inRange '0' '9') <||> (inRange 'a' 'f')
-
     let HTAB = is (char 9)
 
     let LF = is (char 10)
-
-    let OCTEXT = inRange (char 0) (char 0xFF)
 
     let OPEN_PAREN = is '('
 
@@ -99,6 +84,28 @@ module internal Abnf =
 
     let SP = is ' '
 
+// See http://tools.ietf.org/html/rfc5234#appendix-B.1
+module internal Abnf = 
+    open CharMatchers
+
+    let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
+
+    let DIGIT = inRange '0' '9'
+
+    let ALPHA_NUMERIC = ALPHA <||> DIGIT
+
+    let BIT = inRange '0' '1'
+
+    let CHAR = inRange (char 1) (char 127)
+
+    let CTL = (inRange (char 0) (char 0x1F)) <||> (is (char 0x7F))
+
+    let OCTEXT = inRange (char 0) (char 0xFF)
+
+    let HEXDIG = (inRange '0' '9') <||> (inRange 'A' 'F')
+
     let VCHAR = inRange (char 0x21) (char 0x7E)
 
+    open CharConstants
     let WSP = SP <||> HTAB
+
