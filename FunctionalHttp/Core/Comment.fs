@@ -46,8 +46,8 @@ type internal Comment =
                     | _ -> 
                         if index = 0 then Fail 0
                         else if !builder = null 
-                            then Success(input.SubSequence(0, index).ToString(), index, input.SubSequence(index))
-                        else Success(builder.ToString(), index, input.SubSequence(index))
+                            then Success(input.SubSequence(0, index).ToString(), index)
+                        else Success(builder.ToString(), index)
             doParse 0
         
         let (comment_segment, comment_segment_impl)  = createParserForwardedToRef ()

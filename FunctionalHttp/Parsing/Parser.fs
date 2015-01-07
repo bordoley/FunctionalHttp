@@ -4,7 +4,7 @@ open System;
 open System.Collections.Generic
 
 type internal IParseResult<'TResult> =
-    | Success of  result : 'TResult * iNext : int * next : CharStream
+    | Success of  result : 'TResult * next : int
     | Fail of iFailed : int
 
 type internal Parser<'TResult> = CharStream -> IParseResult<'TResult>
@@ -15,18 +15,18 @@ module internal Parser =
         let result = p input
         match result with
         | Fail i -> Fail i
-        | Success (result, i, next) -> Success (f result, i, next)
+        | Success (result, next) -> Success (f result, next)
 
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) (input:CharStream) = 
         let fstResult = p1 input
         match fstResult with
         | Fail i -> Fail i
-        | Success (result1, iFirst, next) -> 
-            let sndResult = p2 next
+        | Success (result1, next) -> 
+            let sndResult = input.SubSequence(next) |> p2 
 
             match sndResult with
-            | Fail i2 -> Fail (iFirst + i2)
-            | Success (result2, i2nd, next) -> Success ((result1, result2), iFirst + i2nd, next)
+            | Fail next2 -> Fail (next + next2)
+            | Success (result2, next2) -> Success ((result1, result2), next + next2)
      
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
@@ -37,11 +37,11 @@ module internal Parser =
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
     let (<^>) (p1:Parser<_>) (p2:Parser<_>) (input:CharStream) = 
         match (p1 input) with 
-        | Success (result, i, next) -> 
-            Success (Choice1Of2 result, i, next)
+        | Success (result, next) -> 
+            Success (Choice1Of2 result, next)
         | _ -> 
             match (p2 input) with
-            | Success (result, i, next) -> Success (Choice2Of2 result, i, next)
+            | Success (result, next) -> Success (Choice2Of2 result, next)
             | Fail i -> Fail i
 
     let (<|>) (p1:Parser<_>) (p2:Parser<_>) = 
@@ -49,17 +49,17 @@ module internal Parser =
         fun (input:CharStream) ->
             match p input with
             | Fail i -> Fail i
-            | Success (Choice1Of2 result, i, next) -> Success (result, i, next)
-            | Success (Choice2Of2 result, i, next) -> Success (result, i, next)
+            | Success (Choice1Of2 result, next) -> Success (result, next)
+            | Success (Choice2Of2 result, next) -> Success (result, next)
 
     let eof (input:CharStream) =
         if input.Length = 0 
-        then Success((), 0, input)
+        then Success((), 0)
         else Fail 0
 
     let followedBy (pnext:Parser<_>) (input:CharStream) =
         match pnext input with
-        | Success _ -> Success ((), 0, input)
+        | Success _ -> Success ((), 0)
         | Fail i -> Fail i
 
     let createParserForwardedToRef () =
@@ -76,20 +76,20 @@ module internal Parser =
             let result = p input
 
             match result with
-            | Success (result, i, next) -> 
-                index := !index + i
-                result::(doParse next)
+            | Success (result, next) -> 
+                index := !index + next
+                result::(input.SubSequence(next) |> doParse)
             | Fail i-> 
                 remainder := input
                 []
         
         let result = doParse input :> _ seq
-        Success (result, !index, !remainder)
+        Success (result, !index)
      
     let many1 (p:Parser<_>) (input:CharStream) =   
        match (many p input) with
        | Fail i -> Fail i
-       | Success (result, i, next) as success ->
+       | Success (result, next) as success ->
            if Seq.isEmpty result
            then Fail 0
            else success
@@ -99,13 +99,13 @@ module internal Parser =
         else 
             let result = input.Item 0
             if f result 
-            then  Success(result, 1, input.SubSequence(1))
+            then  Success(result, 1)
             else Fail 0
 
     let opt (p:Parser<'TResult>) (input:CharStream) =
         match p input with
-        | Success (result, i, next) -> Success(Some result, i, next)
-        | _ -> Success(None, 0, input)
+        | Success (result, next) -> Success(Some result, next)
+        | _ -> Success(None, 0)
 
     // orElse
     let (<|>%) (p:Parser<_>) alt =
@@ -113,14 +113,14 @@ module internal Parser =
     
     let private parseStream (p:Parser<_>) (input:CharStream) =
         match p input with
-        | Success (result, i, next) -> 
-            if next.Length = 0 then  Success (result, i, next) else Fail i
+        | Success (result, next) -> 
+            if next = input.Length then  Success (result, next) else Fail next
         | Fail i -> Fail i
 
     let parse (p:Parser<_>) (input:String) =
         match parseStream p (CharStream input) with
         | Fail i -> None
-        | Success (result, _, _) -> Some result  
+        | Success (result, _) -> Some result  
 
     let sepBy1 (delim:Parser<_>) (p:Parser<_>) =
         let additional = (delim .>>. p) |>> (fun (sep, value) -> value) |> many
@@ -138,7 +138,7 @@ module internal Parser =
         else
             let rec doParse i =
                 if i = str.Length
-                    then Success (str, i, input.SubSequence(i))
+                    then Success (str, i)
                 else if (str.Chars i) = (input.Item i)
                     then doParse (i + 1)
                 else Fail i

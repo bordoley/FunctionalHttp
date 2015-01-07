@@ -61,8 +61,8 @@ module internal HttpParsers =
                     | index -> Fail index
                 | c when c = DQUOTE_CHAR -> 
                     match !builder with
-                    | null -> Success(input.SubSequence(1, index - 1).ToString(), index + 1, input.SubSequence(index + 1))
-                    | builder -> Success(builder.ToString(), index + 1, input.SubSequence(index + 1))
+                    | null -> Success(input.SubSequence(1, index - 1).ToString(), index + 1)
+                    | builder -> Success(builder.ToString(), index + 1)
                 | c when qdtext c ->
                     if !builder <> null then (!builder).Append(c) |> ignore
                     doParse (index + 1)      
