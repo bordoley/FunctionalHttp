@@ -1,10 +1,21 @@
 namespace FunctionalHttp.Core
 
+open FunctionalHttp.Parsing
+open FunctionalHttp.Parsing.CharMatchers
+open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Core.HttpParsers
+
 type Preference<'T> =
     private {
         range:'T
         weight:uint16
     }
+
+    static member internal Parser (p:Parser<'T>) =()
+        //let qvalue = pchar '0' .>> [ "." 0*3DIGIT ] )
+        //    / ( "1" [ "." 0*3("0") ] )
+        //p .>> OWS_SEMICOLON_OWS .>> pstring "q=" .>>. qvalue
+
 
 type PreferenceWithParams<'T> =
     private {

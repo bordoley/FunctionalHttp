@@ -39,7 +39,7 @@ type Challenge =
                 pairs |> Seq.filter Option.isSome |> Seq.map Option.get)
              |>> Map.ofSeq
 
-        let data = token68 |> followedBy (eof <^> (OWS .>>. pchar ','))
+        let data = token68 .>> followedBy (eof <^> (OWS .>>. pchar ','))
 
         auth_scheme .>> (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
         |>> fun (scheme, dataOrParameters) -> 

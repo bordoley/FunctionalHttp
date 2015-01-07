@@ -63,14 +63,11 @@ module internal Parser =
         then Success((), 0, input)
         else Fail 0
 
-    let followedBy (pnext:Parser<_>) (p:Parser<_>) (input:CharStream) =
-        match p input with
-        | Success (_, i, next) as result ->
-            match pnext next with
-            | Success _ -> result
-            | Eof -> Eof 
-            | Fail i2 -> Fail (i+i2)
-        | x as result -> result
+    let followedBy (pnext:Parser<_>) (input:CharStream) =
+        match pnext input with
+        | Success _ -> Success ((), 0, input)
+        | Eof -> Eof 
+        | Fail i -> Fail i
 
     let createParserForwardedToRef () =
         let dummy (input:CharStream) = failwith "a parser created with createParserForwardedToRef was not initialized"
