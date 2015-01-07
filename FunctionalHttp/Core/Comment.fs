@@ -32,7 +32,7 @@ type internal Comment =
                     match input.Item index with
                     | c when c = ESCAPE_CHAR -> 
                         if !builder = null 
-                            then builder := StringBuilder(input.SubSequence(0, index).ToString())
+                            then builder := StringBuilder(input.ToString(0, index))
 
                         match index + 1 with
                         | index when index = input.Length -> Eof
@@ -46,7 +46,7 @@ type internal Comment =
                     | _ -> 
                         if index = 0 then Fail 0
                         else if !builder = null 
-                            then Success(input.SubSequence(0, index).ToString(), index)
+                            then Success(input.ToString(0, index), index)
                         else Success(builder.ToString(), index)
             doParse 0
         

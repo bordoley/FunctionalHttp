@@ -5,8 +5,17 @@ open System.Text
 
 open FunctionalHttp.Parsing.CharMatchers
 
+module internal Predicates =
+    let is (arg:'T) (c:'T) = 
+        c = arg
+
+    let (<&&>) m1 m2 (c:'T) = (m1 c) && (m2 c)
+
+    let (<||>) m1 m2 (c:'T) = (m1 c) || (m2 c)
+
 module internal CharConstants = 
     open CharMatchers
+    open Predicates
 
     let AMPERSAND = is '&'
 
@@ -49,6 +58,7 @@ module internal CharConstants =
 // See http://tools.ietf.org/html/rfc5234#appendix-B.1
 module internal Abnf = 
     open CharMatchers
+    open Predicates
 
     let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
 
@@ -74,6 +84,7 @@ module internal Abnf =
 module internal HttpCharMatchers = 
     open Abnf
     open CharConstants
+    open Predicates
 
     let tchar = ALPHA_NUMERIC <||> isAnyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
@@ -94,6 +105,7 @@ module internal HttpParsers =
     open FunctionalHttp.Parsing.CharParsers
     open Abnf
     open CharConstants
+    open Predicates
 
     let OWS : Parser<string> = manySatisfy WSP
 
@@ -123,8 +135,8 @@ module internal HttpParsers =
                 match input.Item index with
                 | c when c = ESCAPE_CHAR -> 
                     if !builder = null 
-                        then builder := StringBuilder(input.SubSequence(1, index - 1).ToString())
-
+                        then builder := StringBuilder(input.ToString(1, index - 1))
+                       
                     match index + 1 with
                     | index when index = input.Length -> Eof
                     | index when quoted_pair_char (input.Item index) ->
@@ -133,7 +145,7 @@ module internal HttpParsers =
                     | index -> Fail index
                 | c when c = DQUOTE_CHAR -> 
                     match !builder with
-                    | null -> Success(input.SubSequence(1, index - 1).ToString(), index + 1)
+                    | null -> Success(input.ToString(1, index - 1), index + 1)
                     | builder -> Success(builder.ToString(), index + 1)
                 | c when qdtext c ->
                     if !builder <> null then (!builder).Append(c) |> ignore

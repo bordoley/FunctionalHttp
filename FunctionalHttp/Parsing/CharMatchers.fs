@@ -15,14 +15,6 @@ module internal CharMatchers =
     let inRange (start:char) (last:char) (c:char) = 
         c >= start && c <= last
 
-// FIXME: These are so generic that it seems they should be in terms of 'T
-    let is (arg:char) (c:char) = 
-        c = arg
-
-    let (<&&>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) && m2(c)
-
-    let (<||>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) || m2(c)
-
 module internal CharParsers =
     let manySatisfy (matcher:CharMatcher) (input: CharStream) =
         let rec findLast index =
@@ -34,7 +26,7 @@ module internal CharParsers =
 
         let result = findLast 0
 
-        Success ((input.SubSequence(0, result).ToString()), result)
+        Success (input.ToString(0, result), result)
 
     let many1Satisfy (matcher:CharMatcher) (input: CharStream) =
         let result = manySatisfy matcher input

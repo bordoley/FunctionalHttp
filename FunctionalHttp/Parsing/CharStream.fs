@@ -42,3 +42,6 @@ module internal CharStreamMixins =
         member this.SubSequence (start:int) =
             let computedLength = this.Length - start  
             this.SubSequence(start, computedLength)
+
+        member this.ToString(startIndex, length) =
+            this.SubSequence(startIndex, length).ToString()

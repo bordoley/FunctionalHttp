@@ -7,6 +7,8 @@ open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
+open Predicates
+
 type EntityTag = 
     private {
         tag: string;
