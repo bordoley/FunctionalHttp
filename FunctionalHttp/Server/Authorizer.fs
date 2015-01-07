@@ -19,7 +19,8 @@ module Authorizer =
       
         let challenge = challengeString |> Parser.parse Challenge.Parser |> function
             | Success (challenge, _) -> challenge
-            | _ -> invalidArg "realm" "realm is invalid"
+            | Fail i -> 
+                invalidArg "realm" ("realm is invalid at pos: " + string i)
 
         { new IAuthorizer with
             member this.AuthenticationChallenge with get () = challenge

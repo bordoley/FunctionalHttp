@@ -135,13 +135,13 @@ module internal HttpParsers =
                 match input.Item index with
                 | c when c = ESCAPE_CHAR -> 
                     if !builder = null 
-                        then builder := StringBuilder(input.ToString(1, index - 1))
+                        then builder := StringBuilder(input.ToString(1, index + 1))
                        
                     match index + 1 with
                     | index when index = input.Length -> Eof
-                    | index when quoted_pair_char (input.Item index) ->
+                    | index when quoted_pair_char input.[index] ->
                         (!builder).Append(input.Item index) |> ignore
-                        doParse (index+1)      
+                        doParse (index + 1)      
                     | index -> Fail index
                 | c when c = DQUOTE_CHAR -> 
                     match !builder with
@@ -151,11 +151,9 @@ module internal HttpParsers =
                     if !builder <> null then (!builder).Append(c) |> ignore
                     doParse (index + 1)      
                 | _ -> Fail index
-    
-        if (input.Length = 0)
-            then Eof
-        else if (input.Item 0) <> DQUOTE_CHAR
-            then Fail 0
+        
+        if input.Length = 0 then Eof
+        else if input.[0] <> DQUOTE_CHAR then Fail 0
         else doParse 1
 
     let httpList p =

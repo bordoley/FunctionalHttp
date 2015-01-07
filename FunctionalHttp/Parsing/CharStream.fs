@@ -3,7 +3,6 @@
 open System
 open System.Collections
 open System.Collections.Generic
-open System.Diagnostics.Contracts
 
 type internal CharStream private (str: string, offset:int, length:int) =   
     static let empty = new CharStream("", 0, 0)
@@ -12,24 +11,20 @@ type internal CharStream private (str: string, offset:int, length:int) =
 
     member this.Item 
         with get(index:int) =
-            if index < 0 then ArgumentOutOfRangeException "index" |> raise 
-            if index >= length then ArgumentOutOfRangeException "index" |> raise
-            Contract.EndContractBlock()
+            if index < 0 || index >= length then ArgumentOutOfRangeException "index" |> raise 
 
             str.Chars(offset + index)
                       
-    member this.GetSlice(startIndex, length) =
-        let startIndex = defaultArg startIndex 0
-        let length = defaultArg length this.Length
+    member this.GetSlice(start, finish) =
+        let start = defaultArg start 0
+        let finish = defaultArg finish (length - 1)
 
-        if (startIndex < 0) then ArgumentOutOfRangeException "newStart" |> raise
-        if (length < 0) then ArgumentOutOfRangeException "newLength" |> raise
-        if (this.Length < startIndex + length) then ArgumentException () |> raise
+        if start < 0 || finish < (start - 1) || finish >= length then ArgumentOutOfRangeException () |> raise 
 
-        match (startIndex, length) with
-        | (_ ,0) -> empty
-        | _ when startIndex = 0 && length = this.Length -> this
-        | _ -> CharStream(str, offset + startIndex, length)
+        match (start, finish) with
+        | (x, y) when x = 0 && y = (length - 1) -> this
+        | (x, y) when y - x = -1 -> empty
+        | _ -> new CharStream(str, offset + start, finish - start + 1)
 
     override this.ToString() = 
         str.Substring(offset,length)
@@ -42,4 +37,4 @@ type internal CharStream private (str: string, offset:int, length:int) =
 module internal CharStreamMixins =
     type CharStream with
         member this.ToString(startIndex, length) =
-            this.[startIndex..length].ToString()
+            this.[startIndex..(startIndex + length - 1)].ToString()

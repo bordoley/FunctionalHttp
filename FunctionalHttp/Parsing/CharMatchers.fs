@@ -18,10 +18,9 @@ module internal CharMatchers =
 module internal CharParsers =
     let manySatisfy (matcher:CharMatcher) (input: CharStream) =
         let rec findLast index =
-            if index = input.Length
-            then index
+            if index = input.Length then index
             else if matcher (input.Item index)
-            then findLast (index + 1)
+                then findLast (index + 1)
             else index
 
         let result = findLast 0
@@ -30,7 +29,7 @@ module internal CharParsers =
 
     let many1Satisfy (matcher:CharMatcher) (input: CharStream) =
         let result = manySatisfy matcher input
+
         match result with
-        | Success (value, next) -> 
-            if value.Length = 0 then Fail 0 else result
+        | Success (value, next) when value.Length = 0 -> Fail 0
         | _ -> result

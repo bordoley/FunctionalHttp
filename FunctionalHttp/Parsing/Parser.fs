@@ -21,7 +21,7 @@ module internal Parser =
         match p1 input with
         | Fail i -> Fail i
         | Success (result1, next) -> 
-            match input.[next..] |> p2 with
+            match input.[next..(input.Length - 1)] |> p2 with
             | Fail next2 -> Fail (next + next2)
             | Success (result2, next2) -> Success ((result1, result2), next + next2)
      
@@ -64,24 +64,20 @@ module internal Parser =
         let r = ref dummy
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
-    // FIXME: Don't cheat using ref cells
     let many (p:Parser<_>) (input:CharStream) =
-        let remainder = ref input
-        let index = ref 0
-
         let rec doParse input =
-            let result = p input
-
-            match result with
+            match p input with
+            | Fail i -> []
             | Success (result, next) -> 
-                index := !index + next
-                result::(input.[next..] |> doParse)
-            | Fail i-> 
-                remainder := input
-                []
-        
-        let result = doParse input :> _ seq
-        Success (result, !index)
+                (result, next) :: doParse input.[next..(input.Length - 1)]
+               
+        let result = doParse input
+        let index = 
+            match result with
+            | (_, index)::tail -> index
+            | [] -> 0
+    
+        Success (result |> Seq.map (fun (k,v) -> k),  index)
      
     let many1 (p:Parser<_>) (input:CharStream) =   
        match many p input with
@@ -110,7 +106,6 @@ module internal Parser =
 
     let parse (p:Parser<_>) =
         let p = p .>> eof
-
         let parse (input:String) = p (CharStream.Create input)  
         parse
 
