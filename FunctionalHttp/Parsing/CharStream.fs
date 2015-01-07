@@ -5,8 +5,8 @@ open System.Collections
 open System.Collections.Generic
 open System.Diagnostics.Contracts
 
-type CharStream private (str: string, offset:int, length:int) =   
-    static let empty = Unchecked.defaultof<CharStream>
+type internal CharStream private (str: string, offset:int, length:int) =   
+    static let empty = new CharStream("", 0, 0)
 
     member this.Length with get() = length
 
@@ -32,9 +32,7 @@ type CharStream private (str: string, offset:int, length:int) =
         | _ -> CharStream(str, offset + startIndex, length)
 
     override this.ToString() = 
-        match str with
-        | null -> ""
-        | _ -> str.Substring(offset,length)
+        str.Substring(offset,length)
 
     static member Create (str:string) = 
         if str.Length = 0 then empty

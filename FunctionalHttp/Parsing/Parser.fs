@@ -3,11 +3,11 @@ namespace FunctionalHttp.Parsing
 open System;
 open System.Collections.Generic
 
-type internal IParseResult<'TResult> =
+type internal ParseResult<'TResult> =
     | Success of  result : 'TResult * next : int
     | Fail of iFailed : int
 
-type internal Parser<'TResult> = CharStream -> IParseResult<'TResult>
+type internal Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 module internal Parser =         
     // map
