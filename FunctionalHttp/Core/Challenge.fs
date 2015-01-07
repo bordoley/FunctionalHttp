@@ -3,6 +3,8 @@ open FunctionalHttp.Parsing
 
 open FunctionalHttp.Core.HttpParsers
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing.CharParsers
+open FunctionalHttp.Parsing.Abnf
 
 type Challenge = 
     private {
@@ -30,7 +32,7 @@ type Challenge =
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token .>> (BWS .>>. (satisfy CharMatchers.EQUALS) .>>. BWS) .>>. (token <|> quoted_string)
+            token .>> (BWS .>>. (satisfy EQUALS) .>>. BWS) .>>. (token <|> quoted_string)
             |>> fun (k, v) -> 
                 (k.ToLowerInvariant(), v)
 
@@ -41,7 +43,7 @@ type Challenge =
 
         let data = token68 .>> followedBy (eof <^> (OWS .>>. pchar ','))
 
-        auth_scheme .>> (CharMatchers.many1 CharMatchers.SP) .>>. ( data  <^> auth_params )
+        auth_scheme .>> (many1Satisfy SP) .>>. ( data <^> auth_params )
         |>> fun (scheme, dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; }
         

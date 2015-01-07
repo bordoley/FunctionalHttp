@@ -6,6 +6,8 @@ open System.Text
 open FunctionalHttp.Parsing.CharMatchers
 
 module internal HttpCharMatchers = 
+    open Abnf
+
     let tchar = ALPHA_NUMERIC <||> anyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
     let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||> inRange (char 0x5D) (char 0x7E) <||> obs_text
@@ -19,23 +21,25 @@ module internal HttpCharMatchers =
         inRange (char 0x5D) (char 0x7E) <||> 
         obs_text
 
-open HttpCharMatchers
-open FunctionalHttp.Parsing.Parser
-
 module internal HttpParsers =
-    let OWS : Parser<string> = CharMatchers.many WSP
+    open HttpCharMatchers
+    open FunctionalHttp.Parsing.Parser
+    open FunctionalHttp.Parsing.CharParsers
+    open FunctionalHttp.Parsing.Abnf
+
+    let OWS : Parser<string> = manySatisfy WSP
 
     let BWS = OWS
     
-    let RWS : Parser<string> = CharMatchers.many1 WSP
+    let RWS : Parser<string> = many1Satisfy WSP
 
     let OWS_SEMICOLON_OWS : Parser<string> = OWS .>>. (pchar ';') .>>. OWS |>> (fun _ -> ";");
     
     let OWS_COMMA_OWS : Parser<string> = OWS .>>. (pchar ',') .>>. OWS |>> (fun _ -> ",");
 
-    let token : Parser<string> = CharMatchers.many1 tchar
+    let token : Parser<string> = many1Satisfy tchar
 
-    let token68 : Parser<string> = CharMatchers.many1(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) .>>. (CharMatchers.many EQUALS) |>> (fun (a,b) -> a + b)
+    let token68 : Parser<string> = many1Satisfy(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) .>>. (manySatisfy EQUALS) |>> (fun (a,b) -> a + b)
 
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';
@@ -81,6 +85,9 @@ module internal HttpParsers =
         p |> sepBy1 OWS_COMMA_OWS
 
 module internal HttpEncoding =
+    open HttpCharMatchers
+    open FunctionalHttp.Parsing.Parser
+
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';
 

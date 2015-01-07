@@ -18,7 +18,16 @@ module internal CharMatchers =
     let is (arg:char) (c:char) = 
         c = arg
 
-    let many (matcher:CharMatcher) (input: CharStream) =
+    let none (c:char) = false
+
+    let notMatch (matcher:CharMatcher) (c:char) = not (matcher c)
+
+    let (<&&>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) && m2(c)
+
+    let (<||>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) || m2(c)
+
+module internal CharParsers =
+    let manySatisfy (matcher:CharMatcher) (input: CharStream) =
         let rec findLast index =
             if index = input.Length
             then index
@@ -30,20 +39,15 @@ module internal CharMatchers =
 
         Success ((input.SubSequence(0, result).ToString()), result)
 
-    let many1 (matcher:CharMatcher) (input: CharStream) =
-        let result = many matcher input
+    let many1Satisfy (matcher:CharMatcher) (input: CharStream) =
+        let result = manySatisfy matcher input
         match result with
         | Success (value, next) -> 
             if value.Length = 0 then Fail 0 else result
         | _ -> result
 
-    let none (c:char) = false
-
-    let notMatch (matcher:CharMatcher) (c:char) = not (matcher c)
-
-    let (<&&>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) && m2(c)
-
-    let (<||>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) || m2(c)
+module internal Abnf = 
+    open CharMatchers
 
     // See http://tools.ietf.org/html/rfc5234#appendix-B.1
     let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
