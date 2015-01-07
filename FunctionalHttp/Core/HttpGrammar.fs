@@ -8,7 +8,7 @@ open FunctionalHttp.Parsing.CharMatchers
 module internal HttpCharMatchers = 
     open Abnf
 
-    let tchar = ALPHA_NUMERIC <||> anyOf "!#\$%&'*+-.^_`|~"
+    let tchar = ALPHA_NUMERIC <||> isAnyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
     let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||> inRange (char 0x5D) (char 0x7E) <||> obs_text
     let quoted_pair_char = (HTAB <||> SP <||> VCHAR <||> obs_text)
@@ -39,7 +39,7 @@ module internal HttpParsers =
 
     let token : Parser<string> = many1Satisfy tchar
 
-    let token68 : Parser<string> = many1Satisfy(ALPHA <||> DIGIT <||> (anyOf "-._~+/" )) .>>. (manySatisfy EQUALS) |>> (fun (a,b) -> a + b)
+    let token68 : Parser<string> = many1Satisfy(ALPHA <||> DIGIT <||> (isAnyOf "-._~+/" )) .>>. (manySatisfy EQUALS) |>> (fun (a,b) -> a + b)
 
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';

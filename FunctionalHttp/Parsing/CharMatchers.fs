@@ -5,9 +5,7 @@ open System
 type internal CharMatcher = char -> bool
 
 module internal CharMatchers =
-    let any (c:char) = true
-
-    let anyOf (chars:string) =
+    let isAnyOf (chars:string) =
         let chars = chars.ToCharArray()
         Array.sortInPlace chars
         fun c -> Array.BinarySearch(chars, c) > 0
@@ -17,10 +15,6 @@ module internal CharMatchers =
     
     let is (arg:char) (c:char) = 
         c = arg
-
-    let none (c:char) = false
-
-    let notMatch (matcher:CharMatcher) (c:char) = not (matcher c)
 
     let (<&&>) (m1:CharMatcher) (m2:CharMatcher) (c:char) = m1(c) && m2(c)
 
