@@ -42,6 +42,7 @@ module internal HttpParsers =
 
     let quoted_string (input:CharStream) = 
         let builder:StringBuilder ref = ref null
+        let Eof = Fail input.Length
 
         let rec doParse index =
             if index = input.Length
