@@ -21,7 +21,7 @@ module internal Parser =
         match p1 input with
         | Fail i -> Fail i
         | Success (result1, next) -> 
-            match input.SubSequence(next) |> p2 with
+            match input.[next..] |> p2 with
             | Fail next2 -> Fail (next + next2)
             | Success (result2, next2) -> Success ((result1, result2), next + next2)
      
@@ -75,7 +75,7 @@ module internal Parser =
             match result with
             | Success (result, next) -> 
                 index := !index + next
-                result::(input.SubSequence(next) |> doParse)
+                result::(input.[next..] |> doParse)
             | Fail i-> 
                 remainder := input
                 []

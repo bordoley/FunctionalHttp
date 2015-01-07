@@ -5,25 +5,29 @@ open System.Collections
 open System.Collections.Generic
 open System.Diagnostics.Contracts
 
-[<Struct>]
-type internal CharStream private (str: string, offset:int, length:int) =    
+type CharStream private (str: string, offset:int, length:int) =   
+    static let empty = Unchecked.defaultof<CharStream>
+
     member this.Length with get() = length
 
-    member this.Item(index:int) =
-        if index < 0 then ArgumentOutOfRangeException "index" |> raise 
-        if index >= length then ArgumentOutOfRangeException "index" |> raise
-        Contract.EndContractBlock()
+    member this.Item 
+        with get(index:int) =
+            if index < 0 then ArgumentOutOfRangeException "index" |> raise 
+            if index >= length then ArgumentOutOfRangeException "index" |> raise
+            Contract.EndContractBlock()
 
-        str.Chars(offset + index)
+            str.Chars(offset + index)
                       
-    member this.SubSequence(startIndex, length) =
+    member this.GetSlice(startIndex, length) =
+        let startIndex = defaultArg startIndex 0
+        let length = defaultArg length this.Length
+
         if (startIndex < 0) then ArgumentOutOfRangeException "newStart" |> raise
         if (length < 0) then ArgumentOutOfRangeException "newLength" |> raise
         if (this.Length < startIndex + length) then ArgumentException () |> raise
-        Contract.EndContractBlock()
 
         match (startIndex, length) with
-        | (_ ,0) -> CharStream.Empty 
+        | (_ ,0) -> empty
         | _ when startIndex = 0 && length = this.Length -> this
         | _ -> CharStream(str, offset + startIndex, length)
 
@@ -32,16 +36,12 @@ type internal CharStream private (str: string, offset:int, length:int) =
         | null -> ""
         | _ -> str.Substring(offset,length)
 
-    static member val Empty = Unchecked.defaultof<CharStream>
+    static member Create (str:string) = 
+        if str.Length = 0 then empty
+        else CharStream(str, 0, str.Length)
 
-    static member Create str = CharStream(str, 0, str.Length)
-
-[<AutoOpen>]
+[<AutoOpen>] 
 module internal CharStreamMixins =
     type CharStream with
-        member this.SubSequence (start:int) =
-            let computedLength = this.Length - start  
-            this.SubSequence(start, computedLength)
-
         member this.ToString(startIndex, length) =
-            this.SubSequence(startIndex, length).ToString()
+            this.[startIndex..length].ToString()
