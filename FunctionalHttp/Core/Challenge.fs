@@ -4,8 +4,8 @@ open FunctionalHttp.Parsing
 open FunctionalHttp.Core.HttpParsers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Parsing.Abnf
-open FunctionalHttp.Parsing.CharConstants
+open Abnf
+open CharConstants
 
 type Challenge = 
     private {
