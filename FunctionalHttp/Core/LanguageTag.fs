@@ -1,6 +1,8 @@
 ﻿namespace FunctionalHttp.Core
-
+open FunctionalHttp.Parsing
+open FunctionalHttp.Core.Abnf
 open FunctionalHttp.Core.HttpParsers
+open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Parsing.Parser
 
 type LanguageTag =
@@ -8,6 +10,15 @@ type LanguageTag =
 
     override this.ToString () = this.language
 
-    // FIXME: Broken
     static member internal Parser =
-        token |>> (fun x -> { language = x })
+        let alphaKey = times 1 8 ALPHA
+        let alphanumKey = pchar '-' .>>. times 1 8 ALPHA_NUMERIC |> many
+        let parser = alphaKey .>>. ((pchar '-' .>>. times 1 8 ALPHA_NUMERIC) |> many)
+
+        let doParse (stream:CharStream) =
+            match parser stream with
+            | Fail i -> Fail i
+            | Success (_, i) -> 
+                let result = { language = stream.ToString(0, i) }
+                Success (result, i)
+        doParse
