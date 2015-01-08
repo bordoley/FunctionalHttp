@@ -35,9 +35,6 @@ type RequestPreferences =
 
     static member Create(headers:Map<Header, obj>) = 
         let acceptedCharsets = HeaderParsers.acceptCharset headers |> Set.ofSeq
-
-        let headers = headers.Add(HttpHeaders.acceptEncoding, "abc,def,jkf" :> obj)
-
         let acceptedEncodings = HeaderParsers.acceptEncoding headers |> Set.ofSeq
         let acceptedLanguages = HeaderParsers.acceptLanguage headers |> Set.ofSeq
 

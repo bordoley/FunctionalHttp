@@ -84,11 +84,8 @@ module internal Parser =
         
         let parse input =
             let result = doParse input
-            let index = 
-                match result with
-                | (_, index)::tail -> index
-                | [] -> 0
-        
+            let index = result |> Seq.fold (fun s (_, index) -> s + index) 0 
+
             Success (result |> Seq.map (fun (k,v) -> k),  index)
         parse
      
@@ -122,7 +119,7 @@ module internal Parser =
         p .>>. (many (sep >>. p)) |>> (fun (a, b) -> Seq.append [a] b) 
           
     let sepBy (p:Parser<_>) (sep:Parser<_>) =
-        (sepBy1 p sep)  <|>% Seq.empty
+        (sepBy1 p sep) <|>% Seq.empty
 
     let pstring (str:string) (input:CharStream) =
         if input.Length < str.Length
