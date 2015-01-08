@@ -52,4 +52,8 @@ type RequestPreferences =
         (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> HeaderInternal.writeSeq f
         (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> HeaderInternal.writeSeq f
         (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> HeaderInternal.writeSeq f
-        //FIXME: HttpHeaders.range
+        (HttpHeaders.range, preferences.ranges |> function
+                                | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
+                                | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
+                                | _ -> "") |> HeaderInternal.writeObject f
+                                
