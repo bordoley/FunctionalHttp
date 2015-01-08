@@ -80,3 +80,30 @@ type OtherRangesSpecifier =
 
     static member internal Parser =
         token .>> pchar '=' .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
+
+type ByteRangeResp =
+    private { firstBytePos:uint64; lastBytePos:uint64; length:uint64 option }
+
+    override this.ToString () =
+        (string this.firstBytePos) + "-" + (string this.lastBytePos) + "/" + (match this.length with | Some l -> string l | None -> "")
+
+type UnsatisfiedRange =
+    private { length:uint64 }
+
+    override this.ToString () =
+        "*/" + (string this.length)
+
+type ByteContentRange =
+    private { range:Choice<ByteRangeResp, UnsatisfiedRange> }
+
+    override this.ToString () =
+        "bytes " + 
+        match this.range with
+        | Choice1Of2 byteRangeResp -> string byteRangeResp
+        | Choice2Of2 unsatisfiedRange -> string unsatisfiedRange
+
+type OtherContentRange =
+    private { unit:string; rangeResp:string }
+
+    override this.ToString() =
+        this.unit + " " + this.rangeResp
