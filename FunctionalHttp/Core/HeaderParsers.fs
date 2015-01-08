@@ -111,3 +111,7 @@ module internal HeaderParsers =
     let acceptLanguage = 
         let parser = (Preference.Parser LanguageTag.Parser) |> HttpParsers.httpList
         parseSeq (HttpHeaders.acceptLanguage, parser)
+
+    let range =
+        let parser = ByteRangesSpecifier.Parser <^> OtherRangesSpecifier.Parser
+        parse (HttpHeaders.range, parser)
