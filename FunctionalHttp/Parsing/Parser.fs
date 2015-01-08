@@ -9,7 +9,18 @@ type internal ParseResult<'TResult> =
 
 type internal Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
-module internal Parser =         
+module internal Parser = 
+    let (>>=) (p:Parser<'a>) (f:'a->Parser<'b>) =
+        let parse (input:CharStream) =
+            match p input with
+            | Fail i -> Fail i
+            | Success (result1, next1) ->
+                let p2 = f result1
+                match p2 input.[next1..(input.Length - 1)] with
+                | Fail next2 -> Fail (next1 + next2)
+                | Success (result2, next2) -> Success (result2, next1 + next2)
+        parse
+
     // map
     let (|>>) (p:Parser<_>) f (input:CharStream) =
         let result = p input
@@ -20,10 +31,10 @@ module internal Parser =
     let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) (input:CharStream) = 
         match p1 input with
         | Fail i -> Fail i
-        | Success (result1, next) -> 
-            match input.[next..(input.Length - 1)] |> p2 with
-            | Fail next2 -> Fail (next + next2)
-            | Success (result2, next2) -> Success ((result1, result2), next + next2)
+        | Success (result1, next1) -> 
+            match input.[next1..(input.Length - 1)] |> p2 with
+            | Fail next2 -> Fail (next1 + next2)
+            | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
      
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
@@ -64,28 +75,34 @@ module internal Parser =
         let r = ref dummy
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
-    let many (p:Parser<_>) (input:CharStream) =
+    let many (p:Parser<_>) =
         let rec doParse input =
             match p input with
             | Fail i -> []
             | Success (result, next) -> 
                 (result, next) :: doParse input.[next..(input.Length - 1)]
-               
-        let result = doParse input
-        let index = 
-            match result with
-            | (_, index)::tail -> index
-            | [] -> 0
-    
-        Success (result |> Seq.map (fun (k,v) -> k),  index)
+        
+        let parse input =
+            let result = doParse input
+            let index = 
+                match result with
+                | (_, index)::tail -> index
+                | [] -> 0
+        
+            Success (result |> Seq.map (fun (k,v) -> k),  index)
+        parse
      
-    let many1 (p:Parser<_>) (input:CharStream) =   
-       match many p input with
-       | Fail i -> Fail i
-       | Success (result, next) as success ->
-           if Seq.isEmpty result
-           then Fail 0
-           else success
+    let many1 (p:Parser<_>) =   
+        let p = many p
+
+        let parse input =
+            match p input with
+            | Fail i -> Fail i
+            | Success (result, next) as success ->
+                if Seq.isEmpty result
+                then Fail 0
+                else success
+        parse
 
     let opt (p:Parser<'TResult>) (input:CharStream) =
         match p input with
@@ -100,13 +117,12 @@ module internal Parser =
         let p = p .>> eof
         let parse (input:String) = p (CharStream.Create input)  
         parse
-
-    let sepBy1 (delim:Parser<_>) (p:Parser<_>) =
-        let additional = (delim .>>. p) |>> (fun (sep, value) -> value) |> many
-        (p .>>. additional) |>> (fun (fst, additional) -> Seq.append [fst] additional) 
-
-    let sepBy (delim:Parser<_>) (p:Parser<_>) =
-        (sepBy1 delim p) <|>% Seq.empty
+   
+    let sepBy1 (p:Parser<_>) (sep:Parser<_>)  =
+        p .>>. (many (sep >>. p)) |>> (fun (a, b) -> Seq.append [a] b) 
+          
+    let sepBy (p:Parser<_>) (sep:Parser<_>) =
+        (sepBy1 p sep)  <|>% Seq.empty
 
     let pstring (str:string) (input:CharStream) =
         if input.Length < str.Length

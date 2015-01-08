@@ -157,10 +157,10 @@ module internal HttpParsers =
         else doParse 1
 
     let httpList p =
-        p |> sepBy OWS_COMMA_OWS
+        sepBy p OWS_COMMA_OWS
 
     let httpList1 p =
-        p |> sepBy1 OWS_COMMA_OWS
+        sepBy1 p OWS_COMMA_OWS
 
 module internal HttpEncoding =
     open HttpCharMatchers

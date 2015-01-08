@@ -38,7 +38,7 @@ type Challenge =
                 (k.ToLowerInvariant(), v)
 
         let auth_params =
-             (opt auth_param) |> sepBy1 OWS_COMMA_OWS |>> (fun pairs -> 
+             sepBy1 (opt auth_param)  OWS_COMMA_OWS |>> (fun pairs -> 
                 pairs |> Seq.filter Option.isSome |> Seq.map Option.get)
              |>> Map.ofSeq
 

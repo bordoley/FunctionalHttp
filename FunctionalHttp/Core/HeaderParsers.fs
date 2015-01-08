@@ -90,11 +90,24 @@ module internal HeaderParsers =
     //let contentRange
 
 
-
     // Request Preconditions
     let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
-    let ifMatch =  parse (HttpHeaders.ifMatch, eTagPreconditionParser)
+    let ifMatch = parse (HttpHeaders.ifMatch, eTagPreconditionParser)
     // let ifModifiedSince
-    let ifNoneMatch =parse (HttpHeaders.ifNoneMatch, eTagPreconditionParser)
+    let ifNoneMatch = parse (HttpHeaders.ifNoneMatch, eTagPreconditionParser)
     // let ifUnmodifiedSince
     //let ifRange: Choice<EntityTag, DateTime> option
+
+
+    // Request PReferences
+    let acceptCharset = 
+        let parser = (Preference.Parser Charset.Parser) |> HttpParsers.httpList
+        parseSeq (HttpHeaders.acceptCharset, parser)
+
+    let acceptEncoding = 
+        let parser = (Preference.Parser ContentCoding.Parser) |> HttpParsers.httpList
+        parseSeq (HttpHeaders.acceptEncoding, parser)
+
+    let acceptLanguage = 
+        let parser = (Preference.Parser LanguageTag.Parser) |> HttpParsers.httpList
+        parseSeq (HttpHeaders.acceptLanguage, parser)

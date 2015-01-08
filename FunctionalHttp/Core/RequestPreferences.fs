@@ -1,33 +1,12 @@
 namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing
-open FunctionalHttp.Parsing.CharMatchers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Core.HttpParsers
-
-type Preference<'T> =
-    private {
-        range:'T
-        weight:uint16
-    }
-
-    static member internal Parser (p:Parser<'T>) =()
-        //let qvalue = pchar '0' .>> [ "." 0*3DIGIT ] )
-        //    / ( "1" [ "." 0*3("0") ] )
-        //p .>> OWS_SEMICOLON_OWS .>> pstring "q=" .>>. qvalue
-
-
-type PreferenceWithParams<'T> =
-    private {
-        preference:Preference<'T>
-        parameters:List<string*string>
-    }
+open System.Text
 
 type RequestPreferences =
     private {
-        acceptedCharsets: Set<Preference<Choice<Charset,Any>>>
-        acceptedEncodings: Set<Preference<Choice<ContentCoding, Any>>>
-        acceptedLanguages: Set<Preference<Choice<LanguageTag, Any>>>
+        acceptedCharsets: Set<Preference<Charset>>
+        acceptedEncodings: Set<Preference<ContentCoding>>
+        acceptedLanguages: Set<Preference<LanguageTag>>
         acceptedMediaRanges: Set<PreferenceWithParams<MediaRange>>
         ranges: Option<Choice<ByteRangesSpecifier, OtherRangesSpecifier>>
     } 
@@ -39,8 +18,12 @@ type RequestPreferences =
     member this.Ranges = this.ranges
 
     override this.ToString() =
-        // FIXME:
-        ""
+        let builder = StringBuilder()
+        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+
+        this |> RequestPreferences.WriteHeaders writeHeaderLine
+
+        string builder
 
     static member None = { 
             acceptedCharsets = Set.empty
@@ -51,7 +34,24 @@ type RequestPreferences =
         }
 
     static member Create(headers:Map<Header, obj>) = 
-        // FIXME:
-       RequestPreferences.None
+        let acceptedCharsets = HeaderParsers.acceptCharset headers |> Set.ofSeq
 
-    static member internal WriteHeaders (f:string*string -> unit) (requestPreferences:RequestPreferences) = ()
+        let headers = headers.Add(HttpHeaders.acceptEncoding, "abc,def,jkf" :> obj)
+
+        let acceptedEncodings = HeaderParsers.acceptEncoding headers |> Set.ofSeq
+        let acceptedLanguages = HeaderParsers.acceptLanguage headers |> Set.ofSeq
+
+        {
+            acceptedCharsets = acceptedCharsets
+            acceptedEncodings = acceptedEncodings
+            acceptedLanguages = acceptedLanguages
+            acceptedMediaRanges = Set.empty  // FIXMe
+            ranges = None // FIXME
+        }
+
+    static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
+        //FIXME: (HttpHeaders.accept)
+        (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> HeaderInternal.writeSeq f
+        (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> HeaderInternal.writeSeq f
+        (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> HeaderInternal.writeSeq f
+        //FIXME: HttpHeaders.range

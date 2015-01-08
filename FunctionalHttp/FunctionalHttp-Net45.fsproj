@@ -62,6 +62,7 @@
     <Compile Include="Core\Server.fs" />
     <Compile Include="Core\Warning.fs" />
     <Compile Include="Core\Method.fs" />
+    <Compile Include="Core\Preferences.fs" />
     <Compile Include="Core\HeaderParsers.fs" />
     <Compile Include="Core\ContentInfo.fs" />
     <Compile Include="Core\HttpVersion.fs" />

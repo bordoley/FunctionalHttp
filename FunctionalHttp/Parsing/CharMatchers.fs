@@ -16,16 +16,19 @@ module internal CharMatchers =
         c >= start && c <= last
 
 module internal CharParsers =
-    let manySatisfy (matcher:CharMatcher) (input: CharStream) =
-        let rec findLast index =
+    let manySatisfy (matcher:CharMatcher) =
+        let rec findLast index (input:CharStream) =
             if index = input.Length then index
             else if matcher (input.Item index)
-                then findLast (index + 1)
+                then findLast (index + 1) input
             else index
+            
+        let parse (input:CharStream) =
+            let result = findLast 0 input
 
-        let result = findLast 0
+            Success (input.ToString(0, result), result)
 
-        Success (input.ToString(0, result), result)
+        parse
 
     let many1Satisfy (matcher:CharMatcher) =
         let p = manySatisfy matcher
@@ -37,7 +40,7 @@ module internal CharParsers =
 
         doParse
             
-    let satisfy (f:char -> bool) (input:CharStream) =
+    let satisfy (f:CharMatcher) (input:CharStream) =
         if input.Length = 0 then Fail 0
         else 
             let result = input.Item 0
@@ -46,3 +49,18 @@ module internal CharParsers =
             else Fail 0
 
     let pchar c  = satisfy (fun i -> i = c)
+
+    let times atLeast atMost (f:CharMatcher) =
+        let rec findLast index (input:CharStream) =
+            if index = input.Length then index
+            else if index = (atMost + 1) then index
+            else if f input.[index]
+                then findLast (index + 1) input
+            else index
+
+        let parse (input:CharStream) =
+            let index = findLast 0 input
+            if index >= atLeast then Success (input.ToString(0, index), index)
+            else Fail (index - 1)
+
+        parse
