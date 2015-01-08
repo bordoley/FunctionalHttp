@@ -11,7 +11,7 @@ open System
 
 type Preference<'T> =
     private {
-        value:'T
+        value:Choice<'T, Any>
         quality:uint16
     }
 
@@ -19,7 +19,10 @@ type Preference<'T> =
     member this.Quality with get() = this.quality
 
     override this.ToString() =
-        (this.value.ToString()) + 
+        (match this.Value with
+        | Choice1Of2 v -> v.ToString()
+        | _ -> Any.Instance.ToString()) + 
+
         // FIXME: Make this print pretty
         if this.Quality < 1000us then ";q=0." + string this.Quality else ""
 
@@ -39,8 +42,11 @@ type Preference<'T> =
 
         let weight = opt ((OWS_SEMICOLON_OWS >>. pstring "q=") >>. qvalue) |>> (function | None -> 1000us | Some x -> x)
 
-        p .>>. weight
-        |>> fun (value, quality) -> { value = value; quality = quality } 
+        (Any.Parser <^> p) .>>. weight
+        |>> fun (value, quality) -> 
+            match value with
+            | Choice1Of2 any -> { value = Choice2Of2 Any.Instance; quality = quality } 
+            | Choice2Of2 v -> { value = Choice1Of2 v; quality = quality } 
 
 
 type PreferenceWithParams<'T> =
