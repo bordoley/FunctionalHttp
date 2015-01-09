@@ -11,9 +11,9 @@ type LanguageTag =
     override this.ToString () = this.language
 
     static member internal Parser =
-        let alphaKey = times 1 8 ALPHA
-        let alphanumKey = pchar '-' .>>. times 1 8 ALPHA_NUMERIC |> many
-        let parser = alphaKey .>>. ((pchar '-' .>>. times 1 8 ALPHA_NUMERIC) |> many)
+        let alphaKey = manyMinMaxSatisfy 1 8 ALPHA
+        let alphanumKey = pchar '-' .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC |> many
+        let parser = alphaKey .>>. ((pchar '-' .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC) |> many)
 
         let doParse (stream:CharStream) =
             match parser stream with

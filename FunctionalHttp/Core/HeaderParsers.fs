@@ -6,6 +6,7 @@ open System
 open System.Globalization
 
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing.CharParsers
 
 module internal HeaderParsers =
     let private parse (header, parser) (headers : Map<Header, obj>) =
@@ -60,13 +61,19 @@ module internal HeaderParsers =
     let age = parseNonNegativeTimeSpan HttpHeaders.age
     let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
     let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
-    //let date = None
+    let date = parse (HttpHeaders.date, HttpParsers.httpDate)
     let etag = parse (HttpHeaders.etag, EntityTag.Parser)
-    //let expires = None
-    //let lastModified = None
+    let expires = parse (HttpHeaders.expires, HttpParsers.httpDate)
+    let lastModified = parse (HttpHeaders.lastModified, HttpParsers.httpDate)
     let location = parseUri HttpHeaders.location
     let proxyAuthenticate headers = parseSeq (HttpHeaders.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
-    //let retryAfter = None
+    let retryAfter = 
+        // FIXME: Int32.Parse can throw
+        let delaySeconds = many1Satisfy Abnf.DIGIT |>> Int64.Parse |>> (fun x ->
+            DateTime.UtcNow.AddTicks (x * 10000000L))
+        let p = HttpParsers.httpDate <|> delaySeconds
+        parse (HttpHeaders.retryAfter, p)
+
     let server = parse (HttpHeaders.server, Server.Parser)
 
     let private varyParser = 
@@ -95,11 +102,12 @@ module internal HeaderParsers =
     // Request Preconditions
     let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
     let ifMatch = parse (HttpHeaders.ifMatch, eTagPreconditionParser)
-    // let ifModifiedSince
+    let ifModifiedSince = parse (HttpHeaders.ifModifiedSince, HttpParsers.httpDate)
     let ifNoneMatch = parse (HttpHeaders.ifNoneMatch, eTagPreconditionParser)
-    // let ifUnmodifiedSince
-    //let ifRange: Choice<EntityTag, DateTime> option
-
+    let ifUnmodifiedSince = parse (HttpHeaders.ifUnmodifiedSince, HttpParsers.httpDate)
+    let ifRange =
+        let p = EntityTag.Parser <^> HttpParsers.httpDate
+        parse (HttpHeaders.ifRange, p)
 
     // Request PReferences
     let accept =

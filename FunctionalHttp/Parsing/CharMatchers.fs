@@ -50,17 +50,17 @@ module internal CharParsers =
 
     let pchar c  = satisfy (fun i -> i = c)
 
-    let times atLeast atMost (f:CharMatcher) =
+    let manyMinMaxSatisfy minCount maxCount  (f:CharMatcher) =
         let rec findLast index (input:CharStream) =
             if index = input.Length then index
-            else if index = (atMost + 1) then index
+            else if index = (maxCount + 1) then index
             else if f input.[index]
                 then findLast (index + 1) input
             else index
 
         let parse (input:CharStream) =
             let index = findLast 0 input
-            if index >= atLeast then Success (input.ToString(0, index), index)
+            if index >= minCount then Success (input.ToString(0, index), index)
             else Fail (index - 1)
 
         parse

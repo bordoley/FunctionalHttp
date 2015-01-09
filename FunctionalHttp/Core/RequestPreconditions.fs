@@ -24,15 +24,10 @@ type RequestPreconditions =
 
     static member Create(headers:Map<Header, obj>) = 
         let ifMatch = HeaderParsers.ifMatch headers
-
-        // FIXME:
-        let ifModifiedSince = None
+        let ifModifiedSince = HeaderParsers.ifModifiedSince headers
         let ifNoneMatch = HeaderParsers.ifNoneMatch headers
-
-        // FIXME:
-        let ifUnmodifiedSince = None
-        let ifRange = None
-
+        let ifUnmodifiedSince = HeaderParsers.ifUnmodifiedSince headers
+        let ifRange = HeaderParsers.ifRange headers
 
         {   ifMatch = ifMatch; 
             ifModifiedSince = ifModifiedSince; 

@@ -1,6 +1,7 @@
 namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
+open System
 open System.Text
 
 open FunctionalHttp.Parsing.CharMatchers
@@ -161,6 +162,52 @@ module internal HttpParsers =
 
     let httpList1 p =
         sepBy1 p OWS_COMMA_OWS
+
+    let httpDate:Parser<DateTime> =
+        let day_name = 
+            ((pstring "Mon") |>> fun _ -> DayOfWeek.Monday)    <|>
+            ((pstring "Tue") |>> fun _ -> DayOfWeek.Tuesday)   <|>
+            ((pstring "Wed") |>> fun _ -> DayOfWeek.Wednesday) <|>
+            ((pstring "Thu") |>> fun _ -> DayOfWeek.Thursday)  <|>
+            ((pstring "Fri") |>> fun _ -> DayOfWeek.Friday)    <|>
+            ((pstring "Sat") |>> fun _ -> DayOfWeek.Saturday)  <|>
+            ((pstring "Sun") |>> fun _ -> DayOfWeek.Sunday) 
+        
+        // FIXME: Int32.Parse can throw        
+        let day = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+        let month =
+            ((pstring "Jan") |>> fun _ -> 1)  <|>
+            ((pstring "Feb") |>> fun _ -> 2)  <|>
+            ((pstring "Mar") |>> fun _ -> 3)  <|>
+            ((pstring "Apr") |>> fun _ -> 4)  <|>
+            ((pstring "May") |>> fun _ -> 5)  <|>
+            ((pstring "Jun") |>> fun _ -> 6)  <|>
+            ((pstring "Jul") |>> fun _ -> 7)  <|>
+            ((pstring "Aug") |>> fun _ -> 8)  <|>
+            ((pstring "Sep") |>> fun _ -> 9)  <|>
+            ((pstring "Oct") |>> fun _ -> 10) <|>
+            ((pstring "Nov") |>> fun _ -> 11) <|>
+            ((pstring "Dec") |>> fun _ -> 12)
+
+        // FIXME: Int32.Parse can throw       
+        let year = manyMinMaxSatisfy 4 4 DIGIT |>> fun x -> Int32.Parse x
+           
+        let date1 =  day .>> pchar ' ' .>>. month .>> pchar ' ' .>>. year
+
+        let hour = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+        let minute = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+        let second = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+
+        let timeOfDay = hour .>>  pchar ':' .>>. minute .>> pchar ':' .>>. second
+
+        let imf_fix_date = 
+            day_name .>>. pstring ", " >>. date1 .>> pchar ' ' .>>. timeOfDay .>> pstring " GMT" 
+            |>> fun (((day, month),year), ((hour, minute), second)) ->
+                DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
+
+        // FIXME: Need to implement obs-date = rfc850-date / asctime-date
+        // See: https://tools.ietf.org/html/rfc7231
+        imf_fix_date
 
 module internal HttpEncoding =
     open HttpCharMatchers

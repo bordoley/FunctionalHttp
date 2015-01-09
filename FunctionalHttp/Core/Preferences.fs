@@ -29,14 +29,15 @@ type Preference<'T> =
     static member internal Parser (p:Parser<'T>) =
         let qvalue = 
             let qvalue0 = 
-                (pchar '0' >>. opt (pchar '.' >>. times 0 3 DIGIT) ) 
+                (pchar '0' >>. opt (pchar '.' >>. manyMinMaxSatisfy 0 3 DIGIT) ) 
                 |>> (function 
                     | None -> 0us 
+                    // FIXME: UInt16.Parse can throw
                     | Some x when x.Length = 1 -> (UInt16.Parse x) * 100us
                     | Some x when x.Length = 2 -> (UInt16.Parse x) * 10us
                     | Some x  -> UInt16.Parse x)
 
-            let qvalue1 = (pchar '1' >>. opt (pchar '.' >>. times 0 3 (fun c -> c = '0'))) |>> (fun _ -> 1000us)
+            let qvalue1 = (pchar '1' >>. opt (pchar '.' >>. manyMinMaxSatisfy 0 3 (fun c -> c = '0'))) |>> (fun _ -> 1000us)
 
             qvalue0 <|> qvalue1
 
@@ -66,14 +67,14 @@ type AcceptPreference =
     static member internal Parser =
         let qvalue = 
             let qvalue0 = 
-                (pchar '0' >>. opt (pchar '.' >>. times 0 3 DIGIT) ) 
+                (pchar '0' >>. opt (pchar '.' >>. manyMinMaxSatisfy 0 3 DIGIT) ) 
                 |>> (function 
                     | None -> 0us 
                     | Some x when x.Length = 1 -> (UInt16.Parse x) * 100us
                     | Some x when x.Length = 2 -> (UInt16.Parse x) * 10us
                     | Some x  -> UInt16.Parse x)
 
-            let qvalue1 = (pchar '1' >>. opt (pchar '.' >>. times 0 3 (fun c -> c = '0'))) |>> (fun _ -> 1000us)
+            let qvalue1 = (pchar '1' >>. opt (pchar '.' >>. manyMinMaxSatisfy 0 3 (fun c -> c = '0'))) |>> (fun _ -> 1000us)
 
             qvalue0 <|> qvalue1
 
