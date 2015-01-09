@@ -25,6 +25,7 @@ module main =
                                 acceptedRanges = acceptedRanges,
                                 age = age,
                                 allowed = [Method.Get; Method.Put; Method.Post],
+                                lastModified = DateTime.MinValue,
                                 location = Uri("http://www.google.com"),
                                 server = server,
                                 vary = vary)

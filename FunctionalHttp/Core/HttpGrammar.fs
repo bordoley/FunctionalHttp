@@ -235,3 +235,44 @@ module internal HttpEncoding =
         match parse HttpParsers.token input with
         | Success (result, _) -> result
         | _->  asQuotedString input
+
+    let dateToHttpDate (date:DateTime) =
+        let date = date.ToUniversalTime()
+        let dayOfWeek =
+            match date.DayOfWeek with
+            | DayOfWeek.Monday -> "Mon"
+            | DayOfWeek.Tuesday -> "Tue"
+            | DayOfWeek.Wednesday -> "Wed"
+            | DayOfWeek.Thursday -> "Thu"
+            | DayOfWeek.Friday -> "Fri"
+            | DayOfWeek.Saturday -> "Sat"
+            | DayOfWeek.Sunday -> "Sun"
+            | _ -> failwith "Invalid day of the week."
+
+        let day = date.Day.ToString("00")
+        let month = 
+            match date.Month with
+            | 1 ->  "Jan"
+            | 2 ->  "Feb"
+            | 3 ->  "Mar"
+            | 4 ->  "Apr"
+            | 5 ->  "May"
+            | 6 ->  "Jun"
+            | 7 ->  "Jul"
+            | 8 ->  "Aug"
+            | 9 ->  "Sep"
+            | 10 -> "Oct"
+            | 11 -> "Nov"
+            | 12 -> "Dec"
+            | _ -> failwith "Invalid month of the year."
+
+        let year  = date.Year.ToString("0000")
+
+        let hour = date.Hour.ToString("00")
+        let minute = date.Minute.ToString("00")
+        let second = date.Second.ToString("00")
+
+
+        let imf_fixdate = dayOfWeek + ", " + day + " " + month + " " + year + " " + hour + ":" + minute + ":" + second + " GMT" 
+
+        imf_fixdate

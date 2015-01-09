@@ -126,8 +126,10 @@ module internal HeaderInternal =
         else f (string k, v)
     
     let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
-        // FIXME:
-        ()
+        match v with 
+        | None -> ()
+        | Some date ->
+            f (string k, HttpEncoding.dateToHttpDate date)
 
     let writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
         v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
