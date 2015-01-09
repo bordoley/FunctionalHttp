@@ -82,7 +82,7 @@ module internal HeaderParsers =
             | Choice1Of2 any -> Choice2Of2 any
             | Choice2Of2 headers -> Choice1Of2 headers
     let vary = parse (HttpHeaders.vary, varyParser)
-    //let warning = []
+    let warning = parseSeq (HttpHeaders.warning, Warning.Parser |> HttpParsers.httpList)
 
     // ContentInfo
     let contentEncoding = parseSeq (HttpHeaders.contentEncoding, ContentCoding.Parser |> HttpParsers.httpList)

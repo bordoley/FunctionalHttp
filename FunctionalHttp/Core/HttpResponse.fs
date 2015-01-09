@@ -167,7 +167,7 @@ type HttpResponse<'TResp> =
         let retryAfter = HeaderParsers.retryAfter headers
         let server = HeaderParsers.server headers
         let vary = HeaderParsers.vary headers
-        let warning = []
+        let warning = HeaderParsers.warning headers |> List.ofSeq
 
         let headers = HeaderInternal.filterStandardHeaders headers
 
