@@ -30,15 +30,19 @@ type MediaType =
     override this.ToString() =
             this.Type + "/" + 
             this.SubType + 
-            if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "" //+
+            (if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "") +
+            (this.Parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";")
 
     static member internal Parser = 
+        let keyNotQ = (token >>= function | key when key <> "q" -> preturn key | _ -> pzero) <|> pzero
+
         let parameter = 
-            token .>> (pchar '=') .>>. (token <|> quoted_string) 
+            token
+            .>> (pchar '=') .>>. (token <|> quoted_string) 
             // The type, subtype, and parameter name tokens are case-insensitive.
             |>> function (key, value) -> (key.ToLowerInvariant(), value)
-
-        let parameters = OWS_SEMICOLON_OWS >>. parameter |> many
+ 
+        let parameters = (OWS_SEMICOLON_OWS >>. parameter) |> many
 
         token .>> (pchar '/') .>>. token .>>. parameters |>> (fun ((_type, subType), parameters) ->  
                 let charset = ref None

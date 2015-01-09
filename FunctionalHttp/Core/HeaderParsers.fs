@@ -79,7 +79,8 @@ module internal HeaderParsers =
 
     // ContentInfo
     let contentEncoding = parseSeq (HttpHeaders.contentEncoding, ContentCoding.Parser |> HttpParsers.httpList)
-    //let languages:LanguageTag seq = Seq.empty
+
+    let contentLanguages = parseSeq (HttpHeaders.contentLanguage, LanguageTag.Parser |> HttpParsers.httpList)
 
     let contentLength = parseUInt64 HttpHeaders.contentLength
 
@@ -87,8 +88,9 @@ module internal HeaderParsers =
 
     let contentType = parse (HttpHeaders.contentType, MediaType.Parser)
 
-    //let contentRange
-
+    //let contentRange =
+    //    let p = ByteContentRange.Parser<^>OtherContentRange.Parser
+    //    parse (HttpHeaders.contentRange, p)
 
     // Request Preconditions
     let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
@@ -100,6 +102,10 @@ module internal HeaderParsers =
 
 
     // Request PReferences
+    let accept =
+        let parser = AcceptPreference.Parser |> HttpParsers.httpList
+        parseSeq (HttpHeaders.accept, parser)
+
     let acceptCharset = 
         let parser = (Preference.Parser Charset.Parser) |> HttpParsers.httpList
         parseSeq (HttpHeaders.acceptCharset, parser)

@@ -50,8 +50,7 @@ type ContentInfo =
          
     static member Create(headers:Map<Header, obj>) = 
         let encodings = HeaderParsers.contentEncoding headers
-        let languages:LanguageTag seq = Seq.empty
-
+        let languages:LanguageTag seq = HeaderParsers.contentLanguages headers
         let length = HeaderParsers.contentLength headers
         let location = HeaderParsers.contentLocation headers
         let mediaType = HeaderParsers.contentType headers

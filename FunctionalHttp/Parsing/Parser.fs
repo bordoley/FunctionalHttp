@@ -7,6 +7,7 @@ type internal ParseResult<'TResult> =
     | Success of  result : 'TResult * next : int
     | Fail of iFailed : int
 
+
 type internal Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 module internal Parser = 
@@ -133,3 +134,8 @@ module internal Parser =
                 else Fail i
 
             doParse 0
+
+    let preturn result =
+        fun (input:CharStream) -> Success (result, 0)
+
+    let pzero (input:CharStream) = Fail 0

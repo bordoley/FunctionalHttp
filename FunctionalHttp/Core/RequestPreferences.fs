@@ -7,7 +7,7 @@ type RequestPreferences =
         acceptedCharsets: Set<Preference<Charset>>
         acceptedEncodings: Set<Preference<ContentCoding>>
         acceptedLanguages: Set<Preference<LanguageTag>>
-        acceptedMediaRanges: Set<PreferenceWithParams<MediaRange>>
+        acceptedMediaRanges: Set<AcceptPreference>
         ranges: Option<Choice<ByteRangesSpecifier, OtherRangesSpecifier>>
     } 
 
@@ -37,18 +37,19 @@ type RequestPreferences =
         let acceptedCharsets = HeaderParsers.acceptCharset headers |> Set.ofSeq
         let acceptedEncodings = HeaderParsers.acceptEncoding headers |> Set.ofSeq
         let acceptedLanguages = HeaderParsers.acceptLanguage headers |> Set.ofSeq
+        let acceptedMediaRanges = HeaderParsers.accept headers |> Set.ofSeq
         let range = HeaderParsers.range headers
 
         {
             acceptedCharsets = acceptedCharsets
             acceptedEncodings = acceptedEncodings
             acceptedLanguages = acceptedLanguages
-            acceptedMediaRanges = Set.empty  // FIXMe
+            acceptedMediaRanges = acceptedMediaRanges
             ranges = range
         }
 
     static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
-        //FIXME: (HttpHeaders.accept)
+        (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> HeaderInternal.writeSeq f
         (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> HeaderInternal.writeSeq f
         (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> HeaderInternal.writeSeq f
         (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> HeaderInternal.writeSeq f
