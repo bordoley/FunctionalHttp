@@ -85,13 +85,17 @@ type Header private (header:string) =
           Header("Vary");
           Header("Via");
           Header("Warning");
-          Header("WWW-Authenticate");
-          Header("X-HTTP-Method");
-          Header("X-HTTP-Method-Override");
-          Header("X-Method-Override")] |> Seq.map (fun x -> (x.Normalized, x)) |> Map.ofSeq
-    
+          Header("WWW-Authenticate")] |> Seq.map (fun x -> (x.Normalized, x)) |> Map.ofSeq
+
+    static member private CachedHeaders =
+        let additionalHeaders =   
+            [   Header("X-HTTP-Method");
+                Header("X-HTTP-Method-Override");
+                Header("X-Method-Override")] |> Seq.map (fun x -> (x.Normalized, x)) 
+        Seq.concat [Header.StandardHeaders |> Map.toSeq; additionalHeaders] |> Map.ofSeq
+
     static member Create (header: string) = 
-        match normalize header |> Header.StandardHeaders.TryFind with
+        match normalize header |> Header.CachedHeaders.TryFind with
         | Some header -> header
         | None ->
             match parse Header.Parser header with 
@@ -100,60 +104,9 @@ type Header private (header:string) =
 
     static member internal Parser = 
         HttpParsers.token |>> (fun header -> 
-            match normalize header |> Header.StandardHeaders.TryFind with
+            match normalize header |> Header.CachedHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
-
-module internal HeaderInternal =
-    let internal headerSet = (Header.StandardHeaders :> IDictionary<string, Header>).Values |> Set.ofSeq
-
-    let filterStandardHeaders (headers:Map<Header,obj>) =
-        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
-
-    // FIXME: Set-Cookie should be a standard header, and should be part of the HttpResponse object
-    let internal setCookieHeader = Header.Create("Set-Cookie")
-    let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
-        // FIXME: Special case cookies
-        headers 
-        |> Seq.map(fun (k,v) -> 
-            let header = Header.Create k
-            if header = setCookieHeader then (header, v :> obj)
-            else (header, String.Join (",", v) :> obj)) 
-        |> Map.ofSeq
-
-    let inline writeOption (f:string*string->unit) (k:Header, v:^T option) =
-        v |> Option.map(fun v -> f (string k, string v)) |> ignore
-
-    let writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
-        let v = String.Join (", ", seq.Cast<obj>()) 
-
-        if String.IsNullOrEmpty v then ()
-        else f (string k, v)
-    
-    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
-        match v with 
-        | None -> ()
-        | Some date ->
-            f (string k, HttpEncoding.dateToHttpDate date)
-
-    let writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
-        v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
-
-    let writeObject (f:string*string->unit) (k:Header, v:obj) =
-        match v with
-        // String implements IEnumerable in some profiles and not others
-        | :?String as v when v.Length > 0 -> f (string k, string v) 
-        | :?DateTime as v -> writeDateTime f (k, Some v)
-        | :?IEnumerable as v -> writeSeq f (k, v)
-        | _ -> 
-            let v = string v
-            if v.Length > 0 then f (string k, v)
-
-    let writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
-        pairs |> Seq.map (writeObject f) |> ignore
-
-    let headerLineFunc builder (k:string, v:string) =
-        Printf.bprintf builder "%O: %s\r\n" k v
 
 module HttpHeaders =
     [<CompiledName("Accept")>]
@@ -312,3 +265,52 @@ module HttpHeaders =
 
     [<CompiledName("XMethodOverride")>]
     let xMethodOverride = Header.Create("X-Method-Override")
+
+module internal HeaderInternal =
+    let internal headerSet = (Header.StandardHeaders :> IDictionary<string, Header>).Values |> Set.ofSeq
+
+    let filterStandardHeaders (headers:Map<Header,obj>) =
+        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
+
+    let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
+        // FIXME: Special case cookies
+        headers 
+        |> Seq.map(fun (k,v) -> 
+            let header = Header.Create k
+            if header = HttpHeaders.setCookie then (header, v :> obj)
+            else (header, String.Join (",", v) :> obj)) 
+        |> Map.ofSeq
+
+    let inline writeOption (f:string*string->unit) (k:Header, v:^T option) =
+        v |> Option.map(fun v -> f (string k, string v)) |> ignore
+
+    let writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
+        let v = String.Join (", ", seq.Cast<obj>()) 
+
+        if String.IsNullOrEmpty v then ()
+        else f (string k, v)
+    
+    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
+        match v with 
+        | None -> ()
+        | Some date ->
+            f (string k, HttpEncoding.dateToHttpDate date)
+
+    let writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
+        v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
+
+    let writeObject (f:string*string->unit) (k:Header, v:obj) =
+        match v with
+        // String implements IEnumerable in some profiles and not others
+        | :?String as v when v.Length > 0 -> f (string k, string v) 
+        | :?DateTime as v -> writeDateTime f (k, Some v)
+        | :?IEnumerable as v -> writeSeq f (k, v)
+        | _ -> 
+            let v = string v
+            if v.Length > 0 then f (string k, v)
+
+    let writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
+        pairs |> Seq.map (writeObject f) |> ignore
+
+    let headerLineFunc builder (k:string, v:string) =
+        Printf.bprintf builder "%O: %s\r\n" k v
