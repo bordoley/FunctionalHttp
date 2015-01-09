@@ -54,7 +54,7 @@ type ContentInfo =
         let length = HeaderParsers.contentLength headers
         let location = HeaderParsers.contentLocation headers
         let mediaType = HeaderParsers.contentType headers
-        let range : Option<Choice<ByteContentRange, OtherContentRange>> = None
+        let range = HeaderParsers.contentRange headers
 
         ContentInfo.Create(encodings, languages, length, location, mediaType, range)
 

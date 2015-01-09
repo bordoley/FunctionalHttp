@@ -42,6 +42,7 @@ type ByteRangeSpec =
         | _ -> (string this.firstBytePos) + "-"
 
     static member internal Parser =
+        // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
         digit.>> pchar '-' .>>. (opt digit)
         |>> fun (firstBytePos, lastBytePos) -> 
@@ -54,6 +55,7 @@ type SuffixByteRangeSpec =
         "-" + (string this.suffixLength)
 
     static member internal Parser =
+        // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
         pchar '-' >>. digit |>> fun x -> { suffixLength = x }
 
@@ -73,13 +75,13 @@ type ByteRangesSpecifier =
         |>> fun x -> { byteRangeSet = Set.ofSeq x }
 
 type OtherRangesSpecifier = 
-    private { unit:string; rangeSet:string }
+    private { unit:RangeUnit; rangeSet:string }
 
     override this.ToString() =
-        this.unit + "=" + this.rangeSet
+        string this.unit + "=" + this.rangeSet
 
     static member internal Parser =
-        token .>> pchar '=' .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
+        RangeUnit.Parser .>> pchar '=' .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
 
 type ByteRangeResp =
     private { firstBytePos:uint64; lastBytePos:uint64; length:uint64 option }
@@ -87,11 +89,26 @@ type ByteRangeResp =
     override this.ToString () =
         (string this.firstBytePos) + "-" + (string this.lastBytePos) + "/" + (match this.length with | Some l -> string l | None -> "")
 
+    static member internal Parser =
+        // FIXME: UInt64.Parse can fail
+        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+
+        (digit .>> pchar '-') .>>. digit .>> pchar '/' .>>. (digit <^> pchar '*') |>> function 
+            | ((firstBytePos, lastBytePos), Choice1Of2 length) -> 
+                { firstBytePos = firstBytePos; lastBytePos = lastBytePos; length = Some length }
+            | ((firstBytePos, lastBytePos), _) ->
+                { firstBytePos = firstBytePos; lastBytePos = lastBytePos; length = None }
+
 type UnsatisfiedRange =
     private { length:uint64 }
 
     override this.ToString () =
         "*/" + (string this.length)
+
+    static member internal Parser =
+        // FIXME: UInt64.Parse can fail
+        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+        pstring "*/" >>. digit |>> fun x -> { length = x }
 
 type ByteContentRange =
     private { range:Choice<ByteRangeResp, UnsatisfiedRange> }
@@ -102,8 +119,15 @@ type ByteContentRange =
         | Choice1Of2 byteRangeResp -> string byteRangeResp
         | Choice2Of2 unsatisfiedRange -> string unsatisfiedRange
 
+    static member internal Parser = ByteRangeResp.Parser <^> UnsatisfiedRange.Parser |>> fun x -> { range = x }
+
+
 type OtherContentRange =
-    private { unit:string; rangeResp:string }
+    private { unit:RangeUnit; rangeResp:string }
 
     override this.ToString() =
-        this.unit + " " + this.rangeResp
+        string this.unit + " " + this.rangeResp
+
+    static member internal Parser = 
+        RangeUnit.Parser .>> pchar ' ' .>>. manySatisfy CHAR
+        |>> fun (unit, resp) -> { unit = unit; rangeResp = resp }

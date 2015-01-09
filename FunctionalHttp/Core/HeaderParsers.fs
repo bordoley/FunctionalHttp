@@ -88,9 +88,9 @@ module internal HeaderParsers =
 
     let contentType = parse (HttpHeaders.contentType, MediaType.Parser)
 
-    //let contentRange =
-    //    let p = ByteContentRange.Parser<^>OtherContentRange.Parser
-    //    parse (HttpHeaders.contentRange, p)
+    let contentRange =
+        let p = ByteContentRange.Parser<^>OtherContentRange.Parser
+        parse (HttpHeaders.contentRange, p)
 
     // Request Preconditions
     let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
