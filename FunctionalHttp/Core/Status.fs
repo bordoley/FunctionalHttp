@@ -97,7 +97,7 @@ type StatusClass =
     | Redirection = 300us
     | ClientError = 400us
     | ServerError = 500us
-    | SystemHttpClientError = 1000us
+    | SystemHttpClientError = 1000us // FIXME: blah
 
 [<AutoOpen>]  
 module StatusMixins =

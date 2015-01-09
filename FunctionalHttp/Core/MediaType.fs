@@ -15,6 +15,8 @@ type MediaType =
          _type:string
          subType:string
          charset:Option<Charset>
+
+         // FIXME: Should be a multimap
          parameters:Map<string, string>
     }
 

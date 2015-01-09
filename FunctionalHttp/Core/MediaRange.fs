@@ -10,6 +10,8 @@ type MediaRange =
     private {
         _type:Choice<string,Any>
         subType:Choice<string,Any>
+
+        // FIXME: SHould be a multimap
         parameters:Map<string, string>
     }
 

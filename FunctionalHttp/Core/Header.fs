@@ -110,10 +110,15 @@ module internal HeaderInternal =
     let filterStandardHeaders (headers:Map<Header,obj>) =
         headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
 
+    // FIXME: Set-Cookie should be a standard header, and should be part of the HttpResponse object
+    let internal setCookieHeader = Header.Create("Set-Cookie")
     let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
         // FIXME: Special case cookies
         headers 
-        |> Seq.map(fun (k,v) -> (Header.Create k, String.Join (",", v) :> obj)) 
+        |> Seq.map(fun (k,v) -> 
+            let header = Header.Create k
+            if header = setCookieHeader then (header, v :> obj)
+            else (header, String.Join (",", v) :> obj)) 
         |> Map.ofSeq
 
     let inline writeOption (f:string*string->unit) (k:Header, v:^T option) =
