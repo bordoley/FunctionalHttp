@@ -85,14 +85,16 @@ type Header private (header:string) =
           Header("Vary");
           Header("Via");
           Header("Warning");
-          Header("WWW-Authenticate")] |> Seq.map (fun x -> (x.Normalized, x)) |> Map.ofSeq
+          Header("WWW-Authenticate")] |> Set.ofList
 
     static member private CachedHeaders =
         let additionalHeaders =   
             [   Header("X-HTTP-Method");
                 Header("X-HTTP-Method-Override");
-                Header("X-Method-Override")] |> Seq.map (fun x -> (x.Normalized, x)) 
-        Seq.concat [Header.StandardHeaders |> Map.toSeq; additionalHeaders] |> Map.ofSeq
+                Header("X-Method-Override")] 
+        Seq.concat [Header.StandardHeaders :> seq<Header>; additionalHeaders :> seq<Header>] 
+        |> Seq.map (fun x -> (x.Normalized, x)) 
+        |> Map.ofSeq
 
     static member Create (header: string) = 
         match normalize header |> Header.CachedHeaders.TryFind with
@@ -267,10 +269,8 @@ module HttpHeaders =
     let xMethodOverride = Header.Create("X-Method-Override")
 
 module internal HeaderInternal =
-    let internal headerSet = (Header.StandardHeaders :> IDictionary<string, Header>).Values |> Set.ofSeq
-
     let filterStandardHeaders (headers:Map<Header,obj>) =
-        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> headerSet.Contains k |> not) |> Map.ofSeq
+        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> Header.StandardHeaders.Contains k |> not) |> Map.ofSeq
 
     let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
         // FIXME: Special case cookies
