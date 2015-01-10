@@ -8,7 +8,7 @@ open System
 module IPAddress = 
     [<Test>]
     let testIPv4Parse () =
-        let result = parse IPv4Address.Parser "0.12.223.99"
+        let result = parse IPv4Address.Parser "0.2.23.245"
         ()
 
 

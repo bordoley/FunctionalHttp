@@ -33,17 +33,17 @@ type IPv4Address private (address:uint32) =
                     | _ -> failwith "Invalid length should never happen"
 
             let followedBy0To55OrNoDigit msd =
-                pDIGIT >>= fun x ->
+                (pDIGIT >>= fun x ->
                     match ctoi x with
                     | x0 when x0 >= 0uy && x0 <= 4uy -> 
-                        (pDIGIT |>> fun x1 -> toOctet msd x0 (ctoi x1)) <|> preturn x0
+                        (pDIGIT |>> fun x1 -> toOctet msd x0 (ctoi x1)) <|> (toOctet 0uy msd x0 |> preturn)
                     | x0 when x0 = 5uy -> 
                         (pDIGIT >>= fun x1 ->
                             match ctoi x1 with
                             | x1 when x1 >= 0uy && x1 <= 5uy ->
                                 preturn (toOctet msd x0 x1)
-                            | _ -> pzero) <|> preturn x0
-                    | _ -> pzero 
+                            | _ -> pzero) <|> (toOctet 0uy msd x0 |> preturn)
+                    | _ -> pzero) <|> (preturn msd)
 
             pDIGIT >>= function
                 | '0' -> pReturnZero
