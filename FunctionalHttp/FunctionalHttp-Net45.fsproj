@@ -45,6 +45,7 @@
     <Compile Include="Parsing\Parser.fs" />
     <Compile Include="Parsing\CharMatchers.fs" />
     <Compile Include="Core\UriGrammar.fs" />
+    <Compile Include="Core\IPAddress.fs" />
     <Compile Include="Core\HttpGrammar.fs" />
     <Compile Include="Core\Header.fs" />
     <Compile Include="Core\Any.fs" />

@@ -10,6 +10,7 @@ type internal ParseResult<'TResult> =
 
 type internal Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
+[<AutoOpen>]
 module internal Parser = 
     let (>>=) (p:Parser<'a>) (f:'a->Parser<'b>) =
         let parse (input:CharStream) =
@@ -135,7 +136,6 @@ module internal Parser =
 
             doParse 0
 
-    let preturn result =
-        fun (input:CharStream) -> Success (result, 0)
+    let preturn result (input:CharStream) = Success (result, 0)
 
     let pzero (input:CharStream) = Fail 0
