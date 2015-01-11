@@ -91,7 +91,7 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
             |>> fun x -> 
                 let v = x.ToUInt32()
                 let x0 = v &&& 0xFFFF0000ul >>> 16 |> uint16
-                let x1 = v &&& 0x0000FFFul |> uint16
+                let x1 = v &&& 0x0000FFFFul |> uint16
                 [|x0; x1|])
         
         let tail i =
