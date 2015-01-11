@@ -62,12 +62,10 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
 
     override this.ToString() = 
         let writeBytes x = 
-            let oct0 = x &&& 0xFF000000ul >>> 24
-            let oct1 = x &&& 0x00FF0000ul >>> 16
-            let oct2 = x &&& 0x0000FF00ul >>> 8
-            let oct3 = x &&& 0x000000FFul >>> 0
+            let h160 = x &&& 0xFFFF0000ul >>> 16
+            let h161 = x &&& 0x0000FFFFul >>> 0
 
-            oct0.ToString("X4") + ":" + oct1.ToString("X4") + ":" + oct2.ToString("X4") + ":" + oct3.ToString("X4")
+            h160.ToString("X4") + ":" + h161.ToString("X4")
 
         (writeBytes x0) + ":" + (writeBytes x1) + ":" + (writeBytes x2) + ":" + (writeBytes x3)
 
@@ -83,23 +81,25 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
         // 6( h16 “:” )           [(h16  “::”) | ls32]
         // “::” 5( h16 “:” ) ls32
 
-        let h16 = manyMinMaxSatisfy 1 4 HEXDIG |>> fun x -> Convert.ToUInt16(x, 16)
+        let h16 = 
+            manyMinMaxSatisfy 1 4 HEXDIG |>> fun x -> Convert.ToUInt16(x, 16)
+
+        let ``h16 ":"`` = h16 .>> pchar ':'
+
         let ls32 = 
-            (h16 .>> pchar ':' .>>. h16 |>> fun (x0, x1) -> 
-                [|x0; x1|]) <|> 
-            (IPv4Address.Parser 
-            |>> fun x -> 
+            let ipv4 = IPv4Address.Parser |>> fun x -> 
                 let v = x.ToUInt32()
-                let x0 = v &&& 0xFFFF0000ul >>> 16 |> uint16
-                let x1 = v &&& 0x0000FFFFul |> uint16
-                [|x0; x1|])
+                let x0 = (v &&& 0xFFFF0000ul) >>> 16 |> uint16
+                let x1 = (v &&& 0x0000FFFFul) |> uint16
+                [|x0; x1|]
+            let h16h16 = (``h16 ":"`` .>>. h16 |>> fun (x0, x1) ->  [|x0; x1|]) 
+            
+            ipv4 <|> h16h16
         
         let tail i =
             let remainder =
                 (h16 |>> fun x -> [|x|])  <|>   
-                ((manyMinMax 0 i (h16 .>> pchar ':')) |>> Array.ofSeq .>>. ls32
-                |>> fun (x0, x1) -> 
-                    Array.append x0 x1)
+                (manyMinMax 0 i ``h16 ":"`` |>> Array.ofSeq .>>. ls32 |>> fun (x0, x1) -> Array.append x0 x1)
             
             h16 .>> pstring "::" .>>. (remainder <|>% [||])
 
@@ -111,7 +111,7 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
         let _5lead = h16 .>> pstring "::" .>>. ((h16 |>> fun x -> [|x|]) <|>% [||])
         let _6lead = h16 .>> pstring "::" <^> ls32
 
-        (((h16 .>> pchar ':' .>> notFollowedBy (pchar ':')) |> manyMinMax 0 6 |>> Array.ofSeq >>= fun x ->
+        (h16 .>> pchar ':' .>> notFollowedBy (pchar ':') |> manyMinMax 0 6 |>> Array.ofSeq >>= fun x ->
             let len = Array.length x
             match len with
             | 0 -> _0lead |>> fun (head, tail) -> 
@@ -130,9 +130,9 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
                                 | Choice1Of2 head -> 
                                     (Array.append x [|head|], [||])
                                 | Choice2Of2 tail -> (x, tail)
-            | _ -> failwith "can never happen") <|>
-        (pstring "::" >>. (h16 .>> pchar ':') |> manyMinMax 5 5|>> Array.ofSeq .>>. ls32)) |>> (fun (t1, t2) ->
-            ([||], Array.append t1 t2)) |>> fun (x: uint16 array, y: uint16 array) ->     
+            | _ -> failwith "can never happen") //<|>
+        //((pstring "::" >>. (h16 .>> pchar ':') |> manyMinMax 5 5|>> Array.ofSeq .>>. ls32)) |>> (fun (t1, t2) -> ([||], Array.append t1 t2)))     
+        |>> fun (x: uint16 array, y: uint16 array) ->     
                 let zeros =
                     let zerosLength = (8 - x.Length - y.Length)
                     Array.create zerosLength 0us
@@ -143,5 +143,4 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
                     let high = (uint32 parts.[i]) <<< 16
                     let low = (uint32 parts.[i+1])
                     high + low
-
                 IPv6Address(getUInt32 0, getUInt32 1, getUInt32 2, getUInt32 3)
