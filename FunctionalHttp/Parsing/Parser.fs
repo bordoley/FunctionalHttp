@@ -72,6 +72,11 @@ module internal Parser =
         | Success _ -> Success ((), 0)
         | Fail i -> Fail i
 
+    let notFollowedBy (pnext:Parser<_>) (input:CharStream) =
+        match pnext input with
+        | Success (_, i) -> Fail i
+        | Fail i -> Success ((), 0)
+
     let createParserForwardedToRef () =
         let dummy (input:CharStream) = failwith "a parser created with createParserForwardedToRef was not initialized"
         let r = ref dummy
@@ -139,3 +144,21 @@ module internal Parser =
     let preturn result (input:CharStream) = Success (result, 0)
 
     let pzero (input:CharStream) = Fail 0
+
+    let manyMinMax minCount maxCount (p:Parser<_>) =
+        let rec doParse cnt input =
+            if cnt = maxCount then []
+            else 
+                match p input with
+                | Fail i -> []
+                | Success (result, next) -> 
+                    (result, next) :: doParse (cnt + 1) input.[next..(input.Length - 1)]
+        
+        let parse input =
+            let result = doParse 0 input
+            let index = result |> Seq.fold (fun s (_, index) -> s + index) 0 
+            
+            let result = result |> Seq.map (fun (k,v) -> k) |> Array.ofSeq
+            if result.Length >= minCount then Success (result :> seq<_>,  index)
+            else Fail (index - 1)
+        parse
