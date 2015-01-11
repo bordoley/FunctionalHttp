@@ -33,7 +33,7 @@ type Challenge =
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token .>> (BWS .>>. (satisfy EQUALS) .>>. BWS) .>>. (token <|> quoted_string)
+            token .>> (BWS .>>. (pchar '=') .>>. BWS) .>>. (token <|> quoted_string)
             |>> fun (k, v) -> 
                 (k.ToLowerInvariant(), v)
 
