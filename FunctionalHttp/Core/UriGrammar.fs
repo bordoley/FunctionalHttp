@@ -13,20 +13,12 @@ module internal Predicates =
 
     let (<||>) m1 m2 (c:'T) = (m1 c) || (m2 c)
 
-module internal CharConstants = 
-    open CharMatchers
-    open Predicates
-
-    let EQUALS = is '='
-
-    let HTAB = is (char 9)
-
-    let SP = is ' '
-
 // See http://tools.ietf.org/html/rfc5234#appendix-B.1
 module internal Abnf = 
     open CharMatchers
     open Predicates
+
+    let EQUALS = is '='
 
     let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
 
@@ -46,8 +38,23 @@ module internal Abnf =
 
     let VCHAR = inRange (char 0x21) (char 0x7E)
 
-    open CharConstants
+    let SP = is ' '
+    let HTAB = is (char 9)
     let WSP = SP <||> HTAB
+
+module internal CharParsers =
+    let pSemicolon : Parser<char> = pchar ';'
+    let pComma : Parser<char> = pchar ','
+    let pSpace : Parser<char> = pchar ' '
+    let pColon : Parser<char> = pchar ':'
+    let pPeriod : Parser<char> = pchar '.' 
+    let pEquals : Parser<char> = pchar '=' 
+    let pForwardSlash : Parser<char> = pchar '/'
+    let pDash : Parser<char> = pchar '-'
+    let pOpenParen : Parser<char> = pchar '('
+    let pCloseParen : Parser<char> = pchar ')'
+    let pQuote : Parser<char> = pchar '"'
+    let pAsterisk : Parser<char> = pchar '*'
 
 module internal UriGrammar = 
     open Abnf

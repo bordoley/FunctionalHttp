@@ -7,8 +7,6 @@ open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
-open Predicates
-
 type EntityTag = 
     private {
         tag: string;
@@ -26,7 +24,7 @@ type EntityTag =
             sprintf "\"%s\"" this.Tag
 
     static member internal Parser =
-        let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> HttpCharMatchers.obs_text
+        let etagc = HttpCharMatchers.etagc
         let opaque_tag = (pchar '"') >>. (many1Satisfy etagc) .>> (pchar '"')
         let weak = pstring "W/"
 
