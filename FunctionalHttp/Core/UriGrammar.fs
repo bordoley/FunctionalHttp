@@ -17,41 +17,9 @@ module internal CharConstants =
     open CharMatchers
     open Predicates
 
-    let AMPERSAND = is '&'
-
-    let ASTERISK = is '*'
-
-    let BACK_SLASH = is '\\'
-
-    let CLOSE_PAREN = is ')'
-
-    let COLON = is ':'
-
-    let COMMA = is ','
-
-    let CR = is (char 13)
-
     let EQUALS = is '='
 
-    let DASH = is '-'
-
-    let DQUOTE = is (char 34)
-
-    let FORWARD_SLASH = '/'
-
     let HTAB = is (char 9)
-
-    let LF = is (char 10)
-
-    let OPEN_PAREN = is '('
-
-    let PERIOD = is '.'
-
-    let POUND_SIGN = is '#'
-
-    let QUESTION_MARK = is '?'
-
-    let SEMICOLON = is ';'
 
     let SP = is ' '
 
