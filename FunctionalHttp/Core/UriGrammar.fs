@@ -63,8 +63,7 @@ module internal UriGrammar =
     let unreserved = ALPHA <||> DIGIT <||> isAnyOf "-._~"
     let subdelims = isAnyOf "!$&'()*+,;="
     let pctencoded : Parser<string> = pchar '%' >>. manyMinMaxSatisfy 2 2 HEXDIG |>> fun x -> "%" + x
-    let regname : Parser<string> = 
-        (manySatisfy unreserved <|> pctencoded <|> manySatisfy subdelims) |> many |>> String.concat ""
+    let regname : Parser<string> = (manySatisfy unreserved <|> pctencoded <|> manySatisfy subdelims) |> many |>> String.concat ""
     // Fixme: host  = IP-literal / IPv4address / reg-name
     // See: https://tools.ietf.org/html/rfc3986#section-3.2.2
     let host = regname
