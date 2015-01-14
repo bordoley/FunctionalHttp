@@ -5,11 +5,8 @@ open System
 open System.Collections.Generic
 open System.Linq
 
-open FunctionalHttp.Parsing.CharMatchers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpParsers
+open CharParsers
+open HttpParsers
 
 type MediaType = 
     private {

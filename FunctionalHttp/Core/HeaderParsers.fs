@@ -5,8 +5,7 @@ open FunctionalHttp.Parsing
 open System
 open System.Globalization
 
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers
+open Abnf
 
 module internal HeaderParsers =
     let private parse (header, parser) (headers : Map<Header, obj>) =
@@ -69,7 +68,7 @@ module internal HeaderParsers =
     let proxyAuthenticate headers = parseSeq (HttpHeaders.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
     let retryAfter = 
         // FIXME: Int32.Parse can throw
-        let delaySeconds = many1Satisfy Abnf.DIGIT |>> Int64.Parse |>> (fun x ->
+        let delaySeconds = many1Satisfy DIGIT |>> Int64.Parse |>> (fun x ->
             DateTime.UtcNow.AddTicks (x * 10000000L))
         let p = HttpParsers.httpDate <|> delaySeconds
         parse (HttpHeaders.retryAfter, p)

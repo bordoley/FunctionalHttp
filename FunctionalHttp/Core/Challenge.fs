@@ -1,10 +1,8 @@
 ﻿namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpParsers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers
+open CharParsers
+open HttpParsers
 open Abnf
 
 type Challenge = 

@@ -2,8 +2,6 @@
 
 open FunctionalHttp.Parsing
 
-open UriGrammar
-
 type DomainName =
     private { regname:string }
 

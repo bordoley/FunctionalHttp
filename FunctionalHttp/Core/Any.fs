@@ -1,6 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Parsing
 
 type Any =
     private | Any

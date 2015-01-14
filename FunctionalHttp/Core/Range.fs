@@ -3,12 +3,8 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 open System
 
-open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpParsers
-open FunctionalHttp.Core.Abnf
-
+open CharParsers
+open HttpParsers
 open Abnf
 
 type RangeUnit = 
@@ -121,7 +117,6 @@ type ByteContentRange =
         | Choice2Of2 unsatisfiedRange -> string unsatisfiedRange
 
     static member internal Parser = ByteRangeResp.Parser <^> UnsatisfiedRange.Parser |>> fun x -> { range = x }
-
 
 type OtherContentRange =
     private { unit:RangeUnit; rangeResp:string }

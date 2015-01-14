@@ -3,8 +3,7 @@
 open FunctionalHttp.Parsing
 open System.Text
 
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Core.HttpParsers
+open HttpParsers
 
 type UserAgent = 
     private { product:Product; additional:Choice<Product,Comment> list }

@@ -4,10 +4,8 @@ open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Core.HttpParsers
-open FunctionalHttp.Core.CharParsers
+open HttpParsers
+open CharParsers
 
 type CacheDirective =
     private {

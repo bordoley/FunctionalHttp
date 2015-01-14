@@ -1,12 +1,10 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
-open FunctionalHttp.Parsing.CharMatchers
-open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Core.Abnf
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpParsers
+
+open Abnf
+open CharParsers
+open HttpParsers
 
 open System
 

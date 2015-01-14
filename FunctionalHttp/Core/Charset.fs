@@ -4,7 +4,6 @@ open FunctionalHttp.Parsing
 open System
 open System.Text
 
-open FunctionalHttp.Parsing.Parser
 open HttpParsers
 
 type Charset =

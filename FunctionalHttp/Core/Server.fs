@@ -1,7 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
-open FunctionalHttp.Parsing.Parser
 
 type Server = 
     private { userAgent : UserAgent }

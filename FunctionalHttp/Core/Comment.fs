@@ -3,11 +3,8 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 open System.Text
 
-open FunctionalHttp.Parsing.CharMatchers
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpCharMatchers
+open CharParsers
+open HttpCharMatchers
 
 type internal Comment = 
     private { parts : Choice<string,Comment> list }

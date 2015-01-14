@@ -1,12 +1,11 @@
 namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
-open FunctionalHttp.Parsing.Parser
-open FunctionalHttp.Parsing.CharParsers 
-open FunctionalHttp.Core.Abnf
-open FunctionalHttp.Core.CharParsers
-open FunctionalHttp.Core.HttpParsers
 open System
+
+open Abnf
+open CharParsers
+open HttpParsers
 
 type Warning = 
     private {

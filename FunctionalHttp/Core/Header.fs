@@ -6,8 +6,6 @@ open System.Collections.Generic
 open System.Linq
 open FunctionalHttp.Parsing
 
-open FunctionalHttp.Parsing.Parser
-
 [<Sealed>]
 type Header private (header:string) = 
     static let normalize (header:string) = header.ToLowerInvariant() 

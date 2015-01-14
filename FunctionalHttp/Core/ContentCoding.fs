@@ -1,7 +1,7 @@
 ﻿namespace FunctionalHttp.Core
 
+open FunctionalHttp.Parsing
 open FunctionalHttp.Core.HttpParsers
-open FunctionalHttp.Parsing.Parser
 
 type ContentCoding =
     private { contentCoding: string }

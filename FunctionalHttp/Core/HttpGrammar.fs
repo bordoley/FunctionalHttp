@@ -4,8 +4,6 @@ open FunctionalHttp.Parsing
 open System
 open System.Text
 
-open FunctionalHttp.Parsing.CharMatchers
-
 module internal HttpCharMatchers = 
     open Abnf
     open Predicates
@@ -24,9 +22,7 @@ module internal HttpCharMatchers =
 
 module internal HttpParsers =
     open HttpCharMatchers
-    open FunctionalHttp.Parsing.Parser
-    open FunctionalHttp.Parsing.CharParsers
-    open FunctionalHttp.Core.CharParsers
+    open CharParsers
     open Abnf
     open Predicates
 
@@ -133,7 +129,6 @@ module internal HttpParsers =
 
 module internal HttpEncoding =
     open HttpCharMatchers
-    open FunctionalHttp.Parsing.Parser
 
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';

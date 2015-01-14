@@ -1,9 +1,10 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
-open FunctionalHttp.Core.CharParsers
 open System 
+
 open Abnf
+open CharParsers
 
 [<StructAttribute>]
 type IPv4Address private (address:uint32) = 
