@@ -10,7 +10,6 @@ module internal HttpCharMatchers =
     open Abnf
     open Predicates
 
-    let tchar = ALPHA_NUMERIC <||> isAnyOf "!#\$%&'*+-.^_`|~"
     let obs_text = inRange (char 0x80) (char 0xFF)
     let qdtext = HTAB <||> SP <||> is (char 0x21) <||> inRange (char 0x23) (char 0x5B) <||> inRange (char 0x5D) (char 0x7E) <||> obs_text
     let quoted_pair_char = (HTAB <||> SP <||> VCHAR <||> obs_text)
@@ -22,8 +21,6 @@ module internal HttpCharMatchers =
         inRange (char 0x2A) (char 0x5B) <||> 
         inRange (char 0x5D) (char 0x7E) <||> 
         obs_text
-
-    let etagc = is (char 0x21) <||> inRange (char 0x23) (char 0x7E) <||> obs_text
 
 module internal HttpParsers =
     open HttpCharMatchers
@@ -43,7 +40,7 @@ module internal HttpParsers =
     
     let OWS_COMMA_OWS : Parser<string> = OWS .>>. pComma .>>. OWS |>> (fun _ -> ",");
 
-    let token : Parser<string> = many1Satisfy tchar
+    let token : Parser<string> = regex "[a-zA-Z0-9!#\$%&'*+-.^_`|~]+"
 
     let token68 : Parser<string> = regex "[a-zA-Z0-9-._~+/]+=*"
 

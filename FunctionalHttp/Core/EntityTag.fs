@@ -25,8 +25,8 @@ type EntityTag =
             sprintf "\"%s\"" this.Tag
 
     static member internal Parser =
-        let etagc = HttpCharMatchers.etagc
-        let opaque_tag = pQuote >>. (many1Satisfy etagc) .>> pQuote
+        let etagc = regex "[\x21\x23-\x7E\x80-\xFF]+"
+        let opaque_tag = pQuote >>. etagc .>> pQuote
         let weak = pstring "W/"
 
         (opt weak) .>>. opaque_tag |>> (function

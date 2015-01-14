@@ -18,8 +18,6 @@ module internal Abnf =
     open CharMatchers
     open Predicates
 
-    let EQUALS = is '='
-
     let ALPHA = (inRange 'a' 'z') <||> (inRange 'A' 'Z')
 
     let DIGIT = inRange '0' '9'
