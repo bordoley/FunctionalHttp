@@ -4,6 +4,7 @@ open FunctionalHttp.Parsing
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers 
 open FunctionalHttp.Core.Abnf
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpParsers
 open System
 
@@ -26,6 +27,6 @@ type Warning =
         let code = manyMinMaxSatisfy 3 3 DIGIT |>> UInt16.Parse
         let agent = HostPort.Parser <^> token
 
-        code .>> pchar ' ' .>>. agent .>> pchar ' ' .>>. quoted_string .>>. opt httpDate
+        code .>> pSpace .>>. agent .>> pSpace .>>. quoted_string .>>. opt httpDate
         |>> fun (((code, agent), text), date) -> 
             { code = code; agent = agent; text = text; date = date }

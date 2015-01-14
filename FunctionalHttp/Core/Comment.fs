@@ -6,6 +6,7 @@ open System.Text
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpCharMatchers
 
 type internal Comment = 
@@ -54,7 +55,7 @@ type internal Comment =
         let (comment_segment, comment_segment_impl)  = createParserForwardedToRef ()
 
         let comment =
-            (pchar '(') >>. (many comment_segment) .>> (pchar ')') 
+            pOpenParen >>. (many comment_segment) .>> pCloseParen 
             |>> (fun segments -> { parts = List.ofSeq segments })
 
         comment_segment_impl := comment_text <^> comment

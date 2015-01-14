@@ -29,6 +29,7 @@ module internal HttpParsers =
     open HttpCharMatchers
     open FunctionalHttp.Parsing.Parser
     open FunctionalHttp.Parsing.CharParsers
+    open FunctionalHttp.Core.CharParsers
     open Abnf
     open Predicates
 
@@ -38,9 +39,9 @@ module internal HttpParsers =
     
     let RWS : Parser<string> = many1Satisfy WSP
 
-    let OWS_SEMICOLON_OWS : Parser<string> = OWS .>>. (pchar ';') .>>. OWS |>> (fun _ -> ";");
+    let OWS_SEMICOLON_OWS : Parser<string> = OWS .>>. pSemicolon .>>. OWS |>> (fun _ -> ";");
     
-    let OWS_COMMA_OWS : Parser<string> = OWS .>>. (pchar ',') .>>. OWS |>> (fun _ -> ",");
+    let OWS_COMMA_OWS : Parser<string> = OWS .>>. pComma .>>. OWS |>> (fun _ -> ",");
 
     let token : Parser<string> = many1Satisfy tchar
 
@@ -116,16 +117,16 @@ module internal HttpParsers =
         // FIXME: Int32.Parse can throw       
         let year = manyMinMaxSatisfy 4 4 DIGIT |>> fun x -> Int32.Parse x
            
-        let date1 =  day .>> pchar ' ' .>>. month .>> pchar ' ' .>>. year
+        let date1 =  day .>> pSpace .>>. month .>> pSpace .>>. year
 
         let hour = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
         let minute = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
         let second = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
 
-        let timeOfDay = hour .>>  pchar ':' .>>. minute .>> pchar ':' .>>. second
+        let timeOfDay = hour .>>  pColon .>>. minute .>> pColon .>>. second
 
         let imf_fix_date = 
-            day_name .>>. pstring ", " >>. date1 .>> pchar ' ' .>>. timeOfDay .>> pstring " GMT" 
+            day_name .>>. pstring ", " >>. date1 .>> pSpace .>>. timeOfDay .>> pstring " GMT" 
             |>> fun (((day, month),year), ((hour, minute), second)) ->
                 DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc)
 

@@ -1,6 +1,7 @@
 ﻿namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpParsers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
@@ -32,7 +33,7 @@ type Challenge =
     static member internal Parser =
         let auth_scheme = token
         let auth_param = 
-            token .>> (BWS .>>. (pchar '=') .>>. BWS) .>>. (token <|> quoted_string)
+            token .>> (BWS .>>. pEquals .>>. BWS) .>>. (token <|> quoted_string)
             |>> fun (k, v) -> 
                 (k.ToLowerInvariant(), v)
 
@@ -41,7 +42,7 @@ type Challenge =
                 pairs |> Seq.filter Option.isSome |> Seq.map Option.get)
              |>> Map.ofSeq
 
-        let data = token68 .>> followedBy (eof <^> (OWS .>>. pchar ','))
+        let data = token68 .>> followedBy (eof <^> (OWS .>>. pComma))
 
         auth_scheme .>> (many1Satisfy SP) .>>. ( data <^> auth_params )
         |>> fun (scheme, dataOrParameters) -> 

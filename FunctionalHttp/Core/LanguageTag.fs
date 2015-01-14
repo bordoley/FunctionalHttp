@@ -2,6 +2,7 @@
 open FunctionalHttp.Parsing
 open FunctionalHttp.Core.Abnf
 open FunctionalHttp.Core.HttpParsers
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Parsing.Parser
 
@@ -12,8 +13,8 @@ type LanguageTag =
 
     static member internal Parser =
         let alphaKey = manyMinMaxSatisfy 1 8 ALPHA
-        let alphanumKey = pchar '-' .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC |> many
-        let parser = alphaKey .>>. ((pchar '-' .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC) |> many)
+        let alphanumKey = pDash .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC |> many
+        let parser = alphaKey .>>. ((pDash .>>. manyMinMaxSatisfy 1 8 ALPHA_NUMERIC) |> many)
 
         let doParse (stream:CharStream) =
             match parser stream with

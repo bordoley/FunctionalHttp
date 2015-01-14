@@ -4,6 +4,7 @@ open FunctionalHttp.Parsing
 
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
 type Product =
@@ -21,7 +22,7 @@ type Product =
         else sprintf "%s/%s" this.name this.version
 
     static member internal Parser =
-        token .>>. opt (pchar '/' >>. token)
+        token .>>. opt (pForwardSlash >>. token)
         |>> (function
             | (name, Some(version)) -> { name = name; version = version; }
             | (name, _) -> { name = name; version = ""; })

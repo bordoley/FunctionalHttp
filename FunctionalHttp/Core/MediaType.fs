@@ -8,6 +8,7 @@ open System.Linq
 open FunctionalHttp.Parsing.CharMatchers
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpParsers
 
 type MediaType = 
@@ -40,13 +41,13 @@ type MediaType =
 
         let parameter = 
             token
-            .>> (pchar '=') .>>. (token <|> quoted_string) 
+            .>> pEquals .>>. (token <|> quoted_string) 
             // The type, subtype, and parameter name tokens are case-insensitive.
             |>> function (key, value) -> (key.ToLowerInvariant(), value)
  
         let parameters = (OWS_SEMICOLON_OWS >>. parameter) |> many
 
-        token .>> (pchar '/') .>>. token .>>. parameters |>> (fun ((_type, subType), parameters) ->  
+        token .>> pForwardSlash .>>. token .>>. parameters |>> (fun ((_type, subType), parameters) ->  
                 let charset = ref None
 
                 let parameters =

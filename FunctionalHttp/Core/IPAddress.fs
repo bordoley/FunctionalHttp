@@ -1,6 +1,7 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
+open FunctionalHttp.Core.CharParsers
 open System 
 open Abnf
 
@@ -18,7 +19,7 @@ type IPv4Address private (address:uint32) =
     static member internal Parser =
         let decOctet = regex "([2][0-4][0-9])|([2][5][0-5])|([1][0-9][0-9])|([1-9][0-9])|([0-9])"
 
-        decOctet .>> pchar '.' .>>. decOctet .>> pchar '.' .>>. decOctet .>> pchar '.' .>>. decOctet 
+        decOctet .>> pPeriod .>>. decOctet .>> pPeriod .>>. decOctet .>> pPeriod .>>. decOctet 
         |>> fun (((x0, x1), x2), x3) ->
             let ip = ((uint32 x0) <<< 24) + ((uint32 x1) <<< 16) + ((uint32 x2) <<< 8) + (uint32 x3)
             IPv4Address(ip)

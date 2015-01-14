@@ -33,12 +33,13 @@ type HostPort =
 
     static member internal Parser : Parser<HostPort> = pzero
 
+(*
 type Authority =
     private {
         userInfo:string
         hostPort:HostPort
     }
-(*
+
 type Uri =
     private {
         scheme:string

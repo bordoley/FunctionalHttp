@@ -7,6 +7,7 @@ open System.Collections.Generic
 open FunctionalHttp.Parsing.Parser
 open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Core.HttpParsers
+open FunctionalHttp.Core.CharParsers
 
 type CacheDirective =
     private {
@@ -23,7 +24,7 @@ type CacheDirective =
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
     static member internal Parser =
-        token .>>. opt ((pchar '=') >>. (token <|> quoted_string)) |>> function 
+        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> function 
             | (key, Some value) -> { directive = key; value = value }
             | (key, None) -> { directive = key; value = "" }
 

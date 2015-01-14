@@ -5,6 +5,7 @@ open System
 
 open FunctionalHttp.Parsing.CharParsers
 open FunctionalHttp.Parsing.Parser
+open FunctionalHttp.Core.CharParsers
 open FunctionalHttp.Core.HttpParsers
 open FunctionalHttp.Core.Abnf
 
@@ -44,7 +45,7 @@ type ByteRangeSpec =
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
-        digit.>> pchar '-' .>>. (opt digit)
+        digit.>> pDash .>>. (opt digit)
         |>> fun (firstBytePos, lastBytePos) -> 
             { firstBytePos = firstBytePos; lastBytePos = lastBytePos}
 
@@ -57,7 +58,7 @@ type SuffixByteRangeSpec =
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
-        pchar '-' >>. digit |>> fun x -> { suffixLength = x }
+        pDash >>. digit |>> fun x -> { suffixLength = x }
 
 type ByteRangesSpecifier = 
     private { byteRangeSet: Choice<ByteRangeSpec, SuffixByteRangeSpec> Set }
@@ -81,7 +82,7 @@ type OtherRangesSpecifier =
         string this.unit + "=" + this.rangeSet
 
     static member internal Parser =
-        RangeUnit.Parser .>> pchar '=' .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
+        RangeUnit.Parser .>> pEquals .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
 
 type ByteRangeResp =
     private { firstBytePos:uint64; lastBytePos:uint64; length:uint64 option }
@@ -93,7 +94,7 @@ type ByteRangeResp =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
 
-        (digit .>> pchar '-') .>>. digit .>> pchar '/' .>>. (digit <^> pchar '*') |>> function 
+        (digit .>> pDash) .>>. digit .>> pForwardSlash .>>. (digit <^> pAsterisk) |>> function 
             | ((firstBytePos, lastBytePos), Choice1Of2 length) -> 
                 { firstBytePos = firstBytePos; lastBytePos = lastBytePos; length = Some length }
             | ((firstBytePos, lastBytePos), _) ->
@@ -129,5 +130,5 @@ type OtherContentRange =
         string this.unit + " " + this.rangeResp
 
     static member internal Parser = 
-        RangeUnit.Parser .>> pchar ' ' .>>. manySatisfy CHAR
+        RangeUnit.Parser .>> pSpace .>>. manySatisfy CHAR
         |>> fun (unit, resp) -> { unit = unit; rangeResp = resp }
