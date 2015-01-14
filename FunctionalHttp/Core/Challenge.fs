@@ -1,5 +1,7 @@
 ﻿namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
+open System.Collections.Generic
+open System.Runtime.CompilerServices
 
 open HttpParsers
 open Abnf
@@ -51,3 +53,25 @@ type Challenge =
         | _ -> invalidArg "token" "Token must be valid base64 data"
       
 type Credentials = Challenge
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Challenge =
+    [<Extension;CompiledName("TryGetData")>]
+    let tryGetData(this:Challenge, data : byref<string>) = 
+        match this.DataOrParameters with
+        | Choice1Of2 d ->
+            data <- d
+            true
+        | _ ->
+            data <- null
+            false
+
+    [<Extension;CompiledName("TryGetParameters")>]
+    let tryGetParameters(this:Challenge, parameters : byref<IDictionary<string, string>>) = 
+        match this.DataOrParameters with
+        | Choice2Of2 p ->
+            parameters <- p :> IDictionary<string, string>
+            true
+        | _ ->
+            parameters <- null
+            false

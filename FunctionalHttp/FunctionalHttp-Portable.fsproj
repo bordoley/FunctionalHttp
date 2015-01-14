@@ -74,13 +74,6 @@
     <Compile Include="Core\Converters.fs" />
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\HttpResponse.fs" />
-    <Compile Include="Core.Interop\ChallengeExtensions.fs" />
-    <Compile Include="Core.Interop\CharsetExtensions.fs" />
-    <Compile Include="Core.Interop\MediaTypeExtensions.fs" />
-    <Compile Include="Core.Interop\ContentInfoExtensions.fs" />
-    <Compile Include="Core.Interop\StatusExtensions.fs" />
-    <Compile Include="Core.Interop\HttpRequestExtensions.fs" />
-    <Compile Include="Core.Interop\HttpResponseExtensions.fs" />
     <Compile Include="Client\ClientStatus.fs" />
     <Compile Include="Client\HttpClient.fs" />
     <Compile Include="Client.Interop\HttpClientExtensions.fs" />
@@ -96,7 +89,6 @@
     <Folder Include="Collections\" />
     <Folder Include="Parsing\" />
     <Folder Include="Core\" />
-    <Folder Include="Core.Interop\" />
     <Folder Include="Client\" />
     <Folder Include="Client.Interop\" />
     <Folder Include="Server\" />

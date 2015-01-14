@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 using FunctionalHttp;
 
-namespace FunctionalHttp.Core.Interop
+namespace FunctionalHttp.Core
 {
-    public static class HttpResponseExtensionsCSharp
+    public static class HttpResponseMixins
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,

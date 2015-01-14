@@ -5,6 +5,7 @@ open System
 open System.Collections.Generic
 open System.IO
 open System.Text
+open System.Runtime.CompilerServices
 
 type HttpResponse<'TResp> =
     private {
@@ -439,6 +440,7 @@ module HttpResponseMixins =
                                                     defaultArg vary false,
                                                     defaultArg warning false) 
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
@@ -460,3 +462,44 @@ module HttpResponse =
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (resp:HttpResponse<'TResp>) =
         resp.With(entity)
+
+     // FIXME: Prefer not to expose FSharpChoice in an interop API.
+    [<Extension; CompiledName("TryGetAcceptedRange")>]
+    let tryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<Choice<Set<RangeUnit>, AcceptsNone>>) = 
+        Option.tryGetValue this.AcceptedRanges &acceptedRanges
+
+    [<Extension; CompiledName("TryGetAge")>]
+    let tryGetAge(this:HttpResponse<'TResp>, age : byref<TimeSpan>) = 
+        Option.tryGetValue this.Age &age
+
+    [<Extension; CompiledName("ryGetDate")>]
+    let tryGetDate(this:HttpResponse<'TResp>, date : byref<DateTime>) = 
+        Option.tryGetValue this.Date &date
+
+    [<Extension; CompiledName("TryGetETag")>]
+    let tryGetETag(this:HttpResponse<'TResp>, etag : byref<EntityTag>) = 
+        Option.tryGetValue this.ETag &etag
+
+    [<Extension; CompiledName("TryGetExpires")>]
+    let tryGetExpires(this:HttpResponse<'TResp>, expires : byref<DateTime>) = 
+        Option.tryGetValue this.Expires &expires
+
+    [<Extension; CompiledName("TryGetLastModified")>]
+    let tryGetLastModified(this:HttpResponse<'TResp>, lastModified : byref<DateTime>) = 
+        Option.tryGetValue this.Expires &lastModified
+         
+    [<Extension; CompiledName("TryGetLocation")>]
+    let tryGetLocation(this:HttpResponse<'TResp>, location : byref<Uri>) = 
+        Option.tryGetValue this.Location &location
+
+    [<Extension; CompiledName("TryGetRetryAfter")>]
+    let tryGetRetryAfter(this:HttpResponse<'TResp>, retryAfter : byref<DateTime>) = 
+        Option.tryGetValue this.RetryAfter &retryAfter
+
+    [<Extension; CompiledName("TryGetServer")>]
+    let tryGetServer(this:HttpResponse<'TResp>, server : byref<Server>) = 
+        Option.tryGetValue this.Server &server
+           
+    [<Extension; CompiledName("TryGetVary")>]
+    let tryGetVary(this:HttpResponse<'TResp>, vary : byref<Choice<Set<Header>, Any>>) = 
+        Option.tryGetValue this.Vary &vary       

@@ -1,9 +1,11 @@
 ﻿namespace FunctionalHttp.Core
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
 open System.Linq
+open System.Runtime.CompilerServices
 
 open HttpParsers
 
@@ -83,3 +85,9 @@ module MediaTypeExtension =
                 charset = if Option.isSome charset then None else this.Charset;
                 parameters = if Option.isSome parameters then Map.empty else this.Parameters;
             }
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module MediaType = 
+    [<Extension;CompiledName("TryGetCharset")>]
+    let tryGetCharset(this:MediaType, charset : byref<Charset>) = 
+        Option.tryGetValue this.Charset &charset

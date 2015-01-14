@@ -5,6 +5,7 @@ open System
 open System.Collections.Generic
 open System.Globalization
 open System.Text
+open System.Runtime.CompilerServices
 
 // FIXME: ContentRange
 
@@ -80,9 +81,9 @@ type ContentInfo =
                                         | _ -> "") |> HeaderInternal.writeObject f
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal ContentInfo =
+module ContentInfo =
     [<CompiledName("With")>]
-    let with_ (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
+    let internal with_ (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
         ContentInfo.Create(
             defaultArg encodings contentInfo.Encodings,
             defaultArg languages contentInfo.Languages,
@@ -92,7 +93,7 @@ module internal ContentInfo =
             Option.orElse contentInfo.Range range)
 
     [<CompiledName("Without")>]
-    let without (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
+    let internal without (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
         ContentInfo.Create(
             (if encodings then Seq.empty else contentInfo.Encodings),
             (if languages then Seq.empty else contentInfo.Languages),
@@ -100,6 +101,18 @@ module internal ContentInfo =
             (if location then None else contentInfo.Location),
             (if mediaType then None else contentInfo.MediaType),
             (if range then None else contentInfo.Range))
+
+    [<Extension;CompiledName("TryGetLength")>]
+    let tryGetLength(this:ContentInfo, length : byref<uint64>) = 
+        Option.tryGetValue this.Length &length
+
+    [<Extension;CompiledName("TryGetLocation")>]
+    let tryGetLocation(this:ContentInfo, uri : byref<Uri>) = 
+        Option.tryGetValue this.Location &uri
+
+    [<Extension;CompiledName("TryGetMediaType")>]
+    let tryGetMediaType(this:ContentInfo, mediaType : byref<MediaType>) = 
+        Option.tryGetValue this.MediaType &mediaType
 
 [<AutoOpen>]
 module ContentInfoMixins =

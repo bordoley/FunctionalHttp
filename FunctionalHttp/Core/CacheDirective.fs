@@ -61,6 +61,7 @@ type CacheDirective =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module CacheDirective =
+    [<CompiledName("ValueAsDeltaSeconds")>]
     let valueAsDeltaSeconds (directive:CacheDirective) =
         match UInt32.TryParse(directive.Value) with
             | (true, int) -> Some (TimeSpan(10000000L * int64 int))

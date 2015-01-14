@@ -1,5 +1,7 @@
 namespace FunctionalHttp.Core
 
+open System.Runtime.CompilerServices
+
 type Status = 
     private {
         code:uint16
@@ -102,6 +104,7 @@ type StatusClass =
 [<AutoOpen>]  
 module StatusMixins =
     type Status with 
+        [<Extension>]
         member this.Class 
             with get() = 
                 match this.Code with  
@@ -111,7 +114,7 @@ module StatusMixins =
                 | x when x >= 400us && x < 500us -> StatusClass.ClientError
                 | x when x >= 500us && x < 600us -> StatusClass.ServerError 
                 | x when x >= 1000us && x < 2000us -> StatusClass.SystemHttpClientError 
-                | _ -> failwith "Invalid status code"  
+                | _ -> failwith "Invalid status code" 
 
 module HttpStatus =
     [<CompiledName("ClientErrorBadRequest")>]

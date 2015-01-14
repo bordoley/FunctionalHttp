@@ -330,8 +330,9 @@ module HttpRequestMixins =
                                                     defaultArg preferences false, 
                                                     defaultArg proxyAuthorization false, 
                                                     defaultArg referer false, 
-                                                    defaultArg userAgent false)                                                           
-
+                                                    defaultArg userAgent false) 
+                                                          
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpRequest =
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (req:HttpRequest<'TIn>) = 
@@ -353,3 +354,19 @@ module HttpRequest =
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (req:HttpRequest<'TReq>) =
         req.With(entity)
+
+    [<Extension;CompiledName("TryGetAuthorization")>]
+    let tryGetAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 
+        Option.tryGetValue this.Authorization &authorization
+
+    [<Extension;CompiledName("TryGetProxyAuthorization")>]
+    let tryGetProxyAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 
+        Option.tryGetValue this.ProxyAuthorization &authorization
+
+    [<Extension;CompiledName("TryGetReferer")>]
+    let tryGetReferer(this:HttpRequest<'TReq>, referer : byref<Uri>) = 
+        Option.tryGetValue this.Referer &referer
+   
+    [<Extension;CompiledName("TryGetUserAgent")>]
+    let tryGetUserAgent(this:HttpRequest<'TReq>, userAgent : byref<UserAgent>) = 
+        Option.tryGetValue this.UserAgent &userAgent

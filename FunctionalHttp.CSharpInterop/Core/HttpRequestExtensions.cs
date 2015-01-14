@@ -7,9 +7,9 @@ using System.Diagnostics.Contracts;
 
 using FunctionalHttp;
 
-namespace FunctionalHttp.Core.Interop
+namespace FunctionalHttp.Core
 {
-    public static class HttpRequestExtensionsCSharp
+    public static class HttpRequestMixins
     {
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This,    

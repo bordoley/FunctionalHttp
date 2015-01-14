@@ -4,9 +4,9 @@ using Microsoft.FSharp.Core;
 using System;
 using System.Collections.Generic;
 
-namespace FunctionalHttp.Core.Interop
+namespace FunctionalHttp.Core
 {
-    public static class ContentInfoExtensionsCSharp
+    public static class ContentInfoMixins
     {
         public static ContentInfo With(
             this ContentInfo This, 

@@ -1,7 +1,9 @@
 namespace FunctionalHttp.Core
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Parsing
 open System
+open System.Runtime.CompilerServices
 open System.Text
 
 open HttpParsers
@@ -43,8 +45,8 @@ type Charset =
 [<AutoOpen>]
 module CharsetMixins =
     type Charset with
-        member this.Encoding
-            with get() =
+        member this.Encoding 
+            with  get() =
                 match this with
                 | c when c = Charset.ISO_8859_1 ->
                     try
@@ -58,3 +60,9 @@ module CharsetMixins =
                         | :? ArgumentException -> None
                 | c when c = Charset.UTF_8 -> Some Encoding.UTF8
                 | _ -> None
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Charset = 
+    [<Extension;CompiledName("TryGetEncoding")>]
+    let tryGetEncoding(this:Charset, encoding : byref<Encoding>) = 
+        Option.tryGetValue this.Encoding &encoding
