@@ -44,7 +44,7 @@ module internal HttpParsers =
 
     let token : Parser<string> = many1Satisfy tchar
 
-    let token68 : Parser<string> = many1Satisfy(ALPHA <||> DIGIT <||> (isAnyOf "-._~+/" )) .>>. (manySatisfy EQUALS) |>> (fun (a,b) -> a + b)
+    let token68 : Parser<string> = regex "[a-zA-Z0-9-._~+/]+=*"
 
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';

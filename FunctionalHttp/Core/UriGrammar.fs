@@ -53,7 +53,7 @@ module internal CharParsers =
     let pDash : Parser<char> = pchar '-'
     let pOpenParen : Parser<char> = pchar '('
     let pCloseParen : Parser<char> = pchar ')'
-    let pQuote : Parser<char> = pchar '"'
+    let pQuote : Parser<char> = pchar (char 34)
     let pAsterisk : Parser<char> = pchar '*'
 
 module internal UriGrammar = 

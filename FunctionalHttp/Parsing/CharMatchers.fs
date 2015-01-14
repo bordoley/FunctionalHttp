@@ -1,6 +1,7 @@
 ﻿namespace FunctionalHttp.Parsing
 
 open System
+open System.Text.RegularExpressions
 
 type internal CharMatcher = char -> bool
 
@@ -66,3 +67,16 @@ module internal CharParsers =
             else Fail (index - 1)
 
         parse
+
+    let regex pattern =
+        let pattern = "\G" + pattern
+        let regex = Regex(pattern, RegexOptions.Multiline ||| RegexOptions.ExplicitCapture)
+
+        let parse (input:CharStream) =
+            let result = regex.Match(input.str, input.offset)
+            if not result.Success then Fail 0
+            else Success (result.Value, result.Length)
+
+        parse
+
+
