@@ -10,7 +10,7 @@ type DomainName =
     override this.ToString () = this.regname
 
     static member internal Parser = 
-        regex ( "(" + "(%[0-9A-F]{2})" + "|" + "[a-zA-Z0-9-._~!$&'()*+,;=]" + ")+" )
+        regex "((%[0-9A-F]{2})|[a-zA-Z0-9\-\._~!\$&'\(\)*\+,;=])+"
         |>> fun x -> { regname = x }
 
 type HostPort =

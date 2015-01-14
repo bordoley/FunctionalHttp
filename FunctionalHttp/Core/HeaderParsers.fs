@@ -14,7 +14,7 @@ module internal HeaderParsers =
         |> Option.bind (fun x -> 
             string x |> parse parser |> function
                 | Success (x, _) -> Some x
-                | _ -> None)
+                | Fail i -> None)
 
     let private parseUri header (headers : Map<Header, obj>) =
         headers.TryFind header

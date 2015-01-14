@@ -40,9 +40,9 @@ module internal HttpParsers =
     
     let OWS_COMMA_OWS : Parser<string> = OWS .>>. pComma .>>. OWS |>> (fun _ -> ",");
 
-    let token : Parser<string> = regex "[a-zA-Z0-9!#\$%&'*+-.^_`|~]+"
+    let token : Parser<string> = regex "[a-zA-Z0-9!#\$%&'\*\+\-\.\^_`\|~]+"
 
-    let token68 : Parser<string> = regex "[a-zA-Z0-9-._~+/]+=*"
+    let token68 : Parser<string> = regex "[a-zA-Z0-9\-\._~\+/]+[=]*"
 
     let private DQUOTE_CHAR = (char 34)
     let private ESCAPE_CHAR = '\\';
