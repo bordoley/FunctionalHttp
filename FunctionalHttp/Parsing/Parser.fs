@@ -18,7 +18,7 @@ module internal Parser =
             | Fail i -> Fail i
             | Success (result1, next1) ->
                 let p2 = f result1
-                match p2 input.[next1..(input.Length - 1)] with
+                match input.SubStream(next1) |> p2 with
                 | Fail next2 -> Fail (next1 + next2)
                 | Success (result2, next2) -> Success (result2, next1 + next2)
         parse
@@ -34,7 +34,7 @@ module internal Parser =
         match p1 input with
         | Fail i -> Fail i
         | Success (result1, next1) -> 
-            match input.[next1..(input.Length - 1)] |> p2 with
+            match input.SubStream(next1) |> p2 with
             | Fail next2 -> Fail (next1 + next2)
             | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
      
@@ -87,7 +87,7 @@ module internal Parser =
             match p input with
             | Fail i -> []
             | Success (result, next) -> 
-                (result, next) :: doParse input.[next..(input.Length - 1)]
+                (result, next) :: doParse (input.SubStream(next))
         
         let parse input =
             let result = doParse input
@@ -152,7 +152,7 @@ module internal Parser =
                 match p input with
                 | Fail i -> []
                 | Success (result, next) -> 
-                    (result, next) :: doParse (cnt + 1) input.[next..(input.Length - 1)]
+                    (result, next) :: doParse (cnt + 1) (input.SubStream(next))
         
         let parse input =
             let result = doParse 0 input

@@ -40,7 +40,7 @@ type Authority =
         userInfo:string
         hostPort:HostPort
     }
-
+(*
 type Uri =
     private {
         scheme:string
@@ -49,3 +49,4 @@ type Uri =
         query:string
         fragment:string
     }
+*)
