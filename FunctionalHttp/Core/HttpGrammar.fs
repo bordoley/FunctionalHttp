@@ -92,7 +92,7 @@ module internal HttpParsers =
             ((pstring "Sun") |>> fun _ -> DayOfWeek.Sunday) 
         
         // FIXME: Int32.Parse can throw        
-        let day = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+        let day = manyMinMaxSatisfy 2 2 isDigit |>> fun x -> Int32.Parse x
         let month =
             ((pstring "Jan") |>> fun _ -> 1)  <|>
             ((pstring "Feb") |>> fun _ -> 2)  <|>
@@ -108,13 +108,13 @@ module internal HttpParsers =
             ((pstring "Dec") |>> fun _ -> 12)
 
         // FIXME: Int32.Parse can throw       
-        let year = manyMinMaxSatisfy 4 4 DIGIT |>> fun x -> Int32.Parse x
+        let year = manyMinMaxSatisfy 4 4 isDigit |>> fun x -> Int32.Parse x
            
         let date1 =  day .>> pSpace .>>. month .>> pSpace .>>. year
 
-        let hour = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
-        let minute = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
-        let second = manyMinMaxSatisfy 2 2 DIGIT |>> fun x -> Int32.Parse x
+        let hour = manyMinMaxSatisfy 2 2 isDigit |>> fun x -> Int32.Parse x
+        let minute = manyMinMaxSatisfy 2 2 isDigit |>> fun x -> Int32.Parse x
+        let second = manyMinMaxSatisfy 2 2 isDigit |>> fun x -> Int32.Parse x
 
         let timeOfDay = hour .>>  pColon .>>. minute .>> pColon .>>. second
 

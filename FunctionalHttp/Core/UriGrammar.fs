@@ -13,9 +13,7 @@ module internal Abnf =
     open CharMatchers
     open Predicates
 
-    let DIGIT = inRange '0' '9'
-
-    let ALPHA_NUMERIC = (inRange 'a' 'z') <||> (inRange 'A' 'Z') <||> DIGIT
+    let ALPHA_NUMERIC = (inRange 'a' 'z') <||> (inRange 'A' 'Z') <||> isDigit
 
     let CHAR = inRange (char 1) (char 127)
 

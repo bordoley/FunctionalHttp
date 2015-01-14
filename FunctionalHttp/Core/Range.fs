@@ -40,7 +40,7 @@ type ByteRangeSpec =
 
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
-        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+        let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         digit.>> pDash .>>. (opt digit)
         |>> fun (firstBytePos, lastBytePos) -> 
             { firstBytePos = firstBytePos; lastBytePos = lastBytePos}
@@ -53,7 +53,7 @@ type SuffixByteRangeSpec =
 
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
-        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+        let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         pDash >>. digit |>> fun x -> { suffixLength = x }
 
 type ByteRangesSpecifier = 
@@ -88,7 +88,7 @@ type ByteRangeResp =
 
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
-        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+        let digit = (many1Satisfy isDigit) |>> UInt64.Parse
 
         (digit .>> pDash) .>>. digit .>> pForwardSlash .>>. (digit <^> pAsterisk) |>> function 
             | ((firstBytePos, lastBytePos), Choice1Of2 length) -> 
@@ -104,7 +104,7 @@ type UnsatisfiedRange =
 
     static member internal Parser =
         // FIXME: UInt64.Parse can fail
-        let digit = (many1Satisfy DIGIT) |>> UInt64.Parse
+        let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         pstring "*/" >>. digit |>> fun x -> { length = x }
 
 type ByteContentRange =

@@ -28,7 +28,7 @@ type Preference<'T> =
     static member internal Parser (p:Parser<'T>) =
         let qvalue = 
             let qvalue0 = 
-                (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 DIGIT) ) 
+                (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 isDigit) ) 
                 |>> (function 
                     | None -> 0us 
                     // FIXME: UInt16.Parse can throw
@@ -66,7 +66,7 @@ type AcceptPreference =
     static member internal Parser =
         let qvalue = 
             let qvalue0 = 
-                (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 DIGIT) ) 
+                (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 isDigit) ) 
                 |>> (function 
                     | None -> 0us 
                     | Some x when x.Length = 1 -> (UInt16.Parse x) * 100us

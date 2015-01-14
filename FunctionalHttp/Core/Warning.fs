@@ -23,7 +23,7 @@ type Warning =
 
     static member internal Parser =
         // Fixme : UInt16.Parse can throw
-        let code = manyMinMaxSatisfy 3 3 DIGIT |>> UInt16.Parse
+        let code = manyMinMaxSatisfy 3 3 isDigit |>> UInt16.Parse
         let agent = HostPort.Parser <^> token
 
         code .>> pSpace .>>. agent .>> pSpace .>>. quoted_string .>>. opt httpDate

@@ -17,6 +17,8 @@ module internal CharMatchers =
     let inRange (start:char) (last:char) (c:char) = 
         c >= start && c <= last
 
+    let isDigit = inRange '0' '9'
+
 [<AutoOpen>]
 module internal CharParsers =
     let manySatisfy (matcher:CharMatcher) =
