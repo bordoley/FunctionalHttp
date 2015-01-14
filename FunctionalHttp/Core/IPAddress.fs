@@ -144,31 +144,3 @@ type IPv6Address private (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
                     let low = (uint32 parts.[i+1])
                     high + low
                 IPv6Address(getUInt32 0, getUInt32 1, getUInt32 2, getUInt32 3)
-
-type DomainName =
-    private { regname:string }
-
-    override this.ToString () = this.regname
-
-    //static member internal Parser =
-
-
-type HostPort =
-    private { 
-        host:Choice<IPv4Address, IPv6Address, DomainName> 
-        port:uint16 option
-    }
-
-    override this.ToString() =
-        let host =
-            match this.host with
-            | Choice1Of3 ip -> string ip
-            | Choice2Of3 ip -> string ip
-            | Choice3Of3 domain -> string domain
-        let port =
-            match this.port with
-            | Some p -> ":" + (string p)
-            | _ -> ""
-        host + port
-
-    static member internal Parser : Parser<HostPort> = pzero
