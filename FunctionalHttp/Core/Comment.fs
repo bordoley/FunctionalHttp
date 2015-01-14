@@ -3,7 +3,6 @@ namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 open System.Text
 
-open CharParsers
 open HttpCharMatchers
 
 type internal Comment = 
@@ -64,7 +63,7 @@ type internal Comment =
 
         for i = 0 to text.Length - 1 do
             match text.Chars 0 with
-            | c when HttpCharMatchers.ctext c ->     
+            | c when ctext c ->     
                 if (!builder) <> null then (!builder).Append c |> ignore
             | c ->
                 if (!builder) <> null then builder := StringBuilder().Append(text, 0, i)

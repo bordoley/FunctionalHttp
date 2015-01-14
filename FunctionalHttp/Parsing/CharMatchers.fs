@@ -21,6 +21,40 @@ module internal CharMatchers =
 
 [<AutoOpen>]
 module internal CharParsers =
+    let satisfy (f:CharMatcher) (input:CharStream) =
+        if input.Length = 0 then Fail 0
+        else 
+            let result = input.Item 0
+            if f result 
+            then  Success(result, 1)
+            else Fail 0
+
+    let pchar c  = satisfy (fun i -> i = c)
+
+    let pSemicolon : Parser<char> = pchar ';'
+
+    let pComma : Parser<char> = pchar ','
+
+    let pSpace : Parser<char> = pchar ' '
+
+    let pColon : Parser<char> = pchar ':'
+
+    let pPeriod : Parser<char> = pchar '.' 
+
+    let pEquals : Parser<char> = pchar '=' 
+
+    let pForwardSlash : Parser<char> = pchar '/'
+
+    let pDash : Parser<char> = pchar '-'
+
+    let pOpenParen : Parser<char> = pchar '('
+
+    let pCloseParen : Parser<char> = pchar ')'
+
+    let pQuote : Parser<char> = pchar (char 34)
+
+    let pAsterisk : Parser<char> = pchar '*'
+
     let manySatisfy (matcher:CharMatcher) =
         let rec findLast index (input:CharStream) =
             if index = input.Length then index
@@ -44,16 +78,6 @@ module internal CharParsers =
             | result -> result
 
         doParse
-            
-    let satisfy (f:CharMatcher) (input:CharStream) =
-        if input.Length = 0 then Fail 0
-        else 
-            let result = input.Item 0
-            if f result 
-            then  Success(result, 1)
-            else Fail 0
-
-    let pchar c  = satisfy (fun i -> i = c)
 
     let manyMinMaxSatisfy minCount maxCount  (f:CharMatcher) =
         let rec findLast index (input:CharStream) =
@@ -80,5 +104,3 @@ module internal CharParsers =
             else Success (result.Value, result.Length)
 
         parse
-
-

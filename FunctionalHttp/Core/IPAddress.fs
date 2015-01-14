@@ -4,7 +4,6 @@ open FunctionalHttp.Parsing
 open System 
 
 open Abnf
-open CharParsers
 
 [<StructAttribute>]
 type IPv4Address private (address:uint32) = 

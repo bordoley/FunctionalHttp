@@ -5,7 +5,6 @@ open System
 open System.Collections.Generic
 open System.Linq
 
-open CharParsers
 open HttpParsers
 
 type MediaType = 

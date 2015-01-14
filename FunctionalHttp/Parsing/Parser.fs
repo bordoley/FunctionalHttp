@@ -7,7 +7,6 @@ type internal ParseResult<'TResult> =
     | Success of  result : 'TResult * next : int
     | Fail of iFailed : int
 
-
 type internal Parser<'TResult> = CharStream -> ParseResult<'TResult>
 
 [<AutoOpen>]

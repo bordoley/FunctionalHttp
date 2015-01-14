@@ -4,7 +4,6 @@ open FunctionalHttp.Parsing
 open System
 
 open Abnf
-open CharParsers
 open HttpParsers
 
 type Warning = 

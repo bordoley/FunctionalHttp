@@ -5,7 +5,6 @@ open System
 open System.Collections.Generic
 
 open HttpParsers
-open CharParsers
 
 type CacheDirective =
     private {

@@ -22,7 +22,6 @@ module internal HttpCharMatchers =
 
 module internal HttpParsers =
     open HttpCharMatchers
-    open CharParsers
     open Abnf
     open Predicates
 

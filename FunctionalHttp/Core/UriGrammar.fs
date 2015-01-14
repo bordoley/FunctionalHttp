@@ -24,17 +24,3 @@ module internal Abnf =
     let SP = is ' '
     let HTAB = is (char 9)
     let WSP = SP <||> HTAB
-
-module internal CharParsers =
-    let pSemicolon : Parser<char> = pchar ';'
-    let pComma : Parser<char> = pchar ','
-    let pSpace : Parser<char> = pchar ' '
-    let pColon : Parser<char> = pchar ':'
-    let pPeriod : Parser<char> = pchar '.' 
-    let pEquals : Parser<char> = pchar '=' 
-    let pForwardSlash : Parser<char> = pchar '/'
-    let pDash : Parser<char> = pchar '-'
-    let pOpenParen : Parser<char> = pchar '('
-    let pCloseParen : Parser<char> = pchar ')'
-    let pQuote : Parser<char> = pchar (char 34)
-    let pAsterisk : Parser<char> = pchar '*'

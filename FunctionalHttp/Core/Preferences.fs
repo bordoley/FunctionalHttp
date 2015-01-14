@@ -3,7 +3,6 @@
 open FunctionalHttp.Parsing
 
 open Abnf
-open CharParsers
 open HttpParsers
 
 open System

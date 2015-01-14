@@ -1,7 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 open FunctionalHttp.Parsing
 
-open CharParsers
 open HttpParsers
 open Abnf
 
