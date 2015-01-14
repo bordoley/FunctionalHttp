@@ -10,4 +10,4 @@ type Any =
     static member Instance = Any
 
     static member internal Parser =
-        pstring "*" |>> fun _ -> Any
+        pAsterisk |>> fun _ -> Any

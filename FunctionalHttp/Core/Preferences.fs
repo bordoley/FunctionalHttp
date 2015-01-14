@@ -55,6 +55,12 @@ type AcceptPreference =
         parameters:Map<string,string>
     }
 
+    member this.MediaRange with get () = this.mediaRange
+
+    member this.Quality with get () = this.quality
+
+    member this.Parameters with get () = this.parameters
+
     override this.ToString() =
         let parameters = (this.parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";")
 

@@ -2,8 +2,6 @@ namespace FunctionalHttp.Core
 
 open FunctionalHttp.Parsing
 
-open HttpParsers
-
 type EntityTag = 
     private {
         tag: string;

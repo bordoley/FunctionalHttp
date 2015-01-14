@@ -18,13 +18,12 @@ type ContentInfo =
         range:Option<Choice<ByteContentRange, OtherContentRange>>
     }
 
-    member this.Encodings = this.encodings
-    member this.Languages = this.languages
-
-    member this.Length = this.length
-    member this.Location = this.location
-    member this.MediaType = this.mediaType
-    member this.Range = this.range
+    member this.Encodings with get() = this.encodings
+    member this.Languages with get() = this.languages
+    member this.Length with get() = this.length
+    member this.Location with get() = this.location
+    member this.MediaType with get() = this.mediaType
+    member this.Range with get() = this.range
 
     override this.ToString() =
         let builder = StringBuilder()
@@ -38,7 +37,8 @@ type ContentInfo =
 
     static member internal Create(encodings, languages, length, location, mediaType, range) =
         match (encodings, languages, length, location, mediaType, range)  with
-        | (encodings, languages, None, None, None, None) when Seq.isEmpty encodings && Seq.isEmpty languages-> ContentInfo.None
+        | (encodings, languages, None, None, None, None) when Seq.isEmpty encodings && Seq.isEmpty languages -> 
+            ContentInfo.None
         | _ -> { 
                 encodings = List.ofSeq encodings; 
                 languages = List.ofSeq languages; 

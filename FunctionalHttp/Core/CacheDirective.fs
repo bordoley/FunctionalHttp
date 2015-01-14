@@ -1,5 +1,6 @@
 ﻿namespace FunctionalHttp.Core
 
+open FunctionalHttp.Collections
 open FunctionalHttp.Parsing
 open System
 open System.Collections.Generic
@@ -21,9 +22,15 @@ type CacheDirective =
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
     static member internal Parser =
-        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> function 
-            | (key, Some value) -> { directive = key; value = value }
-            | (key, None) -> { directive = key; value = "" }
+        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
+            match (key.ToLowerInvariant(), value) with
+            | ("no-store", None) -> CacheDirective.NoStore
+            | ("no-transform", None) -> CacheDirective.NoTransform
+            | ("only-if-cached", None) -> CacheDirective.OnlyIfCached
+            | ("must-revalidate", None) -> CacheDirective.MustRevalidate
+            | ("public", None) -> CacheDirective.Public
+            | ("proxy-revalidate", None) -> CacheDirective.ProxyRevalidate
+            | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }
 
     static member NoStore = { directive = "no-store"; value  = "" }
     static member NoTransform = { directive = "no-transform"; value = "" }
@@ -52,8 +59,8 @@ type CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-module CacheDirectives =
-    // FIXME: Add an interop extension method
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module CacheDirective =
     let valueAsDeltaSeconds (directive:CacheDirective) =
         match UInt32.TryParse(directive.Value) with
             | (true, int) -> Some (TimeSpan(10000000L * int64 int))

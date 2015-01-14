@@ -33,20 +33,36 @@ type RequestPreferences =
             ranges = None
         }
 
-    static member Create(headers:Map<Header, obj>) = 
-        let acceptedCharsets = HeaderParsers.acceptCharset headers |> Set.ofSeq
-        let acceptedEncodings = HeaderParsers.acceptEncoding headers |> Set.ofSeq
-        let acceptedLanguages = HeaderParsers.acceptLanguage headers |> Set.ofSeq
-        let acceptedMediaRanges = HeaderParsers.accept headers |> Set.ofSeq
-        let range = HeaderParsers.range headers
+    static member internal Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) =
+        match (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) with
+        | (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, None) 
+            when Seq.isEmpty acceptedCharsets && Seq.isEmpty acceptedEncodings && Seq.isEmpty acceptedLanguages && Seq.isEmpty acceptedMediaRanges ->
+                RequestPreferences.None
+        | _ -> 
+            {
+                acceptedCharsets = Set.ofSeq acceptedCharsets
+                acceptedEncodings = Set.ofSeq acceptedEncodings
+                acceptedLanguages = Set.ofSeq acceptedLanguages
+                acceptedMediaRanges = Set.ofSeq acceptedMediaRanges
+                ranges = ranges
+            }
 
-        {
-            acceptedCharsets = acceptedCharsets
-            acceptedEncodings = acceptedEncodings
-            acceptedLanguages = acceptedLanguages
-            acceptedMediaRanges = acceptedMediaRanges
-            ranges = range
-        }
+    static member Create (?acceptedCharsets, ?acceptedEncodings, ?acceptedLanguages, ?acceptedMediaRanges, ?ranges) =
+        RequestPreferences.Create (
+            defaultArg acceptedCharsets Seq.empty, 
+            defaultArg acceptedEncodings Seq.empty, 
+            defaultArg acceptedLanguages Seq.empty, 
+            defaultArg acceptedMediaRanges Seq.empty, 
+            ranges)
+
+    static member Create(headers:Map<Header, obj>) = 
+        let acceptedCharsets = HeaderParsers.acceptCharset headers
+        let acceptedEncodings = HeaderParsers.acceptEncoding headers
+        let acceptedLanguages = HeaderParsers.acceptLanguage headers
+        let acceptedMediaRanges = HeaderParsers.accept headers
+        let ranges = HeaderParsers.range headers
+
+        RequestPreferences.Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
 
     static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
         (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> HeaderInternal.writeSeq f
@@ -57,4 +73,3 @@ type RequestPreferences =
                                 | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
                                 | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
                                 | _ -> "") |> HeaderInternal.writeObject f
-                                

@@ -32,6 +32,10 @@ type AcceptsNone =
 type ByteRangeSpec =
     private { firstBytePos:uint64; lastBytePos:uint64 option }
 
+    member this.FirstBytePos with get() = this.firstBytePos
+
+    member this.LastBytePos with get() = this.lastBytePos
+
     override this.ToString() =
         match (this.firstBytePos, this.lastBytePos) with
         | (fbp, Some lbp) -> (string fbp) + "-" + (string lbp)
@@ -47,6 +51,8 @@ type ByteRangeSpec =
 type SuffixByteRangeSpec =
     private { suffixLength:uint64 }
 
+    member this.ToUInt64 () = this.suffixLength
+
     override this.ToString() =
         "-" + (string this.suffixLength)
 
@@ -57,6 +63,8 @@ type SuffixByteRangeSpec =
 
 type ByteRangesSpecifier = 
     private { byteRangeSet: Choice<ByteRangeSpec, SuffixByteRangeSpec> Set }
+
+    member this.ByteRangeSet with get() = this.byteRangeSet
 
     override this.ToString() =
         "bytes=" + 
@@ -73,6 +81,9 @@ type ByteRangesSpecifier =
 type OtherRangesSpecifier = 
     private { unit:RangeUnit; rangeSet:string }
 
+    member this.Unit with get() = this.unit
+    member this.RangeSet with get() = this.rangeSet
+
     override this.ToString() =
         string this.unit + "=" + this.rangeSet
 
@@ -81,6 +92,12 @@ type OtherRangesSpecifier =
 
 type ByteRangeResp =
     private { firstBytePos:uint64; lastBytePos:uint64; length:uint64 option }
+
+    member this.FirstBytePos with get() = this.firstBytePos
+
+    member this.LastBytePos with get() = this.lastBytePos
+
+    member this.Length with get() = this.length
 
     override this.ToString () =
         (string this.firstBytePos) + "-" + (string this.lastBytePos) + "/" + (match this.length with | Some l -> string l | None -> "")
@@ -98,6 +115,8 @@ type ByteRangeResp =
 type UnsatisfiedRange =
     private { length:uint64 }
 
+    member this.ToUInt64 () = this.length
+
     override this.ToString () =
         "*/" + (string this.length)
 
@@ -109,6 +128,8 @@ type UnsatisfiedRange =
 type ByteContentRange =
     private { range:Choice<ByteRangeResp, UnsatisfiedRange> }
 
+    member this.Range with get() = this.range
+
     override this.ToString () =
         "bytes " + 
         match this.range with
@@ -119,6 +140,9 @@ type ByteContentRange =
 
 type OtherContentRange =
     private { unit:RangeUnit; rangeResp:string }
+
+    member this.Unit with get() = this.unit
+    member this.RangeResponse with get() = this.rangeResp
 
     override this.ToString() =
         string this.unit + " " + this.rangeResp

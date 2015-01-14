@@ -14,6 +14,14 @@ type Warning =
         date:DateTime option
     }
 
+    member this.Code with get() = this.code
+
+    member this.Agent with get() = this.agent
+
+    member this.Text with get() = this.text
+
+    member this.Date with get() = this.date
+
     override this.ToString() =
         (this.code.ToString("000")) + " " + 
         (match this.agent with | Choice1Of2 hostPort -> string hostPort | Choice2Of2 pseudonym -> pseudonym) + 

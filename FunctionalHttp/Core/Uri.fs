@@ -17,6 +17,10 @@ type HostPort =
         port:uint16 option
     }
 
+    member this.Host with get() = this.host
+
+    member this.Port with get() = this.port
+
     override this.ToString() =
         let host =
             match this.host with

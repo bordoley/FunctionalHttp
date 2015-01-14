@@ -12,6 +12,12 @@ type RequestPreconditions =
         ifRange: Choice<EntityTag, DateTime> option
     }
 
+    member this.IfMatch with get() = this.ifMatch
+    member this.IfModifiedSince with get() = this.ifModifiedSince
+    member this.IfNoneMatch with get() = this.ifNoneMatch
+    member this.IfUnmodifiedSince with get() = this.ifUnmodifiedSince
+    member this.IfRange with get() = this.ifRange
+
     override this.ToString() =
         let builder = StringBuilder()
         let writeHeaderLine = HeaderInternal.headerLineFunc builder
@@ -22,6 +28,19 @@ type RequestPreconditions =
     
     static member None = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }
 
+    static member internal CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange) =
+        match (ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)  with
+        | (None, None, None, None, None) -> RequestPreconditions.None
+        | (ifMatch, ifModifiedSincel, ifNoneMatch, ifUnmodifiedSince, ifRange) ->
+            {   ifMatch = ifMatch; 
+                ifModifiedSince = ifModifiedSince; 
+                ifNoneMatch = ifNoneMatch;
+                ifUnmodifiedSince = ifUnmodifiedSince;
+                ifRange = ifRange }
+
+    static member Create(?ifMatch, ?ifModifiedSince, ?ifNoneMatch, ?ifUnmodifiedSince, ?ifRange) =
+        RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
+
     static member Create(headers:Map<Header, obj>) = 
         let ifMatch = HeaderParsers.ifMatch headers
         let ifModifiedSince = HeaderParsers.ifModifiedSince headers
@@ -29,11 +48,7 @@ type RequestPreconditions =
         let ifUnmodifiedSince = HeaderParsers.ifUnmodifiedSince headers
         let ifRange = HeaderParsers.ifRange headers
 
-        {   ifMatch = ifMatch; 
-            ifModifiedSince = ifModifiedSince; 
-            ifNoneMatch = ifNoneMatch;
-            ifUnmodifiedSince = ifUnmodifiedSince;
-            ifRange = ifRange }
+        RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
 
     static member internal WriteHeaders (f:string*string -> unit) (preconditions:RequestPreconditions) = 
         (HttpHeaders.ifMatch, preconditions.ifMatch) 
