@@ -21,13 +21,15 @@ module internal CharMatchers =
 
 [<AutoOpen>]
 module internal CharParsers =
-    let satisfy (f:CharMatcher) (input:CharStream) =
-        if input.Length = 0 then Fail 0
-        else 
-            let result = input.Item 0
-            if f result 
-            then  Success(result, 1)
-            else Fail 0
+    let satisfy (f:CharMatcher) =
+        let parse (input:CharStream) =
+            if input.Length = 0 then Fail 0
+            else 
+                let result = input.Item 0
+                if f result 
+                then  Success(result, 1)
+                else Fail 0
+        parse
 
     let pchar c  = satisfy (fun i -> i = c)
 

@@ -23,19 +23,23 @@ module internal Parser =
         parse
 
     // map
-    let (|>>) (p:Parser<_>) f (input:CharStream) =
-        let result = p input
-        match result with
-        | Fail i -> Fail i
-        | Success (result, next) -> Success (f result, next)
+    let (|>>) (p:Parser<_>) f =
+        let parse (input:CharStream) =
+            let result = p input
+            match result with
+            | Fail i -> Fail i
+            | Success (result, next) -> Success (f result, next)
+        parse
 
-    let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) (input:CharStream) = 
-        match p1 input with
-        | Fail i -> Fail i
-        | Success (result1, next1) -> 
-            match input.SubStream(next1) |> p2 with
-            | Fail next2 -> Fail (next1 + next2)
-            | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
+    let (.>>.) (p1:Parser<'T1>) (p2:Parser<'T2>) =
+        let parse (input:CharStream) = 
+            match p1 input with
+            | Fail i -> Fail i
+            | Success (result1, next1) -> 
+                match input.SubStream(next1) |> p2 with
+                | Fail next2 -> Fail (next1 + next2)
+                | Success (result2, next2) -> Success ((result1, result2), next1 + next2)
+        parse
      
     let (>>.) (p1:Parser<_>) (p2:Parser<_>) = 
         p1 .>>. p2 |>> fun (r1,r2) -> r2
@@ -44,14 +48,16 @@ module internal Parser =
         p1 .>>. p2 |>> fun (r1,r2) -> r1
 
     // NOTE: Doesn't apper to be a corresponding FParsec combinator to this
-    let (<^>) (p1:Parser<_>) (p2:Parser<_>) (input:CharStream) = 
-        match p1 input with 
-        | Success (result, next) -> 
-            Success (Choice1Of2 result, next)
-        | _ -> 
-            match p2 input with
-            | Success (result, next) -> Success (Choice2Of2 result, next)
-            | Fail i -> Fail i
+    let (<^>) (p1:Parser<_>) (p2:Parser<_>) =
+        let parse (input:CharStream) = 
+            match p1 input with 
+            | Success (result, next) -> 
+                Success (Choice1Of2 result, next)
+            | _ -> 
+                match p2 input with
+                | Success (result, next) -> Success (Choice2Of2 result, next)
+                | Fail i -> Fail i
+        parse
 
     let (<|>) (p1:Parser<_>) (p2:Parser<_>) = 
         let p = p1 <^> p2
@@ -66,15 +72,19 @@ module internal Parser =
         then Success ((), 0)
         else Fail 0
 
-    let followedBy (pnext:Parser<_>) (input:CharStream) =
-        match pnext input with
-        | Success _ -> Success ((), 0)
-        | Fail i -> Fail i
+    let followedBy (pnext:Parser<_>) =
+        let parse (input:CharStream) =
+            match pnext input with
+            | Success _ -> Success ((), 0)
+            | Fail i -> Fail i
+        parse
 
-    let notFollowedBy (pnext:Parser<_>) (input:CharStream) =
-        match pnext input with
-        | Success (_, i) -> Fail i
-        | Fail i -> Success ((), 0)
+    let notFollowedBy (pnext:Parser<_>) =
+        let parse (input:CharStream) =
+            match pnext input with
+            | Success (_, i) -> Fail i
+            | Fail i -> Success ((), 0)
+        parse
 
     let createParserForwardedToRef () =
         let dummy (input:CharStream) = failwith "a parser created with createParserForwardedToRef was not initialized"
@@ -127,20 +137,24 @@ module internal Parser =
     let sepBy (p:Parser<_>) (sep:Parser<_>) =
         (sepBy1 p sep) <|>% Seq.empty
 
-    let pstring (str:string) (input:CharStream) =
-        if input.Length < str.Length
-            then Fail input.Length
-        else
-            let rec doParse i =
-                if i = str.Length
-                    then Success (str, i)
-                else if (str.Chars i) = (input.Item i)
-                    then doParse (i + 1)
-                else Fail i
+    let pstring (str:string) =
+        let parse (input:CharStream) =
+            if input.Length < str.Length
+                then Fail input.Length
+            else
+                let rec doParse i =
+                    if i = str.Length
+                        then Success (str, i)
+                    else if (str.Chars i) = (input.Item i)
+                        then doParse (i + 1)
+                    else Fail i
 
-            doParse 0
+                doParse 0
+        parse
 
-    let preturn result (input:CharStream) = Success (result, 0)
+    let preturn result = 
+        let parse (input:CharStream) = Success (result, 0)
+        parse
 
     let pzero (input:CharStream) = Fail 0
 
