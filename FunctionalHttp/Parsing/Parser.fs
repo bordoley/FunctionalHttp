@@ -92,17 +92,18 @@ module internal Parser =
         (fun input -> !r input), r : Parser<_> * Parser<_> ref
 
     let many (p:Parser<_>) =
-        let rec doParse input =
+        let rec doParse input (acc, pos) =
             match p input with
-            | Fail i -> []
-            | Success (result, next) -> 
-                (result, next) :: doParse (input.SubStream(next))
+            | Fail i -> 
+                (acc, pos)
+            | Success (result, next) ->
+                let acc = result::acc
+                let pos = next + pos
+                doParse (input.SubStream(next)) (acc, pos)
         
         let parse input =
-            let result = doParse input
-            let index = result |> Seq.fold (fun s (_, index) -> s + index) 0 
-
-            Success (result |> Seq.map (fun (k,v) -> k),  index)
+            let (result, next) = doParse input ([], 0)
+            Success ((List.rev result) :> seq<_>,  next)
         parse
      
     let many1 (p:Parser<_>) =   
@@ -159,19 +160,20 @@ module internal Parser =
     let pzero (input:CharStream) = Fail 0
 
     let manyMinMax minCount maxCount (p:Parser<_>) =
-        let rec doParse cnt input =
-            if cnt = maxCount then []
+        let rec doParse input (acc, pos, cnt) =
+            if cnt = maxCount 
+                then (acc, pos, cnt)
             else 
                 match p input with
-                | Fail i -> []
-                | Success (result, next) -> 
-                    (result, next) :: doParse (cnt + 1) (input.SubStream(next))
-        
+                | Fail i -> 
+                    (acc, pos, cnt)
+                | Success (result, next) ->
+                    let acc = result::acc
+                    let pos = next + pos
+                    doParse (input.SubStream(next)) (acc, pos, cnt + 1)
+
         let parse input =
-            let result = doParse 0 input
-            let index = result |> Seq.fold (fun s (_, index) -> s + index) 0 
-            
-            let result = result |> Seq.map (fun (k,v) -> k) |> Array.ofSeq
-            if result.Length >= minCount then Success (result :> seq<_>,  index)
-            else Fail (index - 1)
+            let (result, next, cnt) = doParse input ([], 0, 0)
+            if cnt >= minCount then Success ((List.rev result) :> seq<_>,  next)
+            else Fail (next - 1)
         parse
