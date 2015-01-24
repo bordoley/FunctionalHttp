@@ -3,6 +3,7 @@
 open FunctionalHttp.Core
 open Sparse
 open NUnit.Framework
+open FsUnit
 open System
 
 module IPAddress = 
@@ -13,7 +14,15 @@ module IPAddress =
 
     [<Test>]
     let testIPv6Parse () =
-        //6( h16 ":" ) ls32
+        let testIPv6Parse test expected =
+            match parse IPv6Address.Parser test with
+            | Success (result, next) ->
+                result |> should equal expected
+            | _ -> failwith ("parsing failed for " + test)
+
+        //6( h16 ":" )            0(h16 “:”) ls32
+        testIPv6Parse "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF" (IPv6Address(0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu))
+
         //6( h16 “:” ) h16  “::”
         //5( h16 “:” ) h16  “::”
         //5( h16 “:” ) h16  “::”  h16
