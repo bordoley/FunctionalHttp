@@ -21,7 +21,7 @@ module IPAddress =
             | _ -> failwith ("parsing failed for " + test)
 
         //6( h16 ":" )            0(h16 “:”) ls32
-        testIPv6Parse "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF" (IPv6Address(0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu))
+        testIPv6Parse "0000:1111:2222:3333:4444:5555:6666:7777" (IPv6Address(0x00001111u, 0x22223333u, 0x44445555u, 0x66667777u))
 
         //6( h16 “:” ) h16  “::”
         //5( h16 “:” ) h16  “::”

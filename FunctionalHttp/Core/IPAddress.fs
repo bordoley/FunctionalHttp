@@ -47,57 +47,48 @@ type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
         let doubleColon = pstring "::"
         let doubleOrSingleColon = doubleColon <^> pColon
 
-        let ls32 = 
-            let ipv4 = IPv4Address.Parser |>> fun x -> x.ToUInt32()
-            let h16h16 = h16 .>> pColon .>>. h16 |>> fun (x0, x1) -> 
-                ((uint32 x0) <<< 16) + (uint32 x1) 
-            ipv4 <|> h16h16
-
         let parse (input:CharStream) =
             let bytes = Array.create 8 (uint16 0)
 
-            let parseLs32 next = 
-                match ls32 (input.SubStream(next)) with
-                | Fail i -> Fail i
+            let rec doParse index pos elided =
+                let input = input.SubStream(pos)
+
+                match h16 input with
+                | Fail i -> 
+                    // h16 is ambiguous with ipv4 dec-octet so if parsing h16 fails
+                    // here we can just return fail.
+                    Fail (pos + i)
                 | Success (result, next) ->
-                    bytes.[6] <- uint16 (result &&& 0xFFFF0000ul >>> 16)
-                    bytes.[7] <- (uint16 result)
-                    Success(bytes, next)
+                    bytes.[index] <- result
 
-            let rec doParse index next elided =
-                let input = input.SubStream(next)
+                    let pos = pos + next
 
-                if index < 8 then 
-                    match h16 input with
-                    | Fail i -> 
-                        // h16 is ambiguous with ipv4 dec-octet so if parsing h16 fails
-                        // here we can just return fail.
-                        Fail i
-                    | Success (result, next) ->
+                    if index = 7 then
+                        Success(index, pos)
+                    else 
                         let input = input.SubStream(next)
 
                         match doubleOrSingleColon input with
-                        | Success (Choice1Of2 _, next) -> 
-                            if elided
-                                //FIXME use better naming to avoid magic math
-                                then Fail (next - 2)
-                            else
-                                doParse (index + 1) next true
+                        | Success (Choice1Of2 _, _) when elided-> Fail pos
+                        | Success (Choice1Of2 _, next) ->
+                            if index < 7 then doParse (index + 1) (pos + next) true
+                            else Success (index, pos + next)
                         | Success (Choice2Of2 _, next) -> 
-                            doParse (index + 1) next elided
+                            if index < 7 then doParse (index + 1) (pos + next) elided
+                            else Success (index, pos + next)
                         | Fail i -> 
                             // Rollback and check if at IPv4 IP4 instead
                             if (index = 5) || (elided && (index < 5)) then 
                                 match IPv4Address.Parser input with
-                                | Fail i -> Fail i
+                                | Fail i -> Fail (pos + i)
                                 | Success (result, next) ->
                                     let result = result.ToUInt32()
                                     bytes.[index] <- uint16 (result &&& 0xFFFF0000ul >>> 16)
                                     bytes.[index + 1] <- (uint16 result)
 
-                                    Success (index + 1, next)
-                            else Fail i     
-                else Success (index, next)
+                                    Success (index + 1, pos + next)
+                            else Fail (pos + i)     
+
                      
             match doParse 0 0 false with   
             | Fail i -> Fail i 

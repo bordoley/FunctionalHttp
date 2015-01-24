@@ -44,11 +44,13 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="FsUnit.NUnit">
       <HintPath>..\packages\FsUnit.1.3.0.1\Lib\Net40\FsUnit.NUnit.dll</HintPath>
     </Reference>
@@ -56,9 +58,6 @@
       <Project>{47D7AB35-56C2-4BB6-8596-81C9EA368540}</Project>
       <Name>FunctionalHttp-Net45</Name>
     </ProjectReference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\net40\FSharp.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Sparse">
       <HintPath>..\packages\Sparse.0.0.3\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Sparse.dll</HintPath>
     </Reference>
