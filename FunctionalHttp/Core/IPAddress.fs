@@ -50,35 +50,31 @@ type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
         let parse (input:CharStream) =
             let bytes = Array.create 8 (uint16 0)
 
-            let rec doParse index pos elided =
+            let rec doParse result index pos elided =
                 let input = input.SubStream(pos)
 
                 match h16 input with
                 | Fail i -> 
                     // h16 is ambiguous with ipv4 dec-octet so if parsing h16 fails
                     // here we can just return fail.
-                    Fail (pos + i)
+                    result
                 | Success (result, next) ->
                     bytes.[index] <- result
 
                     let pos = pos + next
 
                     if index = 7 then
-                        Success(index, pos)
+                        Success( (index, elided), pos)
                     else 
-                        let input = input.SubStream(next)
-
-                        match doubleOrSingleColon input with
+                        match doubleOrSingleColon (input.SubStream(next)) with
                         | Success (Choice1Of2 _, _) when elided-> Fail pos
                         | Success (Choice1Of2 _, next) ->
-                            if index < 7 then doParse (index + 1) (pos + next) true
-                            else Success (index, pos + next)
+                            doParse (Success ( (index, true), pos + next)) (index + 1) pos true
                         | Success (Choice2Of2 _, next) -> 
-                            if index < 7 then doParse (index + 1) (pos + next) elided
-                            else Success (index, pos + next)
+                            doParse (Success ( (index, elided), pos + next)) (index + 1) pos elided
                         | Fail i -> 
                             // Rollback and check if at IPv4 IP4 instead
-                            if (index = 5) || (elided && (index < 5)) then 
+                            if (index = 6) || (elided && (index < 6)) then 
                                 match IPv4Address.Parser input with
                                 | Fail i -> Fail (pos + i)
                                 | Success (result, next) ->
@@ -86,13 +82,13 @@ type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
                                     bytes.[index] <- uint16 (result &&& 0xFFFF0000ul >>> 16)
                                     bytes.[index + 1] <- (uint16 result)
 
-                                    Success (index + 1, pos + next)
+                                    Success ( (index + 1, elided), pos + next)
                             else Fail (pos + i)     
 
                      
-            match doParse 0 0 false with   
+            match doParse (Fail 0) 0 0 false with   
             | Fail i -> Fail i 
-            | Success (lastIndex, next) ->
+            | Success ( (lastIndex, elided), next) ->
                 let offset = 8 - 1 - lastIndex
                 if offset <> 0 then
                     for i = offset downto 0 do
