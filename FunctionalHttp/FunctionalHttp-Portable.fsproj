@@ -30,19 +30,12 @@
     <Tailcalls>true</Tailcalls>
     <DefineConstants>PCL</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\FSharp.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Collections\Multimap.fs" />
     <Compile Include="Collections\Option.fs" />
     <Compile Include="Collections\Async.fs" />
-    <Compile Include="Parsing\CharStream.fs" />
-    <Compile Include="Parsing\Parser.fs" />
-    <Compile Include="Parsing\CharMatchers.fs" />
     <Compile Include="Core\UriGrammar.fs" />
     <Compile Include="Core\IPAddress.fs" />
     <Compile Include="Core\Uri.fs" />
@@ -84,17 +77,15 @@
     <Compile Include="Server\Router.fs" />
     <Compile Include="Server\Application.fs" />
     <Compile Include="Server\HttpServer.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Collections\" />
-    <Folder Include="Parsing\" />
-    <Folder Include="Core\" />
-    <Folder Include="Client\" />
-    <Folder Include="Client.Interop\" />
-    <Folder Include="Server\" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="packages.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.Portable.FSharp.Targets" />
+  <ItemGroup>
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.3.1.2.1\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Sparse">
+      <HintPath>..\packages\Sparse.0.0.3\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Sparse.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

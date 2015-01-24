@@ -4,7 +4,7 @@ open NUnit.Framework
 open FsUnit
 
 open FunctionalHttp.Core
-open FunctionalHttp.Parsing
+open Sparse
 
 (*
 module EntityTagTests =

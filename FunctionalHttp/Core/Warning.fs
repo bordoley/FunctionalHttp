@@ -1,10 +1,11 @@
 namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing
+open Sparse
 open System
 
 open Abnf
 open HttpParsers
+open Predicates
 
 type Warning = 
     private {

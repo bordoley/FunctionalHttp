@@ -4,7 +4,7 @@ open System
 open System.Collections
 open System.Collections.Generic
 open System.Linq
-open FunctionalHttp.Parsing
+open Sparse
 
 [<Sealed>]
 type Header private (header:string) = 

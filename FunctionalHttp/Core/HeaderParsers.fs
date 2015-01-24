@@ -1,11 +1,12 @@
 ﻿namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Parsing
+open Sparse
 open System
 open System.Globalization
 
 open Abnf
+open Predicates
 
 module internal HeaderParsers =
     let private parse (header, parser) (headers : Map<Header, obj>) =

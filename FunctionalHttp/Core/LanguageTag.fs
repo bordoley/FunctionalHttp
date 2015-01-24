@@ -1,5 +1,5 @@
 ﻿namespace FunctionalHttp.Core
-open FunctionalHttp.Parsing
+open Sparse
 
 type LanguageTag =
     private { language: string }

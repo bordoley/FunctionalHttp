@@ -29,21 +29,12 @@
     <DefineConstants>NET45</DefineConstants>
     <DocumentationFile>bin\Release\Net45\FunctionalHttp.XML</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Collections\Multimap.fs" />
     <Compile Include="Collections\Option.fs" />
     <Compile Include="Collections\Async.fs" />
-    <Compile Include="Parsing\CharStream.fs" />
-    <Compile Include="Parsing\Parser.fs" />
-    <Compile Include="Parsing\CharMatchers.fs" />
     <Compile Include="Core\UriGrammar.fs" />
     <Compile Include="Core\IPAddress.fs" />
     <Compile Include="Core\Uri.fs" />
@@ -87,17 +78,19 @@
     <Compile Include="Server\Router.fs" />
     <Compile Include="Server\Application.fs" />
     <Compile Include="Server\HttpServer.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Collections\" />
-    <Folder Include="Parsing\" />
-    <Folder Include="Core\" />
-    <Folder Include="Client\" />
-    <Folder Include="Client.Interop\" />
-    <Folder Include="Server\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
-  <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Sparse">
+      <HintPath>..\packages\Sparse.0.0.3\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Sparse.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
 </Project>

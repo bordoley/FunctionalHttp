@@ -1,10 +1,11 @@
 namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing
+open Sparse
 open System
 
 open HttpParsers
 open Abnf
+open Predicates
 
 type RangeUnit = 
     private { unit: string }

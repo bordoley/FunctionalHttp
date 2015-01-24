@@ -1,7 +1,7 @@
 namespace FunctionalHttp.Core
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Parsing
+open Sparse
 open System
 open System.Runtime.CompilerServices
 open System.Text

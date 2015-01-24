@@ -1,11 +1,11 @@
 ﻿namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing
+open Sparse
+open System
 
 open Abnf
 open HttpParsers
-
-open System
+open Predicates
 
 type Preference<'T> =
     private {

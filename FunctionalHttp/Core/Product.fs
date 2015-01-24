@@ -1,6 +1,6 @@
 namespace FunctionalHttp.Core
 
-open FunctionalHttp.Parsing
+open Sparse
 
 open HttpParsers
 

@@ -1,7 +1,7 @@
 ﻿namespace FunctionalHttp.Tests
 
 open FunctionalHttp.Core
-open FunctionalHttp.Parsing
+open Sparse
 open NUnit.Framework
 open System
 

@@ -2,7 +2,7 @@
 
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
-open FunctionalHttp.Parsing
+open Sparse
 
 open System
 open System.Text
@@ -17,7 +17,7 @@ module Authorizer =
     let basic (realm:string) (f:HttpRequest<unit>*string*string -> Async<bool>) =
         let challengeString = sprintf "Basic realm=\"%s\", encoding=\"UTF-8\"" realm
       
-        let challenge = challengeString |> Parser.parse Challenge.Parser |> function
+        let challenge = challengeString |> parse Challenge.Parser |> function
             | Success (challenge, _) -> challenge
             | Fail i -> 
                 invalidArg "realm" ("realm is invalid at pos: " + string i)

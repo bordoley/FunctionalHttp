@@ -1,5 +1,5 @@
 ﻿namespace FunctionalHttp.Core
-open FunctionalHttp.Parsing
+open Sparse
 open System.Collections.Generic
 open System.Runtime.CompilerServices
 
