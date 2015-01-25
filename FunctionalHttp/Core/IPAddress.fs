@@ -42,63 +42,9 @@ type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
 
         (writeBytes x0) + ":" + (writeBytes x1) + ":" + (writeBytes x2) + ":" + (writeBytes x3)
 
+    // FIXME: IPv6 grammar is very complex. Remove partial implementation for now since its incorrect.
     static member internal Parser =
-        let h16 = manyMinMaxSatisfy 1 4 HEXDIG |>> fun x -> Convert.ToUInt16(x, 16)
-        let doubleColon = pstring "::"
-        let doubleOrSingleColon = doubleColon <^> pColon
+        let h16 = manyMinMaxSatisfy 1 4 HEXDIG |>> fun x -> Convert.ToUInt16(x, 16)          
 
-        let parse (input:CharStream) =
-            let bytes = Array.create 8 (uint16 0)
-
-            let rec doParse result index pos elided =
-                let input = input.SubStream(pos)
-
-                match h16 input with
-                | Fail i -> 
-                    // h16 is ambiguous with ipv4 dec-octet so if parsing h16 fails
-                    // here we can just return fail.
-                    result
-                | Success (result, next) ->
-                    bytes.[index] <- result
-
-                    let pos = pos + next
-
-                    if index = 7 then
-                        Success( (index, elided), pos)
-                    else 
-                        match doubleOrSingleColon (input.SubStream(next)) with
-                        | Success (Choice1Of2 _, _) when elided-> Fail pos
-                        | Success (Choice1Of2 _, next) ->
-                            doParse (Success ( (index, true), pos + next)) (index + 1) pos true
-                        | Success (Choice2Of2 _, next) -> 
-                            doParse (Success ( (index, elided), pos + next)) (index + 1) pos elided
-                        | Fail i -> 
-                            // Rollback and check if at IPv4 IP4 instead
-                            if (index = 6) || (elided && (index < 6)) then 
-                                match IPv4Address.Parser input with
-                                | Fail i -> Fail (pos + i)
-                                | Success (result, next) ->
-                                    let result = result.ToUInt32()
-                                    bytes.[index] <- uint16 (result &&& 0xFFFF0000ul >>> 16)
-                                    bytes.[index + 1] <- (uint16 result)
-
-                                    Success ( (index + 1, elided), pos + next)
-                            else Fail (pos + i)     
-
-                     
-            match doParse (Fail 0) 0 0 false with   
-            | Fail i -> Fail i 
-            | Success ( (lastIndex, elided), next) ->
-                let offset = 8 - 1 - lastIndex
-                if offset <> 0 then
-                    for i = offset downto 0 do
-                        bytes.[8 - 1 - i] <- bytes.[lastIndex - i]
-                        bytes.[lastIndex - i] <- (uint16 0)
-                
-                let getUInt32 i =
-                    let i = i * 2
-                    let high = (uint32 bytes.[i]) <<< 16
-                    let low = (uint32 bytes.[i+1])
-                    high + low
-                Success(IPv6Address(getUInt32 0, getUInt32 1, getUInt32 2, getUInt32 3), next)
+        let parse (input:CharStream) : ParseResult<IPv6Address> = Fail 0
         parse
