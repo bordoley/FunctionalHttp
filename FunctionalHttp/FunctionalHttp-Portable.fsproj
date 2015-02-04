@@ -69,7 +69,7 @@
     <Compile Include="Core\HttpResponse.fs" />
     <Compile Include="Client\ClientStatus.fs" />
     <Compile Include="Client\HttpClient.fs" />
-    <Compile Include="Client.Interop\HttpClientExtensions.fs" />
+    <!---<Compile Include="Client.Interop\HttpClientExtensions.fs" />-->
     <Compile Include="Server\Route.fs" />
     <Compile Include="Server\Authorizer.fs" />
     <Compile Include="Server\Resource.fs" />
