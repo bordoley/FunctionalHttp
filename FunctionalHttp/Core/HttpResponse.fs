@@ -472,7 +472,7 @@ module HttpResponse =
     let tryGetAge(this:HttpResponse<'TResp>, age : byref<TimeSpan>) = 
         Option.tryGetValue this.Age &age
 
-    [<Extension; CompiledName("ryGetDate")>]
+    [<Extension; CompiledName("TryGetDate")>]
     let tryGetDate(this:HttpResponse<'TResp>, date : byref<DateTime>) = 
         Option.tryGetValue this.Date &date
 

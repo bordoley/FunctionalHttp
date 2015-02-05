@@ -30,7 +30,7 @@ type Warning =
         match this.date with| None -> "" | Some date -> "\"" + HttpEncoding.dateToHttpDate date + "\""
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Warning = 
+module internal Warning = 
     let parser = 
         // Fixme : UInt16.Parse can throw
         let code = manyMinMaxSatisfy 3 3 isDigit |>> UInt16.Parse
