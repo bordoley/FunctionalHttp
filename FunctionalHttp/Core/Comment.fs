@@ -16,7 +16,24 @@ type internal Comment =
             | Choice2Of2 comment -> string comment)
         |> String.concat " ") + ")"
 
-    static member internal Parser =
+    static member private EncodeCommentText (text:string) = 
+        let builder:StringBuilder ref = ref null
+
+        for i = 0 to text.Length - 1 do
+            match text.Chars 0 with
+            | c when ctext c ->     
+                if (!builder) <> null then (!builder).Append c |> ignore
+            | c ->
+                if (!builder) <> null then builder := StringBuilder().Append(text, 0, i)
+                (!builder).Append('\\').Append(c) |> ignore
+
+        if (!builder) <> null 
+            then (!builder).ToString()
+        else text
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Comment = 
+    let parser =
         let ESCAPE_CHAR = '\\';
 
         let comment_text (input:CharStream) = 
@@ -57,18 +74,3 @@ type internal Comment =
         comment_segment_impl := comment_text <^> comment
          
         comment
-
-    static member private EncodeCommentText (text:string) = 
-        let builder:StringBuilder ref = ref null
-
-        for i = 0 to text.Length - 1 do
-            match text.Chars 0 with
-            | c when ctext c ->     
-                if (!builder) <> null then (!builder).Append c |> ignore
-            | c ->
-                if (!builder) <> null then builder := StringBuilder().Append(text, 0, i)
-                (!builder).Append('\\').Append(c) |> ignore
-
-        if (!builder) <> null 
-            then (!builder).ToString()
-        else text

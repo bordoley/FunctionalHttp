@@ -14,6 +14,7 @@ type CacheDirective =
     }
 
     member this.Directive with get() = this.Directive
+
     member this.Value with get() = this.value
 
     override this.ToString() =
@@ -21,46 +22,63 @@ type CacheDirective =
             then this.Directive
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module CacheDirective =
+    [<CompiledName("NoStore")>]
+    let noStore = { directive = "no-store"; value  = "" }
+
+    [<CompiledName("NoTransform")>]
+    let noTransform = { directive = "no-transform"; value = "" }
+
+    [<CompiledName("OnlyIfCached")>]
+    let onlyIfCached = { directive = "only-if-cached"; value = "" }
+
+    [<CompiledName("MustRevalidate")>]
+    let mustRevalidate = { directive = "must-revalidate"; value = "" }
+
+    [<CompiledName("Public")>]
+    let public_ = { directive = "public"; value = "" }
+
+    [<CompiledName("ProxyRevalidate")>]
+    let proxyRevalidate = { directive = "proxy-revalidate"; value = "" }
+
+    let internal parser =
         token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
             match (key.ToLowerInvariant(), value) with
-            | ("no-store", None) -> CacheDirective.NoStore
-            | ("no-transform", None) -> CacheDirective.NoTransform
-            | ("only-if-cached", None) -> CacheDirective.OnlyIfCached
-            | ("must-revalidate", None) -> CacheDirective.MustRevalidate
-            | ("public", None) -> CacheDirective.Public
-            | ("proxy-revalidate", None) -> CacheDirective.ProxyRevalidate
+            | ("no-store", None) -> noStore
+            | ("no-transform", None) -> noTransform
+            | ("only-if-cached", None) -> onlyIfCached
+            | ("must-revalidate", None) -> mustRevalidate
+            | ("public", None) -> public_
+            | ("proxy-revalidate", None) -> proxyRevalidate
             | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }
 
-    static member NoStore = { directive = "no-store"; value  = "" }
-    static member NoTransform = { directive = "no-transform"; value = "" }
-    static member OnlyIfCached = { directive = "only-if-cached"; value = "" }
-    static member MustRevalidate = { directive = "must-revalidate"; value = "" }
-    static member Public = { directive = "public"; value = "" }
-    static member ProxyRevalidate = { directive = "proxy-revalidate"; value = "" }
-
-    static member MaxAge (value:TimeSpan) =
+    [<CompiledName("MaxAge")>]
+    let maxAge (value:TimeSpan) =
         { directive = "max-age"; value = (int value.TotalSeconds).ToString() }
 
-    static member MaxStale (value:TimeSpan) =
+    [<CompiledName("MaxStale")>]
+    let maxStale (value:TimeSpan) =
         { directive = "max-stale"; value = (int value.TotalSeconds).ToString() }
-    
-    static member MinFresh (value:TimeSpan) =
+
+    [<CompiledName("MinFresh")>]
+    let minFresh (value:TimeSpan) =
         { directive = "min-fresh"; value = (int value.TotalSeconds).ToString() }
 
-    static member SharedMaxAge (value:TimeSpan) =
+    [<CompiledName("SharedMaxAge")>]
+    let sharedMaxAge (value:TimeSpan) =
         { directive = "s-maxage"; value = (int value.TotalSeconds).ToString() }
-
-    static member NoCache (value: seq<Header>) =
+     
+    [<CompiledName("NoCache")>]
+    let noCache (value: seq<Header>) =
         let headers = Set.ofSeq value
         { directive = "no-cache"; value = String.Join(", ", headers) }
 
-    static member Private(value: seq<Header>) =
+    [<CompiledName("Private")>]
+    let private_ (value: seq<Header>) =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module CacheDirective =
     [<CompiledName("ValueAsDeltaSeconds")>]
     let valueAsDeltaSeconds (directive:CacheDirective) =
         match UInt32.TryParse(directive.Value) with

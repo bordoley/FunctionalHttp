@@ -46,7 +46,7 @@ type HttpRequest<'TReq> =
 
     override this.ToString() = 
         let builder = StringBuilder()
-        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+        let writeHeaderLine = Header.headerLineFunc builder
 
         Printf.bprintf builder "%O %O %O\r\n" this.Method this.Uri.PathAndQuery this.Version
         this |> HttpRequest.WriteHeaders writeHeaderLine
@@ -138,7 +138,7 @@ type HttpRequest<'TReq> =
         let referer = HeaderParsers.referer headers
         let userAgent = HeaderParsers.userAgent headers
 
-        let headers = HeaderInternal.filterStandardHeaders headers
+        let headers = Header.filterStandardHeaders headers
 
         HttpRequest<'TReq>.Create (
             authorization,
@@ -159,23 +159,23 @@ type HttpRequest<'TReq> =
             version)
 
     static member internal WriteHeaders (f:string*string -> unit) (req:HttpRequest<'TReq>) =
-        (HttpHeaders.host,               req.Uri.Authority)      |> HeaderInternal.writeObject f
-        (HttpHeaders.authorization,      req.Authorization)      |> HeaderInternal.writeOption f
-        (HttpHeaders.cacheControl,       req.CacheControl )      |> HeaderInternal.writeSeq f 
+        (Header.host,               req.Uri.Authority)      |> Header.writeObject f
+        (Header.authorization,      req.Authorization)      |> Header.writeOption f
+        (Header.cacheControl,       req.CacheControl )      |> Header.writeSeq f 
        
         req.ContentInfo |> ContentInfo.WriteHeaders f
 
-        (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then (x |> HeaderInternal.writeObject f)
-        (HttpHeaders.pragma,             req.Pragma       )      |> HeaderInternal.writeSeq f
+        (Header.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then (x |> Header.writeObject f)
+        (Header.pragma,             req.Pragma       )      |> Header.writeSeq f
 
         req.Preconditions |> RequestPreconditions.WriteHeaders f
         req.preferences |> RequestPreferences.WriteHeaders f
 
-        (HttpHeaders.proxyAuthorization, req.ProxyAuthorization) |> HeaderInternal.writeOption f
-        (HttpHeaders.referer,            req.Referer           ) |> HeaderInternal.writeOption f
-        (HttpHeaders.userAgent,          req.UserAgent         ) |> HeaderInternal.writeOption f
+        (Header.proxyAuthorization, req.ProxyAuthorization) |> Header.writeOption f
+        (Header.referer,            req.Referer           ) |> Header.writeOption f
+        (Header.userAgent,          req.UserAgent         ) |> Header.writeOption f
 
-        req.Headers |> Map.toSeq |> HeaderInternal.writeAll f
+        req.Headers |> Map.toSeq |> Header.writeAll f
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal HttpRequestInternal =

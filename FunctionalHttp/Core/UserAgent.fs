@@ -16,12 +16,15 @@ type UserAgent =
                 | Choice2Of2 comment -> string comment)
             |> String.concat " ")
 
-    static member internal Parser =
-        let additional = many (RWS >>. (Product.Parser <^> Comment.Parser))
-        Product.Parser .>>. additional |>> fun (product, additional) -> 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module UserAgent = 
+    let internal parser =
+        let additional = many (RWS >>. (Product.parser <^> Comment.parser))
+        Product.parser .>>. additional |>> fun (product, additional) -> 
             { product = product; additional = List.ofSeq additional }
 
-    static member Create ua =
-        match parse UserAgent.Parser ua with
+    [<CompiledName("Create")>]
+    let create ua =
+        match parse parser ua with
         | Success (ua, _) -> ua
         | _ -> invalidArg "ua" "Not a valid User-Agent string"

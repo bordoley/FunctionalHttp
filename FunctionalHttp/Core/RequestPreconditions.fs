@@ -20,7 +20,7 @@ type RequestPreconditions =
 
     override this.ToString() =
         let builder = StringBuilder()
-        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+        let writeHeaderLine = Header.headerLineFunc builder
 
         this |> RequestPreconditions.WriteHeaders writeHeaderLine
 
@@ -51,26 +51,26 @@ type RequestPreconditions =
         RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
 
     static member internal WriteHeaders (f:string*string -> unit) (preconditions:RequestPreconditions) = 
-        (HttpHeaders.ifMatch, preconditions.ifMatch) 
+        (Header.ifMatch, preconditions.ifMatch) 
         |> function
             | (header, Some (Choice1Of2 etags)) -> (header, etags :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
-        |> HeaderInternal.writeObject f
+        |> Header.writeObject f
 
-        (HttpHeaders.ifModifiedSince, preconditions.ifModifiedSince) |> HeaderInternal.writeDateTime f
+        (Header.ifModifiedSince, preconditions.ifModifiedSince) |> Header.writeDateTime f
 
-        (HttpHeaders.ifMatch, preconditions.ifNoneMatch) 
+        (Header.ifMatch, preconditions.ifNoneMatch) 
         |> function
             | (header, Some (Choice1Of2 etags)) -> (header, etags :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
-        |> HeaderInternal.writeObject f
+        |> Header.writeObject f
 
-        (HttpHeaders.ifUnmodifiedSince, preconditions.ifUnmodifiedSince) |> HeaderInternal.writeDateTime f
+        (Header.ifUnmodifiedSince, preconditions.ifUnmodifiedSince) |> Header.writeDateTime f
 
-        (HttpHeaders.ifRange, preconditions.ifRange)
+        (Header.ifRange, preconditions.ifRange)
         |> function
-            | (header, Some (Choice1Of2 etag)) -> (header, etag) |> HeaderInternal.writeObject f
-            | (header, Some (Choice2Of2 date)) -> (header, Some date) |> HeaderInternal.writeDateTime f
+            | (header, Some (Choice1Of2 etag)) -> (header, etag) |> Header.writeObject f
+            | (header, Some (Choice2Of2 date)) -> (header, Some date) |> Header.writeDateTime f
             | _ -> ()

@@ -13,6 +13,7 @@ type Challenge =
     }
 
     member this.DataOrParameters with get() = this.dataOrParameters
+
     member this.Scheme with get() = this.scheme
 
     override this.ToString() =
@@ -28,8 +29,12 @@ type Challenge =
                 | (key, value) ->
                     key + "=" + HttpEncoding.asTokenOrQuotedString value)
             |> String.concat ", "
+      
+type Credentials = Challenge
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Challenge =
+    let internal parser =
         let auth_scheme = token
         let auth_param = 
             token .>> (BWS .>>. pEquals .>>. BWS) .>>. (token <|> quoted_string)
@@ -46,16 +51,13 @@ type Challenge =
         auth_scheme .>> (many1Satisfy SP) .>>. ( data <^> auth_params )
         |>> fun (scheme, dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; }
-        
-    static member OAuthToken token = 
+
+    [<CompiledName("OAuthToken")>]    
+    let oAuthToken token = 
         match token |> parse token68 with
         | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
         | _ -> invalidArg "token" "Token must be valid base64 data"
-      
-type Credentials = Challenge
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Challenge =
     [<Extension;CompiledName("TryGetData")>]
     let tryGetData(this:Challenge, data : byref<string>) = 
         match this.DataOrParameters with

@@ -18,7 +18,9 @@ type EntityTag =
         else 
             sprintf "\"%s\"" this.Tag
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal EntityTag =
+    let parser =
         let etagc = regex "[\x21\x23-\x7E\x80-\xFF]+"
         let opaque_tag = pQuote >>. etagc .>> pQuote
         let weak = pstring "W/"

@@ -56,7 +56,7 @@ type HttpResponse<'TResp> =
 
     override this.ToString() = 
         let builder = StringBuilder()
-        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+        let writeHeaderLine = Header.headerLineFunc builder
 
         Printf.bprintf builder "%O %O\r\n" this.Status this.Version
         this |> HttpResponse.WriteHeaders writeHeaderLine
@@ -170,7 +170,7 @@ type HttpResponse<'TResp> =
         let vary = HeaderParsers.vary headers
         let warning = HeaderParsers.warning headers |> List.ofSeq
 
-        let headers = HeaderInternal.filterStandardHeaders headers
+        let headers = Header.filterStandardHeaders headers
 
         HttpResponse<'TResp>.Create(   
             acceptedRanges,
@@ -196,39 +196,39 @@ type HttpResponse<'TResp> =
             warning) 
 
     static member internal WriteHeaders (f:string*string -> unit) (resp:HttpResponse<'TResp>) =
-        (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) 
+        (Header.acceptRanges,      resp.AcceptedRanges    ) 
         |> function
             | (header, Some (Choice1Of2 rangeUnits)) -> (header, rangeUnits :> obj)
             | (header, Some (Choice2Of2 none)) -> (header, none :> obj)
             | (header, _) -> (header, "" :> obj)
-        |> HeaderInternal.writeObject f
+        |> Header.writeObject f
 
-        (HttpHeaders.age,               resp.Age               ) |> HeaderInternal.writeDeltaSecond f
-        (HttpHeaders.allow,             resp.Allowed           ) |> HeaderInternal.writeSeq f 
-        (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> HeaderInternal.writeSeq f 
-        (HttpHeaders.cacheControl,      resp.CacheControl      ) |> HeaderInternal.writeSeq f 
+        (Header.age,               resp.Age               ) |> Header.writeDeltaSecond f
+        (Header.allow,             resp.Allowed           ) |> Header.writeSeq f 
+        (Header.wwwAuthenticate,   resp.Authenticate      ) |> Header.writeSeq f 
+        (Header.cacheControl,      resp.CacheControl      ) |> Header.writeSeq f 
 
         resp.ContentInfo |> ContentInfo.WriteHeaders f
 
-        (HttpHeaders.date,              resp.Date              ) |> HeaderInternal.writeDateTime f  
-        (HttpHeaders.etag,              resp.ETag              ) |> HeaderInternal.writeOption f 
-        (HttpHeaders.date,              resp.Expires           ) |> HeaderInternal.writeDateTime f
-        (HttpHeaders.lastModified,      resp.LastModified      ) |> HeaderInternal.writeDateTime f
-        (HttpHeaders.location,          resp.Location          ) |> HeaderInternal.writeOption f
-        (HttpHeaders.proxyAuthenticate, resp.ProxyAuthenticate ) |> HeaderInternal.writeSeq f 
-        (HttpHeaders.retryAfter,        resp.RetryAfter        ) |> HeaderInternal.writeDateTime f
-        (HttpHeaders.server,            resp.Server            ) |> HeaderInternal.writeOption f
+        (Header.date,              resp.Date              ) |> Header.writeDateTime f  
+        (Header.etag,              resp.ETag              ) |> Header.writeOption f 
+        (Header.date,              resp.Expires           ) |> Header.writeDateTime f
+        (Header.lastModified,      resp.LastModified      ) |> Header.writeDateTime f
+        (Header.location,          resp.Location          ) |> Header.writeOption f
+        (Header.proxyAuthenticate, resp.ProxyAuthenticate ) |> Header.writeSeq f 
+        (Header.retryAfter,        resp.RetryAfter        ) |> Header.writeDateTime f
+        (Header.server,            resp.Server            ) |> Header.writeOption f
 
-        (HttpHeaders.vary,              resp.Vary              ) 
+        (Header.vary,              resp.Vary              ) 
         |> function
             | (header, Some (Choice1Of2 headers)) -> (header, headers :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
-        |> HeaderInternal.writeObject f
+        |> Header.writeObject f
 
-        (HttpHeaders.warning,           resp.Warning           ) |> HeaderInternal.writeSeq f 
+        (Header.warning,           resp.Warning           ) |> Header.writeSeq f 
 
-        resp.Headers |> Map.toSeq |> HeaderInternal.writeAll f
+        resp.Headers |> Map.toSeq |> Header.writeAll f
 
 module internal HttpResponseInternal =
     [<CompiledName("With")>]

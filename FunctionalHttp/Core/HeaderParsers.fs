@@ -9,10 +9,10 @@ open Abnf
 open Predicates
 
 module internal HeaderParsers =
-    let private parse (header, parser) (headers : Map<Header, obj>) =
+    let private parse (header, parser:Parser<_>) (headers : Map<Header, obj>) =
         headers.TryFind header
         |> Option.bind (fun x -> 
-            string x |> parse parser |> function
+            (string x) |> parse parser |> function
                 | Success (x, _) -> Some x
                 | Fail i -> None)
 
@@ -38,94 +38,94 @@ module internal HeaderParsers =
             | (true, int) -> Some (TimeSpan(10000000L * int64 int))
             | _ -> None)
 
-    let private cacheDirectiveSeq = CacheDirective.Parser|> HttpParsers.httpList
-    let private challengeSeq = Challenge.Parser |> HttpParsers.httpList
+    let private cacheDirectiveSeq = CacheDirective.parser|> HttpParsers.httpList
+    let private challengeSeq = Challenge.parser |> HttpParsers.httpList
 
     // Request
-    let authorization = parse (HttpHeaders.authorization, Credentials.Parser)
-    let cacheControl headers = parseSeq (HttpHeaders.cacheControl, cacheDirectiveSeq) headers |> Set.ofSeq
+    let authorization = parse (Header.authorization, Challenge.parser)
+    let cacheControl headers = parseSeq (Header.cacheControl, cacheDirectiveSeq) headers |> Set.ofSeq
     let expectContinue (headers : Map<Header, obj>) =
-        headers.TryFind HttpHeaders.expect
+        headers.TryFind Header.expect
         |> Option.map (fun x -> string x = "100-continue")
         |> Option.getOrElse false
 
-    let pragma headers = parseSeq (HttpHeaders.pragma, cacheDirectiveSeq) headers |> Set.ofSeq
-    let proxyAuthorization = parse (HttpHeaders.proxyAuthorization, Credentials.Parser)
-    let referer = parseUri HttpHeaders.referer 
-    let userAgent = parse (HttpHeaders.userAgent, UserAgent.Parser)
+    let pragma headers = parseSeq (Header.pragma, cacheDirectiveSeq) headers |> Set.ofSeq
+    let proxyAuthorization = parse (Header.proxyAuthorization, Challenge.parser)
+    let referer = parseUri Header.referer 
+    let userAgent = parse (Header.userAgent, UserAgent.parser)
 
     // Response
-    let private acceptRangesParser = (RangeUnit.Parser |> HttpParsers.httpList1 |>> Set.ofSeq) <^> AcceptsNone.Parser
-    let acceptedRanges = parse (HttpHeaders.acceptRanges, acceptRangesParser)
+    let private acceptRangesParser = (RangeUnit.parser |> HttpParsers.httpList1 |>> Set.ofSeq) <^> AcceptsNone.parser
+    let acceptedRanges = parse (Header.acceptRanges, acceptRangesParser)
 
-    let age = parseNonNegativeTimeSpan HttpHeaders.age
-    let allowed headers = parseSeq (HttpHeaders.allow, Method.Parser |> HttpParsers.httpList) headers |> Set.ofSeq
-    let wwwAuthenticate headers = parseSeq (HttpHeaders.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
-    let date = parse (HttpHeaders.date, HttpParsers.httpDate)
-    let etag = parse (HttpHeaders.etag, EntityTag.Parser)
-    let expires = parse (HttpHeaders.expires, HttpParsers.httpDate)
-    let lastModified = parse (HttpHeaders.lastModified, HttpParsers.httpDate)
-    let location = parseUri HttpHeaders.location
-    let proxyAuthenticate headers = parseSeq (HttpHeaders.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
+    let age = parseNonNegativeTimeSpan Header.age
+    let allowed headers = parseSeq (Header.allow, Method.parser |> HttpParsers.httpList) headers |> Set.ofSeq
+    let wwwAuthenticate headers = parseSeq (Header.wwwAuthenticate, challengeSeq) headers |> Set.ofSeq
+    let date = parse (Header.date, HttpParsers.httpDate)
+    let etag = parse (Header.etag, EntityTag.parser)
+    let expires = parse (Header.expires, HttpParsers.httpDate)
+    let lastModified = parse (Header.lastModified, HttpParsers.httpDate)
+    let location = parseUri Header.location
+    let proxyAuthenticate headers = parseSeq (Header.proxyAuthenticate, challengeSeq) headers |> Set.ofSeq
     let retryAfter = 
         // FIXME: Int32.Parse can throw
         let delaySeconds = many1Satisfy isDigit |>> Int64.Parse |>> (fun x ->
             DateTime.UtcNow.AddTicks (x * 10000000L))
         let p = HttpParsers.httpDate <|> delaySeconds
-        parse (HttpHeaders.retryAfter, p)
+        parse (Header.retryAfter, p)
 
-    let server = parse (HttpHeaders.server, Server.Parser)
+    let server = parse (Header.server, Server.parser)
 
     let private varyParser = 
         // Header is a token and tchar includes "*". So try parsing "*" .>> eof first and if that fails fall back
-        (Any.Parser .>> eof) <^>  (Header.Parser |> HttpParsers.httpList1 |>> Set.ofSeq) |>> function
+        (Any.parser .>> eof) <^>  (Header.parser |> HttpParsers.httpList1 |>> Set.ofSeq) |>> function
             | Choice1Of2 any -> Choice2Of2 any
             | Choice2Of2 headers -> Choice1Of2 headers
-    let vary = parse (HttpHeaders.vary, varyParser)
-    let warning = parseSeq (HttpHeaders.warning, Warning.Parser |> HttpParsers.httpList)
+    let vary = parse (Header.vary, varyParser)
+    let warning = parseSeq (Header.warning, Warning.parser |> HttpParsers.httpList)
 
     // ContentInfo
-    let contentEncoding = parseSeq (HttpHeaders.contentEncoding, ContentCoding.Parser |> HttpParsers.httpList)
+    let contentEncoding = parseSeq (Header.contentEncoding, ContentCoding.parser |> HttpParsers.httpList)
 
-    let contentLanguages = parseSeq (HttpHeaders.contentLanguage, LanguageTag.Parser |> HttpParsers.httpList)
+    let contentLanguages = parseSeq (Header.contentLanguage, LanguageTag.parser |> HttpParsers.httpList)
 
-    let contentLength = parseUInt64 HttpHeaders.contentLength
+    let contentLength = parseUInt64 Header.contentLength
 
-    let contentLocation = parseUri HttpHeaders.contentLocation
+    let contentLocation = parseUri Header.contentLocation
 
-    let contentType = parse (HttpHeaders.contentType, MediaType.Parser)
+    let contentType = parse (Header.contentType, MediaType.parser)
 
     let contentRange =
-        let p = ByteContentRange.Parser<^>OtherContentRange.Parser
-        parse (HttpHeaders.contentRange, p)
+        let p = ByteContentRange.parser<^>OtherContentRange.parser
+        parse (Header.contentRange, p)
 
     // Request Preconditions
-    let private eTagPreconditionParser = (EntityTag.Parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.Parser
-    let ifMatch = parse (HttpHeaders.ifMatch, eTagPreconditionParser)
-    let ifModifiedSince = parse (HttpHeaders.ifModifiedSince, HttpParsers.httpDate)
-    let ifNoneMatch = parse (HttpHeaders.ifNoneMatch, eTagPreconditionParser)
-    let ifUnmodifiedSince = parse (HttpHeaders.ifUnmodifiedSince, HttpParsers.httpDate)
+    let private eTagPreconditionParser = (EntityTag.parser |> HttpParsers.httpList1|>> Set.ofSeq) <^> Any.parser
+    let ifMatch = parse (Header.ifMatch, eTagPreconditionParser)
+    let ifModifiedSince = parse (Header.ifModifiedSince, HttpParsers.httpDate)
+    let ifNoneMatch = parse (Header.ifNoneMatch, eTagPreconditionParser)
+    let ifUnmodifiedSince = parse (Header.ifUnmodifiedSince, HttpParsers.httpDate)
     let ifRange =
-        let p = EntityTag.Parser <^> HttpParsers.httpDate
-        parse (HttpHeaders.ifRange, p)
+        let p = EntityTag.parser <^> HttpParsers.httpDate
+        parse (Header.ifRange, p)
 
     // Request PReferences
     let accept =
-        let parser = AcceptPreference.Parser |> HttpParsers.httpList
-        parseSeq (HttpHeaders.accept, parser)
+        let parser = AcceptPreference.parser |> HttpParsers.httpList
+        parseSeq (Header.accept, parser)
 
     let acceptCharset = 
-        let parser = (Preference.Parser Charset.Parser) |> HttpParsers.httpList
-        parseSeq (HttpHeaders.acceptCharset, parser)
+        let parser = (Preference.parser Charset.parser) |> HttpParsers.httpList
+        parseSeq (Header.acceptCharset, parser)
 
     let acceptEncoding = 
-        let parser = (Preference.Parser ContentCoding.Parser) |> HttpParsers.httpList
-        parseSeq (HttpHeaders.acceptEncoding, parser)
+        let parser = (Preference.parser ContentCoding.parser) |> HttpParsers.httpList
+        parseSeq (Header.acceptEncoding, parser)
 
     let acceptLanguage = 
-        let parser = (Preference.Parser LanguageTag.Parser) |> HttpParsers.httpList
-        parseSeq (HttpHeaders.acceptLanguage, parser)
+        let parser = (Preference.parser LanguageTag.parser) |> HttpParsers.httpList
+        parseSeq (Header.acceptLanguage, parser)
 
     let range =
-        let parser = ByteRangesSpecifier.Parser <^> OtherRangesSpecifier.Parser
-        parse (HttpHeaders.range, parser)
+        let parser = ByteRangesSpecifier.parser <^> OtherRangesSpecifier.parser
+        parse (Header.range, parser)

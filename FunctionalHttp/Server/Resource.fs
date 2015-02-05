@@ -84,12 +84,12 @@ module Resource =
             member this.Handle req =
                 match req.Method with
                 | m when not (resource.Allowed.Contains m) -> methodNotAllowedResponse
-                | m when m = Method.Get || m = Method.Head -> conditionalGet req
-                | m when m = Method.Post -> 
+                | m when m = Method.get || m = Method.head -> conditionalGet req
+                | m when m = Method.post -> 
                     req |> resource.Get |> Async.map continueIfSuccess
-                | m when m = Method.Put || m = Method.Patch -> 
+                | m when m = Method.put || m = Method.patch -> 
                     req |> checkUpdateConditions |> Async.map continueIfSuccess
-                | m when m = Method.Delete ->
+                | m when m = Method.delete ->
                     async {
                         let! resp = resource.Get req
                         return! 
@@ -97,12 +97,12 @@ module Resource =
                             then resp |> async.Return
                             else req |> resource.Delete |> Async.map (HttpResponse.withEntity None)
                     }
-                | m when m = Method.Options ->  optionsResponse
+                | m when m = Method.options ->  optionsResponse
                 | _ -> ArgumentException() |> raise
 
             member this.Accept req = 
                 match req.Method with
-                | m when m = Method.Post ->
+                | m when m = Method.post ->
                     resource.Post req
                 | _ -> ArgumentException() |> raise
     }

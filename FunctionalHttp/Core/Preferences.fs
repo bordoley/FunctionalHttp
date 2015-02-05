@@ -14,17 +14,20 @@ type Preference<'T> =
     }
 
     member this.Value with get() = this.value
+
     member this.Quality with get() = this.quality
 
     override this.ToString() =
         (match this.Value with
         | Choice1Of2 v -> v.ToString()
-        | _ -> Any.Instance.ToString()) + 
+        | _ -> Any.instance.ToString()) + 
 
         // FIXME: Make this print pretty
         if this.Quality < 1000us then ";q=0." + string this.Quality else ""
 
-    static member internal Parser (p:Parser<'T>) =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Preference = 
+    let parser (p:Parser<'T>) =
         let qvalue = 
             let qvalue0 = 
                 (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 isDigit) ) 
@@ -41,12 +44,11 @@ type Preference<'T> =
 
         let weight = opt ((OWS_SEMICOLON_OWS >>. pstring "q=") >>. qvalue) |>> (function | None -> 1000us | Some x -> x)
 
-        (Any.Parser <^> p) .>>. weight
+        (Any.parser <^> p) .>>. weight
         |>> fun (value, quality) -> 
             match value with
-            | Choice1Of2 any -> { value = Choice2Of2 Any.Instance; quality = quality } 
+            | Choice1Of2 any -> { value = Choice2Of2 Any.instance; quality = quality } 
             | Choice2Of2 v -> { value = Choice1Of2 v; quality = quality } 
-
 
 type AcceptPreference =
     private {
@@ -67,8 +69,10 @@ type AcceptPreference =
         (string this.mediaRange) + 
         (if this.quality < 1000us then ";q=0." + string this.quality else "") + 
         ";" + parameters
-   
-    static member internal Parser =
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal AcceptPreference = 
+    let parser =
         let qvalue = 
             let qvalue0 = 
                 (pchar '0' >>. opt (pPeriod >>. manyMinMaxSatisfy 0 3 isDigit) ) 
@@ -91,6 +95,6 @@ type AcceptPreference =
  
         let parameters = (OWS_SEMICOLON_OWS >>. parameter) |> many
 
-        MediaRange.Parser .>>. weight .>>. parameters
+        MediaRange.parser .>>. weight .>>. parameters
         |>> fun ((mr, quality), parameters) ->
             { mediaRange = mr; quality = quality; parameters = parameters |> Map.ofSeq }

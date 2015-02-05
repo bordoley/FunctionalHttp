@@ -28,7 +28,7 @@ type ContentInfo =
 
     override this.ToString() =
         let builder = StringBuilder()
-        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+        let writeHeaderLine = Header.headerLineFunc builder
 
         this |> ContentInfo.WriteHeaders writeHeaderLine
 
@@ -69,16 +69,16 @@ type ContentInfo =
             range)
 
     static member internal WriteHeaders (f:string*string -> unit) (contentInfo:ContentInfo)  =
-        (HttpHeaders.contentEncoding, contentInfo.Encodings) |> HeaderInternal.writeSeq f 
-        (HttpHeaders.contentLanguage, contentInfo.Languages) |> HeaderInternal.writeSeq f
-        (HttpHeaders.contentLength,   contentInfo.Length   ) |> HeaderInternal.writeOption f
-        (HttpHeaders.contentLocation, contentInfo.Location ) |> HeaderInternal.writeOption f
-        (HttpHeaders.contentRange,    None                 ) |> HeaderInternal.writeOption f // FIXME
-        (HttpHeaders.contentType,     contentInfo.MediaType) |> HeaderInternal.writeOption f
-        (HttpHeaders.contentRange,    contentInfo.Range |> function
+        (Header.contentEncoding, contentInfo.Encodings) |> Header.writeSeq f 
+        (Header.contentLanguage, contentInfo.Languages) |> Header.writeSeq f
+        (Header.contentLength,   contentInfo.Length   ) |> Header.writeOption f
+        (Header.contentLocation, contentInfo.Location ) |> Header.writeOption f
+        (Header.contentRange,    None                 ) |> Header.writeOption f // FIXME
+        (Header.contentType,     contentInfo.MediaType) |> Header.writeOption f
+        (Header.contentRange,    contentInfo.Range |> function
                                         | Some (Choice1Of2 byteContentRange) -> string byteContentRange
                                         | Some (Choice2Of2 otherContentRange) -> string otherContentRange
-                                        | _ -> "") |> HeaderInternal.writeObject f
+                                        | _ -> "") |> Header.writeObject f
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module ContentInfo =

@@ -6,7 +6,7 @@ open System
 open Abnf
 
 [<StructAttribute>]
-type IPv4Address private (address:uint32) = 
+type IPv4Address internal (address:uint32) = 
     member this.ToUInt32 () = address
 
     override this.ToString() = 
@@ -16,7 +16,9 @@ type IPv4Address private (address:uint32) =
         let oct3 = address &&& 0x000000FFul >>> 0
         (string oct0) + "." + (string oct1) + "." + (string oct2) + "." + (string oct3)
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal IPv4Address =
+    let parser =
         let decOctet = 
             let _250_255 = "(25[0-5])"
             let _200_249 = "(2[0-4][0-9])"
@@ -42,9 +44,9 @@ type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) =
 
         (writeBytes x0) + ":" + (writeBytes x1) + ":" + (writeBytes x2) + ":" + (writeBytes x3)
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal IPv6Address =
     // FIXME: IPv6 grammar is very complex. Remove partial implementation for now since its incorrect.
-    static member internal Parser =
-        let h16 = manyMinMaxSatisfy 1 4 HEXDIG |>> fun x -> Convert.ToUInt16(x, 16)          
-
+    let parser =
         let parse (input:CharStream) : ParseResult<IPv6Address> = Fail 0
         parse

@@ -8,10 +8,13 @@ type ContentCoding =
 
     override this.ToString () = this.contentCoding
 
-    static member Identity = { contentCoding = "identity" }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module ContentCoding =
+    [<CompiledName("Identity")>]
+    let identity = { contentCoding = "identity" }
 
-    static member internal Parser =
+    let internal parser =
         token |>> (fun x ->
-            if x = string ContentCoding.Identity 
-                then ContentCoding.Identity
+            if x = string identity 
+                then identity
             else { contentCoding = x })

@@ -7,10 +7,8 @@ open System.Linq
 open Sparse
 
 [<Sealed>]
-type Header private (header:string) = 
-    static let normalize (header:string) = header.ToLowerInvariant() 
-
-    member val private Normalized = header.ToLowerInvariant()
+type Header internal (header:string) = 
+    member val internal Normalized = header.ToLowerInvariant()
 
     interface IComparable<Header> with
         member this.CompareTo(other) = this.Normalized.CompareTo(other.Normalized)
@@ -34,7 +32,9 @@ type Header private (header:string) =
 
     override this.ToString () = header
 
-    static member internal StandardHeaders  =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Header =
+    let private standardHeaders =
         [ Header("Accept") ;
           Header("Accept-Charset");
           Header("Accept-Encoding");
@@ -85,219 +85,218 @@ type Header private (header:string) =
           Header("Warning");
           Header("WWW-Authenticate")] |> Set.ofList
 
-    static member private CachedHeaders =
+    let private cachedHeaders =
         let additionalHeaders =   
             [   Header("X-HTTP-Method");
                 Header("X-HTTP-Method-Override");
                 Header("X-Method-Override")] 
-        Seq.concat [Header.StandardHeaders :> seq<Header>; additionalHeaders :> seq<Header>] 
+        Seq.concat [standardHeaders :> seq<Header>; additionalHeaders :> seq<Header>] 
         |> Seq.map (fun x -> (x.Normalized, x)) 
         |> Map.ofSeq
 
-    static member Create (header: string) = 
-        match normalize header |> Header.CachedHeaders.TryFind with
-        | Some header -> header
-        | None ->
-            match parse Header.Parser header with 
-            | Success (header, _) -> header
-            | _ -> invalidArg "header" "not a header"
-
-    static member internal Parser = 
+    let internal parser = 
         HttpParsers.token |>> (fun header -> 
-            match normalize header |> Header.CachedHeaders.TryFind with
+            match (header.ToLowerInvariant()) |> cachedHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
 
-module HttpHeaders =
+    [<CompiledName("Create")>]
+    let create (header: string) = 
+        match (header.ToLowerInvariant()) |> cachedHeaders.TryFind with
+        | Some header -> header
+        | None ->
+            match parse parser header with 
+            | Success (header, _) -> header
+            | _ -> invalidArg "header" "not a header"
+
     [<CompiledName("Accept")>]
-    let accept = Header.Create("Accept")
+    let accept = create("Accept")
 
     [<CompiledName("AcceptCharset")>]
-    let acceptCharset = Header.Create("Accept-Charset")
+    let acceptCharset = create("Accept-Charset")
 
     [<CompiledName("AcceptEncoding")>]
-    let acceptEncoding = Header.Create("Accept-Encoding")
+    let acceptEncoding = create("Accept-Encoding")
 
     [<CompiledName("AcceptLanguage")>]
-    let acceptLanguage = Header.Create("Accept-Language")
+    let acceptLanguage = create("Accept-Language")
 
     [<CompiledName("AcceptRanges")>]
-    let acceptRanges = Header.Create("Accept-Ranges")
+    let acceptRanges = create("Accept-Ranges")
 
     [<CompiledName("Age")>]
-    let age = Header.Create("Age")
+    let age = create("Age")
 
     [<CompiledName("Allow")>]
-    let allow = Header.Create("Allow")
+    let allow = create("Allow")
 
     [<CompiledName("Authorization")>]
-    let authorization = Header.Create("Authorization")
+    let authorization = create("Authorization")
 
     [<CompiledName("CacheControl")>]
-    let cacheControl = Header.Create("Cache-Control")
+    let cacheControl = create("Cache-Control")
 
     [<CompiledName("Connection")>]
-    let connection = Header.Create("Connection")
+    let connection = create("Connection")
 
     [<CompiledName("ContentEncoding")>]
-    let contentEncoding = Header.Create("Content-Encoding")
+    let contentEncoding = create("Content-Encoding")
 
     [<CompiledName("ContentLanguage")>]
-    let contentLanguage = Header.Create("Content-Language")
+    let contentLanguage = create("Content-Language")
 
     [<CompiledName("ContentLength")>]
-    let contentLength = Header.Create("Content-Length")
+    let contentLength = create("Content-Length")
 
     [<CompiledName("ContentLocation")>]
-    let contentLocation = Header.Create("Content-Location")
+    let contentLocation = create("Content-Location")
 
     [<CompiledName("ContentMD5")>]
-    let contentMD5 = Header.Create("Content-MD5")
+    let contentMD5 = create("Content-MD5")
 
     [<CompiledName("ContentRange")>]
-    let contentRange = Header.Create("Content-Range")
+    let contentRange = create("Content-Range")
 
     [<CompiledName("ContentType")>]
-    let contentType = Header.Create("Content-Type")
+    let contentType = create("Content-Type")
 
     [<CompiledName("Cookie")>]
-    let cookie = Header.Create("Cookie")
+    let cookie = create("Cookie")
 
     [<CompiledName("Date")>]
-    let date = Header.Create("Date")
+    let date = create("Date")
 
     [<CompiledName("ETag")>]
-    let etag = Header.Create("ETag")
+    let etag = create("ETag")
 
     [<CompiledName("Expect")>]
-    let expect = Header.Create("Expect")
+    let expect = create("Expect")
 
     [<CompiledName("Expires")>]
-    let expires = Header.Create("Expires")
+    let expires = create("Expires")
 
     [<CompiledName("From")>]
-    let from = Header.Create("From")
+    let from = create("From")
 
     [<CompiledName("Host")>]
-    let host = Header.Create("Host")
+    let host = create("Host")
 
     [<CompiledName("ifMatch")>]
-    let ifMatch = Header.Create("If-Match")
+    let ifMatch = create("If-Match")
 
     [<CompiledName("IfModifiedSince")>]
-    let ifModifiedSince = Header.Create("If-Modified-Since")
+    let ifModifiedSince = create("If-Modified-Since")
 
     [<CompiledName("IfNoneMatch")>]
-    let ifNoneMatch = Header.Create("If-None-Match")
+    let ifNoneMatch = create("If-None-Match")
 
     [<CompiledName("IfRange")>]
-    let ifRange = Header.Create("If-Range")
+    let ifRange = create("If-Range")
 
     [<CompiledName("IfUnmodifiedSince")>]
-    let ifUnmodifiedSince = Header.Create("If-Unmodified-Since")
+    let ifUnmodifiedSince = create("If-Unmodified-Since")
 
     [<CompiledName("LastModified")>]
-    let lastModified = Header.Create("Last-Modified")
+    let lastModified = create("Last-Modified")
 
     [<CompiledName("Location")>]
-    let location = Header.Create("Location")
+    let location = create("Location")
 
     [<CompiledName("MaxForwards")>]
-    let maxForwards = Header.Create("Max-Forwards")
+    let maxForwards = create("Max-Forwards")
 
     [<CompiledName("Pragma")>]
-    let pragma = Header.Create("Pragma")
+    let pragma = create("Pragma")
 
     [<CompiledName("ProxyAuthenticate")>]
-    let proxyAuthenticate = Header.Create("Proxy-Authenticate")
+    let proxyAuthenticate = create("Proxy-Authenticate")
 
     [<CompiledName("ProxyAuthorization")>]
-    let proxyAuthorization = Header.Create("Proxy-Authorization")
+    let proxyAuthorization = create("Proxy-Authorization")
 
     [<CompiledName("Range")>]
-    let range = Header.Create("Range")
+    let range = create("Range")
 
     [<CompiledName("Referer")>]
-    let referer = Header.Create("Referer")
+    let referer = create("Referer")
 
     [<CompiledName("RetryAfter")>]
-    let retryAfter = Header.Create("Retry-After")
+    let retryAfter = create("Retry-After")
 
     [<CompiledName("Server")>]
-    let server = Header.Create("Server")
+    let server = create("Server")
 
     [<CompiledName("SetCookie")>]
-    let setCookie = Header.Create("Set-Cookie")
+    let setCookie = create("Set-Cookie")
 
     [<CompiledName("TE")>]
-    let te = Header.Create("TE")
+    let te = create("TE")
 
     [<CompiledName("Trailer")>]
-    let trailer = Header.Create("Trailer")
+    let trailer = create("Trailer")
 
     [<CompiledName("TransferEncoding")>]
-    let transferEncoding = Header.Create("Transfer-Encoding")
+    let transferEncoding = create("Transfer-Encoding")
 
     [<CompiledName("Upgrade")>]
-    let upgrade = Header.Create("Upgrade")
+    let upgrade = create("Upgrade")
 
     [<CompiledName("UserAgent")>]
-    let userAgent = Header.Create("User-Agent")
+    let userAgent = create("User-Agent")
 
     [<CompiledName("Vary")>]
-    let vary = Header.Create("Vary")
+    let vary = create("Vary")
 
     [<CompiledName("Via")>]
-    let via = Header.Create("Via")
+    let via = create("Via")
 
     [<CompiledName("Warning")>]
-    let warning = Header.Create("Warning")
+    let warning = create("Warning")
 
     [<CompiledName("WwwAuthenticate")>]
-    let wwwAuthenticate = Header.Create("WWW-Authenticate")
+    let wwwAuthenticate = create("WWW-Authenticate")
 
     // Extension Headers
     [<CompiledName("XHttpMethod ")>]
-    let xHttpMethod = Header.Create("X-HTTP-Method")
+    let xHttpMethod = create("X-HTTP-Method")
 
     [<CompiledName("XHttpMethodOverride")>]
-    let xHttpMethodOverride = Header.Create("X-HTTP-Method-Override")
+    let xHttpMethodOverride = create("X-HTTP-Method-Override")
 
     [<CompiledName("XMethodOverride")>]
-    let xMethodOverride = Header.Create("X-Method-Override")
+    let xMethodOverride = create("X-Method-Override")
 
-module internal HeaderInternal =
-    let filterStandardHeaders (headers:Map<Header,obj>) =
-        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> Header.StandardHeaders.Contains k |> not) |> Map.ofSeq
+    let internal filterStandardHeaders (headers:Map<Header,obj>) =
+        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> standardHeaders.Contains k |> not) |> Map.ofSeq
 
-    let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
+    let internal headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
         // FIXME: Special case cookies
         headers 
         |> Seq.map(fun (k,v) -> 
-            let header = Header.Create k
-            if header = HttpHeaders.setCookie then (header, v :> obj)
+            let header = create k
+            if header = setCookie then (header, v :> obj)
             else (header, String.Join (",", v) :> obj)) 
         |> Map.ofSeq
 
     let inline writeOption (f:string*string->unit) (k:Header, v:^T option) =
         v |> Option.map(fun v -> f (string k, string v)) |> ignore
 
-    let writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
+    let internal writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
         let v = String.Join (", ", seq.Cast<obj>()) 
 
         if String.IsNullOrEmpty v then ()
         else f (string k, v)
     
-    let writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
+    let internal writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
         match v with 
         | None -> ()
         | Some date ->
             f (string k, HttpEncoding.dateToHttpDate date)
 
-    let writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
+    let internal writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
         v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
 
-    let writeObject (f:string*string->unit) (k:Header, v:obj) =
+    let internal writeObject (f:string*string->unit) (k:Header, v:obj) =
         match v with
         // String implements IEnumerable in some profiles and not others
         | :?String as v when v.Length > 0 -> f (string k, string v) 
@@ -307,8 +306,8 @@ module internal HeaderInternal =
             let v = string v
             if v.Length > 0 then f (string k, v)
 
-    let writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
+    let internal writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
         pairs |> Seq.map (writeObject f) |> ignore
 
-    let headerLineFunc builder (k:string, v:string) =
+    let internal headerLineFunc builder (k:string, v:string) =
         Printf.bprintf builder "%O: %s\r\n" k v

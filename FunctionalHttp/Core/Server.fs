@@ -7,10 +7,13 @@ type Server =
 
     override this.ToString() = string this.userAgent
 
-    static member internal Parser = 
-        UserAgent.Parser |>> (fun x -> { userAgent = x })
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Server = 
+    let internal parser = 
+        UserAgent.parser |>> (fun x -> { userAgent = x })
 
-    static member Create server =
-        match parse Server.Parser server with
+    [<CompiledName("Create")>]
+    let create server =
+        match parse parser server with
         | Success (server, _) -> server
         | _ -> invalidArg "server" "Not a valid Server string"

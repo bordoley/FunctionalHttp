@@ -12,12 +12,15 @@ type RangeUnit =
 
     override this.ToString() = this.unit
 
-    static member Bytes = { unit = "bytes" }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal RangeUnit =
+    [<CompiledName("Bytes")>]
+    let bytes = { unit = "bytes" }
 
-    static member internal Parser =
+    let internal parser =
         token |>> fun x -> 
-            if x = string RangeUnit.Bytes
-            then RangeUnit.Bytes
+            if x = string bytes
+            then bytes
             else { unit = x }
 
 type AcceptsNone = 
@@ -25,9 +28,12 @@ type AcceptsNone =
 
     override this.ToString() = "none"
 
-    static member Instance = AcceptsNone
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal AcceptsNone = 
+    [<CompiledName("Instance")>]
+    let instance = AcceptsNone
 
-    static member internal Parser =
+    let parser =
         pstring "none" |>> fun _ -> AcceptsNone
 
 type ByteRangeSpec =
@@ -42,7 +48,9 @@ type ByteRangeSpec =
         | (fbp, Some lbp) -> (string fbp) + "-" + (string lbp)
         | _ -> (string this.firstBytePos) + "-"
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal ByteRangeSpec = 
+    let parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         digit.>> pDash .>>. (opt digit)
@@ -57,7 +65,9 @@ type SuffixByteRangeSpec =
     override this.ToString() =
         "-" + (string this.suffixLength)
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal SuffixByteRangeSpec = 
+    let parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         pDash >>. digit |>> fun x -> { suffixLength = x }
@@ -75,8 +85,10 @@ type ByteRangesSpecifier =
             | Choice2Of2 suffixByteRangeSpec -> string suffixByteRangeSpec)
         |> String.concat ",")
 
-    static member internal Parser =
-        pstring "bytes=" >>. sepBy1 (ByteRangeSpec.Parser <^> SuffixByteRangeSpec.Parser) OWS_COMMA_OWS
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal ByteRangesSpecifier = 
+    let parser =
+        pstring "bytes=" >>. sepBy1 (ByteRangeSpec.parser <^> SuffixByteRangeSpec.parser) OWS_COMMA_OWS
         |>> fun x -> { byteRangeSet = Set.ofSeq x }
 
 type OtherRangesSpecifier = 
@@ -88,8 +100,10 @@ type OtherRangesSpecifier =
     override this.ToString() =
         string this.unit + "=" + this.rangeSet
 
-    static member internal Parser =
-        RangeUnit.Parser .>> pEquals .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal OtherRangesSpecifier = 
+    let parser =
+        RangeUnit.parser .>> pEquals .>>. (many1Satisfy VCHAR) |>> fun (k, v) -> { unit = k; rangeSet = v }
 
 type ByteRangeResp =
     private { firstBytePos:uint64; lastBytePos:uint64; length:uint64 option }
@@ -103,7 +117,9 @@ type ByteRangeResp =
     override this.ToString () =
         (string this.firstBytePos) + "-" + (string this.lastBytePos) + "/" + (match this.length with | Some l -> string l | None -> "")
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal ByteRangeResp = 
+    let parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy isDigit) |>> UInt64.Parse
 
@@ -121,7 +137,9 @@ type UnsatisfiedRange =
     override this.ToString () =
         "*/" + (string this.length)
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal UnsatisfiedRange = 
+    let parser =
         // FIXME: UInt64.Parse can fail
         let digit = (many1Satisfy isDigit) |>> UInt64.Parse
         pstring "*/" >>. digit |>> fun x -> { length = x }
@@ -137,7 +155,9 @@ type ByteContentRange =
         | Choice1Of2 byteRangeResp -> string byteRangeResp
         | Choice2Of2 unsatisfiedRange -> string unsatisfiedRange
 
-    static member internal Parser = ByteRangeResp.Parser <^> UnsatisfiedRange.Parser |>> fun x -> { range = x }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal ByteContentRange = 
+    let parser = ByteRangeResp.parser <^> UnsatisfiedRange.parser |>> fun x -> { range = x }
 
 type OtherContentRange =
     private { unit:RangeUnit; rangeResp:string }
@@ -148,6 +168,8 @@ type OtherContentRange =
     override this.ToString() =
         string this.unit + " " + this.rangeResp
 
-    static member internal Parser = 
-        RangeUnit.Parser .>> pSpace .>>. manySatisfy CHAR
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal OtherContentRange = 
+    let parser = 
+        RangeUnit.parser .>> pSpace .>>. manySatisfy CHAR
         |>> fun (unit, resp) -> { unit = unit; rangeResp = resp }

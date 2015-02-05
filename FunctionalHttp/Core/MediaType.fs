@@ -34,8 +34,10 @@ type MediaType =
             (if Option.isSome this.Charset then "; charset=" + this.Charset.Value.ToString() else "") +
             (this.Parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";")
 
-    static member internal Parser = 
-        let keyNotQ = (token >>= function | key when key <> "q" -> preturn key | _ -> pzero) <|> pzero
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal MediaType =
+    let parser = 
+        let keyNotQ = (token >>= function | key when key <> "q" -> preturn key | _ -> pzero)
 
         let parameter = 
             token
@@ -53,7 +55,7 @@ type MediaType =
                     |> Seq.filter (fun (k,v) ->
                         match (k, !charset) with
                         | ("charset", None) ->
-                            match parse Charset.Parser v with
+                            match parse Charset.parser v with
                             | Success (result, _) ->
                                 charset := Some result
                                 false
@@ -65,7 +67,7 @@ type MediaType =
                 // The type, subtype, and parameter name tokens are case-insensitive.
                 { _type = _type.ToLowerInvariant(); subType = subType.ToLowerInvariant(); charset = !charset; parameters = parameters}
         )
-
+    
 [<AutoOpen>]
 module MediaTypeExtension =
     type MediaType with
@@ -86,8 +88,6 @@ module MediaTypeExtension =
                 parameters = if Option.isSome parameters then Map.empty else this.Parameters;
             }
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module MediaType = 
-    [<Extension;CompiledName("TryGetCharset")>]
-    let tryGetCharset(this:MediaType, charset : byref<Charset>) = 
-        Option.tryGetValue this.Charset &charset
+        [<Extension>]
+        member this.TryGetCharset(charset : byref<Charset>) = 
+            Option.tryGetValue this.Charset &charset

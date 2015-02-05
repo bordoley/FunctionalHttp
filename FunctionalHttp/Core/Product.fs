@@ -18,7 +18,9 @@ type Product =
             then this.name
         else sprintf "%s/%s" this.name this.version
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Product = 
+    let parser =
         token .>>. opt (pForwardSlash >>. token)
         |>> (function
             | (name, Some(version)) -> { name = name; version = version; }

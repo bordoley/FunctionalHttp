@@ -10,6 +10,13 @@ open System
 
 module ChallengeTests =
     [<Test>]
+    let Temp () =
+        let x = Method.Get
+        let y = Method.Get
+
+        Assert.IsTrue(Object.ReferenceEquals(x, y))
+
+    [<Test>]
     let ``test parsing with base64 data`` () =
         let tests = [("Basic   dfjskdlfhjshflkjhfdslhd434543sdfsfsgdfdf=====", "dfjskdlfhjshflkjhfdslhd434543sdfsfsgdfdf=====") ]
 

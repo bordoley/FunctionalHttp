@@ -29,10 +29,12 @@ type Warning =
         " " + (HttpEncoding.asQuotedString this.text) + 
         match this.date with| None -> "" | Some date -> "\"" + HttpEncoding.dateToHttpDate date + "\""
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Warning = 
+    let parser = 
         // Fixme : UInt16.Parse can throw
         let code = manyMinMaxSatisfy 3 3 isDigit |>> UInt16.Parse
-        let agent = HostPort.Parser <^> token
+        let agent = HostPort.parser <^> token
 
         code .>> pSpace .>>. agent .>> pSpace .>>. quoted_string .>>. opt httpDate
         |>> fun (((code, agent), text), date) -> 

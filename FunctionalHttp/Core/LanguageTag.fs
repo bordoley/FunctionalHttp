@@ -6,6 +6,8 @@ type LanguageTag =
 
     override this.ToString () = this.language
 
-    static member internal Parser =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal LanguageTag =
+    let parser =
         regex "[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*"
         |>> fun x -> { language = x }

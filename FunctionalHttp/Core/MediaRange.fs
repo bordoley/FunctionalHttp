@@ -20,13 +20,15 @@ type MediaRange =
     member this.Parameters with get() = this.parameters
 
     override this.ToString() =
-        let _type = match this.Type with | Choice1Of2 t -> t | _ -> Any.Instance.ToString()
-        let subType = match this.SubType with | Choice1Of2 t -> t | _ -> Any.Instance.ToString()
+        let _type = match this.Type with | Choice1Of2 t -> t | _ -> Any.instance.ToString()
+        let subType = match this.SubType with | Choice1Of2 t -> t | _ -> Any.instance.ToString()
         let parameters = this.Parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";"
         _type + "/" + subType + ";" + parameters
 
-    static member internal Parser =
-        MediaType.Parser >>= fun m -> 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal MediaRange = 
+    let parser =
+        MediaType.parser >>= fun m -> 
             let parameters = 
                 match m.Charset with
                 | Some c -> m.Parameters |> Map.add "charset" (string c)

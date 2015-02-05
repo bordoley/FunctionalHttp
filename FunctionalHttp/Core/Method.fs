@@ -10,7 +10,9 @@ type Method =
 
     override this.ToString() = this.meth
 
-    static member private Methods =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Method = 
+    let private methods =
         [   "DELETE";
             "GET";
             "HEAD";
@@ -21,22 +23,36 @@ type Method =
         |> Seq.map (fun x -> (x, { meth = x }))
         |> Map.ofSeq
 
-    static member Create m =
-        match Method.Methods.TryFind m with
+    let internal parser = 
+        HttpParsers.token |>> (fun token -> 
+            token |> methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
+
+    [<CompiledName("Create")>]
+    let create m =
+        match methods.TryFind m with
         | Some m -> m
         | _ -> 
-            match parse Method.Parser m with 
+            match parse parser m with 
             | Success (m, _) -> m
             | _ -> invalidArg "m" "not a method"
 
-    static member internal Parser = 
-        HttpParsers.token |>> (fun token -> 
-            token |> Method.Methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
-    
-    static member Delete = Method.Create "DELETE"
-    static member Get = Method.Create "GET" 
-    static member Head = Method.Create "HEAD"
-    static member Options = Method.Create "OPTIONS"
-    static member Patch = Method.Create "PATCH"
-    static member Post = Method.Create "POST"
-    static member Put = Method.Create "PUT"   
+    [<CompiledName("Delete")>]
+    let delete = create "DELETE"
+
+    [<CompiledName("Get")>]
+    let get = create "GET" 
+
+    [<CompiledName("Head")>]
+    let head = create "HEAD"
+
+    [<CompiledName("Options")>]
+    let options = create "OPTIONS"
+
+    [<CompiledName("Patch")>]
+    let patch = create "PATCH"
+
+    [<CompiledName("Post")>]
+    let post = create "POST"
+
+    [<CompiledName("Put")>]
+    let put = create "PUT"   

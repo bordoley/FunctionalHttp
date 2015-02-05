@@ -19,7 +19,7 @@ type RequestPreferences =
 
     override this.ToString() =
         let builder = StringBuilder()
-        let writeHeaderLine = HeaderInternal.headerLineFunc builder
+        let writeHeaderLine = Header.headerLineFunc builder
 
         this |> RequestPreferences.WriteHeaders writeHeaderLine
 
@@ -65,11 +65,11 @@ type RequestPreferences =
         RequestPreferences.Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
 
     static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
-        (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> HeaderInternal.writeSeq f
-        (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> HeaderInternal.writeSeq f
-        (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> HeaderInternal.writeSeq f
-        (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> HeaderInternal.writeSeq f
-        (HttpHeaders.range, preferences.ranges |> function
+        (Header.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
+        (Header.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
+        (Header.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f
+        (Header.acceptLanguage, preferences.AcceptedLanguages) |> Header.writeSeq f
+        (Header.range, preferences.ranges |> function
                                 | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
                                 | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
-                                | _ -> "") |> HeaderInternal.writeObject f
+                                | _ -> "") |> Header.writeObject f
