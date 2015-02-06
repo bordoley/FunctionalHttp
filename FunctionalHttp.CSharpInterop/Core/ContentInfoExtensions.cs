@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace FunctionalHttp.Core
 {
-    public static class ContentInfoMixins
+    public static class ContentInfoExtensions
     {
         public static ContentInfo With(
             this ContentInfo This, 

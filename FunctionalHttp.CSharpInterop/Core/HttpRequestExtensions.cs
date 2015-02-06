@@ -9,7 +9,7 @@ using FunctionalHttp;
 
 namespace FunctionalHttp.Core
 {
-    public static class HttpRequestMixins
+    public static class HttpRequestExtensions
     {
         public static HttpRequest<TReq> With<TReq>(
             this HttpRequest<TReq> This,    

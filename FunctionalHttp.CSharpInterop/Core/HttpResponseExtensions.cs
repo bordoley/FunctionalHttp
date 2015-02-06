@@ -8,7 +8,7 @@ using FunctionalHttp;
 
 namespace FunctionalHttp.Core
 {
-    public static class HttpResponseMixins
+    public static class HttpResponseExtensions
     {
         public static HttpResponse<TResp> With<TResp>(
             this HttpResponse<TResp> This,
