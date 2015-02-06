@@ -110,13 +110,13 @@ module ContentInfoExtensions =
         member this.With(?encodings, ?languages, ?length:uint64, ?location:Uri, ?mediaType:MediaType, ?range:Choice<ByteContentRange, OtherContentRange>) =
             this |> ContentInfo.with_  (encodings, languages, length, location, mediaType, range)
 
-        member this.Without(?encodings, ?languages, ?length, ?location, ?mediaType, ?range) =
-            this |> ContentInfo.without (   Option.isSome encodings, 
-                                            Option.isSome languages, 
-                                            Option.isSome length, 
-                                            Option.isSome location, 
-                                            Option.isSome mediaType,
-                                            Option.isSome range)
+        member this.Without(?encodings:bool, ?languages:bool, ?length:bool, ?location:bool, ?mediaType:bool, ?range:bool) =
+            this |> ContentInfo.without (   defaultArg encodings false, 
+                                            defaultArg languages false, 
+                                            defaultArg length false, 
+                                            defaultArg location false, 
+                                            defaultArg mediaType false,
+                                            defaultArg range false)
 
         [<Extension>]
         member this.TryGetLength(length : byref<uint64>) = 
