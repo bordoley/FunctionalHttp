@@ -1,10 +1,8 @@
 ﻿namespace FunctionalHttp.Client
 
-open FunctionalHttp.Collections
 open FunctionalHttp.Core
 open System
 open System.IO
-open System.Text
 open System.Threading
 
 type internal HttpClient<'TReq, 'TResp> = HttpRequest<'TReq> -> Async<HttpResponse<'TResp>>
@@ -23,29 +21,28 @@ module HttpClient =
 #else
     open System.Net
     open System.Net.Http
-    open System.Runtime.CompilerServices
 
-    [<CompiledName("AsFunctionalHttpClient"); Extension>]
-    let asFunctionalHttpClient (httpClient:System.Net.Http.HttpClient) =
-        let rec handleException (exn:exn) = 
-            // FIXME: Add some logging
+    [<CompiledName("FromNetHttpClient")>]
+    let fromNetHttpClient (httpClient:System.Net.Http.HttpClient) =
+        let handle (request: HttpRequest<Stream>) =
+            async {
+                let httpRequestMsg = request |> HttpRequest.toHttpRequestMessage
 
-            match exn with
-            | :? WebException as exn -> exn.ToResponse() |> async.Return 
-            | :? AggregateException as exn -> 
-                match exn.InnerException with 
-                | null -> Exception("Unexpected exception", exn) |> raise
-                | exn -> handleException exn
-            | _ -> Exception("Unexpected exception", exn) |> raise  
+                // Explicitly don't let the client cache the response body. This should be left to
+                // wrappers up the chain that parse the content to decided
+                let! result = httpClient.SendAsync(httpRequestMsg, HttpCompletionOption.ResponseHeadersRead) |> Async.AwaitTask |> Async.Catch
+                return! 
+                    match result with 
+                    | Choice1Of2 responseMessage -> responseMessage |> HttpResponse.fromHttpResponseMessageAsync
+                    | Choice2Of2 exn -> 
+                        let exn = 
+                            match exn with
+                            | :? AggregateException as exn -> (exn.Flatten()).InnerException
+                            | _ -> exn
 
-        fun (request: HttpRequest<Stream>) -> async {
-            let httpClientRequest = request.ToHttpRequestMessage()
-
-            // Explicitly don't let the client cache the response body. This should be left to
-            // wrappers up the chain that parse the content to decided
-            let! result = httpClient.SendAsync(httpClientRequest, HttpCompletionOption.ResponseHeadersRead) |> Async.AwaitTask |> Async.Catch
-            return! match result with 
-                    | Choice1Of2 responseMessage -> responseMessage.ToAsyncResponse()
-                    | Choice2Of2 exn -> handleException exn
-        }
+                        match exn with
+                        | :? WebException as exn -> exn |> HttpResponse.fromWebException |> async.Return 
+                        | _ -> Exception("Unexpected exception", exn) |> raise  
+            }
+        handle
 #endif

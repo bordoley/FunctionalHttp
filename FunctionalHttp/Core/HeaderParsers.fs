@@ -9,7 +9,7 @@ open Abnf
 open Predicates
 
 module internal HeaderParsers =
-    let private parse (header, parser:Parser<_>) (headers : Map<Header, obj>) =
+    let private parse (header, parser:Parser<'a>) (headers : Map<Header, obj>) =
         headers.TryFind header
         |> Option.bind (fun x -> 
             (string x) |> parse parser |> function
