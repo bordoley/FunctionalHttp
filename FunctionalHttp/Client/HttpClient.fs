@@ -1,9 +1,9 @@
 ﻿namespace FunctionalHttp.Client
 
-open FunctionalHttp.Core
 open System
 open System.IO
 open System.Threading
+open FunctionalHttp.Core
 
 type internal HttpClient<'TReq, 'TResp> = HttpRequest<'TReq> -> Async<HttpResponse<'TResp>>
 
@@ -17,6 +17,17 @@ module HttpClient =
             }
         handleRequest  
 
+    [<CompiledName("UsingConverters")>]
+    let usingConverters (serializer:Converter<'TReq, Stream>, deserializer:Converter<Stream, 'TResp>) (httpClient:HttpClient<Stream, Stream>) : HttpClient<'TReq, 'TResp> =
+        let handleRequest (request:HttpRequest<'TReq>) =
+            async {
+                let! (reqContentInfo, reqEntity) = serializer (request.ContentInfo, request.Entity)
+                let request = request.With(reqEntity, contentInfo = reqContentInfo)
+                let! response = httpClient request
+                let! (respContentInfo, respEntity) = deserializer (response.ContentInfo, response.Entity)
+                return response.With(respEntity, contentInfo = respContentInfo)
+            }
+        handleRequest  
 #if PCL
 #else
     open System.Net
