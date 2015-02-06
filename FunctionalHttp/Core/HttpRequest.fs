@@ -365,7 +365,7 @@ module HttpRequest =
     let convertOrThrow (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (req:HttpRequest<'TIn>) = 
         async {
             let! (contentInfo, out) = converter (req.ContentInfo, req.Entity)
-            return req.With(Choice1Of2 out, contentInfo = contentInfo)
+            return req.With(out, contentInfo = contentInfo)
         }
 
     [<CompiledName("WithEntity")>]

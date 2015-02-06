@@ -18,16 +18,15 @@ module HttpClient =
         handleRequest  
 
     [<CompiledName("UsingConverters")>]
-    let usingConverters (serializer:Converter<'TReq, Stream>, deserializer:Converter<Stream, 'TResp>) (httpClient:HttpClient<Stream, Stream>) : HttpClient<'TReq, 'TResp> =
+    let usingConverters (serializer:Converter<'TReq, Stream>, deserializer:Converter<Stream, 'TResp>) (httpClient:HttpClient<Stream, Stream>) : HttpClient<'TReq, Choice<'TResp, exn>> =
         let handleRequest (request:HttpRequest<'TReq>) =
             async {
-                let! (reqContentInfo, reqEntity) = serializer (request.ContentInfo, request.Entity)
-                let request = request.With(reqEntity, contentInfo = reqContentInfo)
+                let! request = request |> HttpRequest.convertOrThrow serializer
                 let! response = httpClient request
-                let! (respContentInfo, respEntity) = deserializer (response.ContentInfo, response.Entity)
-                return response.With(respEntity, contentInfo = respContentInfo)
+                return! response |> HttpResponse.convert deserializer
             }
         handleRequest  
+
 #if PCL
 #else
     open System.Net

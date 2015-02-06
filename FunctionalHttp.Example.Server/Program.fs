@@ -44,7 +44,9 @@ module main =
                     let uri = Uri("http://www.google.com")
                     let request = HttpRequest.Create(Method.Get, uri, "")
                     let! resp = httpClient request
-                    return resp.With(Some(resp.Entity))
+                    return match resp.Entity with
+                            | Choice1Of2 entity -> resp.With(Some(entity))
+                            | _ -> resp.With(None)
                 }
 
 
