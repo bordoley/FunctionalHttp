@@ -14,7 +14,7 @@ type CacheDirective =
         value:String
     }
 
-    member this.Directive with get() = this.Directive
+    member this.Directive with get() = this.directive
 
     member this.Value with get() = this.value
 
