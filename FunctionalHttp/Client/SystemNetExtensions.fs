@@ -37,7 +37,8 @@ module internal HttpRequest =
             | m when m.Equals(Method.Post) -> HttpMethod.Post
             | m when m.Equals(Method.Put) -> HttpMethod.Put
             | m when m.Equals(Method.Delete) -> HttpMethod.Delete
-            | _ -> failwith "unsupported method"
+            // FIXME: Cache the HttpMethod?
+            | m -> HttpMethod(string m)
 
         // HTTP Client likes to crash when you set the content on a GET request
         if request.Method <> Method.Get then message.Content <- new StreamContent(request.Entity)
