@@ -66,7 +66,7 @@ type ContentInfo =
             mediaType,
             range)
 
-    static member internal WriteHeaders (f:string*string -> unit) (contentInfo:ContentInfo)  =
+    static member internal WriteHeaders (f:Header*string -> unit) (contentInfo:ContentInfo)  =
         (HttpHeaders.contentEncoding, contentInfo.Encodings) |> Header.writeSeq f 
         (HttpHeaders.contentLanguage, contentInfo.Languages) |> Header.writeSeq f
         (HttpHeaders.contentLength,   contentInfo.Length   ) |> Header.writeOption f

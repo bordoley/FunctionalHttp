@@ -58,7 +58,7 @@ type RequestPreferences =
 
         RequestPreferences.Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
 
-    static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
+    static member internal WriteHeaders (f:Header*string -> unit) (preferences:RequestPreferences) = 
         (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
         (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
         (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f

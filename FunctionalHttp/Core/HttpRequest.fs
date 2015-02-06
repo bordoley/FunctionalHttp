@@ -158,7 +158,7 @@ type HttpRequest<'TReq> =
             userAgent,
             version)
 
-    static member internal WriteHeaders (f:string*string -> unit) (req:HttpRequest<'TReq>) =
+    static member internal WriteHeaders (f:Header*string -> unit) (req:HttpRequest<'TReq>) =
         (HttpHeaders.host,               req.Uri.Authority)      |> Header.writeObject f
         (HttpHeaders.authorization,      req.Authorization)      |> Header.writeOption f
         (HttpHeaders.cacheControl,       req.CacheControl )      |> Header.writeSeq f 

@@ -195,7 +195,7 @@ type HttpResponse<'TResp> =
             version,
             warning) 
 
-    static member internal WriteHeaders (f:string*string -> unit) (resp:HttpResponse<'TResp>) =
+    static member internal WriteHeaders (f:Header*string -> unit) (resp:HttpResponse<'TResp>) =
         (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) 
         |> function
             | (header, Some (Choice1Of2 rangeUnits)) -> (header, rangeUnits :> obj)

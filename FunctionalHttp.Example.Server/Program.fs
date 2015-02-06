@@ -1,16 +1,25 @@
 ﻿namespace FunctionalHttp.Example.Server
 
-open FunctionalHttp.Core
-open FunctionalHttp.Server
 open System
 open System.IO
 open System.Net
+open System.Net.Http
+open System.IO
 open System.Threading
+
+open FunctionalHttp.Core
+open FunctionalHttp.Client
+open FunctionalHttp.Server
 
 module main =
     [<EntryPoint>]
     let main argv =         
         let application = 
+            let httpClient = 
+                (new HttpClient()) 
+                |> HttpClient.fromNetHttpClient
+                |> HttpClient.usingConverters (Converters.fromStringToStream, Converters.fromStreamToString)
+
             let route = Route.Create ["example"]
 
             let handleAndAccept (req:HttpRequest<_>) = 
@@ -30,7 +39,15 @@ module main =
                                 server = server,
                                 vary = vary)
                 Console.WriteLine result
-                result |> async.Return
+
+                async {
+                    let uri = Uri("http://www.google.com")
+                    let request = HttpRequest.Create(Method.Get, uri, "")
+                    let! resp = httpClient request
+                    return resp.With(Some(resp.Entity))
+                }
+
+
             let parse = Converters.fromStreamToString |> HttpRequest.convert
             let serialize (req, resp:HttpResponse<Option<string>>) = 
                 match resp.Entity with

@@ -55,6 +55,9 @@ module HttpServer =
     open System.Runtime.CompilerServices
     open System.Threading
 
+    let private addListenerResponseHeaders (listenerResponse:HttpListenerResponse) (header:Header, value:string) =
+        listenerResponse.AddHeader((string header), value)
+
     [<CompiledName("AsListenerConnector"); Extension>]
     let asListenerConnector (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>) =
         let parseRequest (req:HttpListenerRequest) =
@@ -71,7 +74,7 @@ module HttpServer =
             async {
                 listenerResponse.StatusCode <- int resp.Status.Code
 
-                resp |> HttpResponse.WriteHeaders listenerResponse.AddHeader
+                resp |> HttpResponse.WriteHeaders (addListenerResponseHeaders listenerResponse)
 
                 use entity = resp.Entity
                 use outStream = listenerResponse.OutputStream

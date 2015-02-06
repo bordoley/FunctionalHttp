@@ -8,6 +8,26 @@ open System.Net
 open System.Net.Http
 
 module internal HttpRequest =
+    // See: https://msdn.microsoft.com/en-us/library/system.net.http.headers.httpcontentheaders(v=vs.118).aspx
+    let private contentHeaders = 
+        [ HttpHeaders.allow; 
+          HttpHeaders.contentEncoding;
+          HttpHeaders.contentLanguage;
+          HttpHeaders.contentLength;
+          HttpHeaders.contentLocation;
+          HttpHeaders.contentMD5;
+          HttpHeaders.contentRange;
+          HttpHeaders.contentType;
+          HttpHeaders.expires;
+          HttpHeaders.lastModified] |> Set.ofList
+
+    let private addHeaders (message:HttpRequestMessage) (header:Header, value:string) =
+        if contentHeaders |> Set.contains header 
+        then
+            if (not (Object.ReferenceEquals (message.Content, null)))
+            then message.Content.Headers.Add(header.ToString(), value)
+        else message.Headers.Add(string header, value)
+
     let toHttpRequestMessage (request:HttpRequest<Stream>) =
         let message = new HttpRequestMessage()
         message.RequestUri <- request.Uri
@@ -19,10 +39,10 @@ module internal HttpRequest =
             | m when m.Equals(Method.Delete) -> HttpMethod.Delete
             | _ -> failwith "unsupported method"
 
-        request |> HttpRequest.WriteHeaders message.Headers.Add       
-
         // HTTP Client likes to crash when you set the content on a GET request
         if request.Method <> Method.Get then message.Content <- new StreamContent(request.Entity)
+
+        request |> HttpRequest.WriteHeaders (addHeaders message)  
 
         message
 

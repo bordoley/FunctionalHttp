@@ -282,36 +282,36 @@ module internal Header =
             else (header, String.Join (",", v) :> obj)) 
         |> Map.ofSeq
 
-    let inline internal writeOption (f:string*string->unit) (k:Header, v:^T option) =
-        v |> Option.map(fun v -> f (string k, string v)) |> ignore
+    let inline internal writeOption (f:Header*string->unit) (k:Header, v:^T option) =
+        v |> Option.map(fun v -> f (k, string v)) |> ignore
 
-    let internal writeSeq (f:string*string->unit) (k:Header, seq:IEnumerable) =
+    let internal writeSeq (f:Header*string->unit) (k:Header, seq:IEnumerable) =
         let v = String.Join (", ", seq.Cast<obj>()) 
 
         if String.IsNullOrEmpty v then ()
-        else f (string k, v)
+        else f (k, v)
     
-    let internal writeDateTime (f:string*string->unit) (k:Header, v:DateTime option) =
+    let internal writeDateTime (f:Header*string->unit) (k:Header, v:DateTime option) =
         match v with 
         | None -> ()
         | Some date ->
-            f (string k, HttpEncoding.dateToHttpDate date)
+            f (k, HttpEncoding.dateToHttpDate date)
 
-    let internal writeDeltaSecond (f:string*string->unit) (k:Header, v:TimeSpan option) =
-        v |> Option.map(fun v -> f (string k, v.Ticks / 10000000L |> string)) |> ignore
+    let internal writeDeltaSecond (f:Header*string->unit) (k:Header, v:TimeSpan option) =
+        v |> Option.map(fun v -> f (k, v.Ticks / 10000000L |> string)) |> ignore
 
-    let internal writeObject (f:string*string->unit) (k:Header, v:obj) =
+    let internal writeObject (f:Header*string->unit) (k:Header, v:obj) =
         match v with
         // String implements IEnumerable in some profiles and not others
-        | :?String as v when v.Length > 0 -> f (string k, string v) 
+        | :?String as v when v.Length > 0 -> f (k, string v) 
         | :?DateTime as v -> writeDateTime f (k, Some v)
         | :?IEnumerable as v -> writeSeq f (k, v)
         | _ -> 
             let v = string v
-            if v.Length > 0 then f (string k, v)
+            if v.Length > 0 then f (k, v)
 
-    let internal writeAll (f:string*string->unit) (pairs:seq<Header*obj>) =
+    let internal writeAll (f:Header*string->unit) (pairs:seq<Header*obj>) =
         pairs |> Seq.map (writeObject f) |> ignore
 
-    let internal headerLineFunc builder (k:string, v:string) =
-        Printf.bprintf builder "%O: %s\r\n" k v
+    let internal headerLineFunc builder (k:Header, v:string) =
+        Printf.bprintf builder "%O: %s\r\n" (string k) v

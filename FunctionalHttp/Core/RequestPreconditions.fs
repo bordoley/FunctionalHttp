@@ -50,7 +50,7 @@ type RequestPreconditions =
 
         RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
 
-    static member internal WriteHeaders (f:string*string -> unit) (preconditions:RequestPreconditions) = 
+    static member internal WriteHeaders (f:Header*string -> unit) (preconditions:RequestPreconditions) = 
         (HttpHeaders.ifMatch, preconditions.ifMatch) 
         |> function
             | (header, Some (Choice1Of2 etags)) -> (header, etags :> obj)
