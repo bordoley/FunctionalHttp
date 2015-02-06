@@ -244,7 +244,7 @@ module internal HttpRequestInternal =
             req.Version)
 
 [<AutoOpen>]
-module HttpRequestMixins =
+module HttpRequestExtensions =
     type HttpRequest<'TReq> with
         member this.With(   ?authorization:Credentials,
                             ?cacheControl: CacheDirective seq,
@@ -331,7 +331,24 @@ module HttpRequestMixins =
                                                     defaultArg proxyAuthorization false, 
                                                     defaultArg referer false, 
                                                     defaultArg userAgent false) 
-                                                          
+
+
+        [<Extension>]
+        member this.TryGetAuthorization(authorization : byref<Challenge>) = 
+            Option.tryGetValue this.Authorization &authorization
+
+        [<Extension>]
+        member this.ryGetProxyAuthorization(authorization : byref<Challenge>) = 
+            Option.tryGetValue this.ProxyAuthorization &authorization
+
+        [<Extension>]
+        member this.ryGetReferer(referer : byref<Uri>) = 
+            Option.tryGetValue this.Referer &referer
+       
+        [<Extension>]
+        member this.TryGetUserAgent(userAgent : byref<UserAgent>) = 
+            Option.tryGetValue this.UserAgent &userAgent 
+                                                         
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpRequest =
     [<CompiledName("Convert")>]
@@ -354,19 +371,3 @@ module HttpRequest =
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (req:HttpRequest<'TReq>) =
         req.With(entity)
-
-    [<Extension;CompiledName("TryGetAuthorization")>]
-    let tryGetAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 
-        Option.tryGetValue this.Authorization &authorization
-
-    [<Extension;CompiledName("TryGetProxyAuthorization")>]
-    let tryGetProxyAuthorization(this:HttpRequest<'TReq>, authorization : byref<Challenge>) = 
-        Option.tryGetValue this.ProxyAuthorization &authorization
-
-    [<Extension;CompiledName("TryGetReferer")>]
-    let tryGetReferer(this:HttpRequest<'TReq>, referer : byref<Uri>) = 
-        Option.tryGetValue this.Referer &referer
-   
-    [<Extension;CompiledName("TryGetUserAgent")>]
-    let tryGetUserAgent(this:HttpRequest<'TReq>, userAgent : byref<UserAgent>) = 
-        Option.tryGetValue this.UserAgent &userAgent

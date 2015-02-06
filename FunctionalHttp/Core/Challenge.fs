@@ -29,12 +29,14 @@ type Challenge =
                 | (key, value) ->
                     key + "=" + HttpEncoding.asTokenOrQuotedString value)
             |> String.concat ", "
-      
-type Credentials = Challenge
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Challenge =
-    let internal parser =
+    static member OAuthToken token = 
+        match token |> parse token68 with
+        | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
+        | _ -> invalidArg "token" "Token must be valid base64 data"
+
+and [<AbstractClass; Sealed;>] internal ChallengeHelper () =
+    static member Parser : Parser<Challenge> =
         let auth_scheme = token
         let auth_param = 
             token .>> (BWS .>>. pEquals .>>. BWS) .>>. (token <|> quoted_string)
@@ -52,28 +54,32 @@ module Challenge =
         |>> fun (scheme, dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; }
 
-    [<CompiledName("OAuthToken")>]    
-    let oAuthToken token = 
-        match token |> parse token68 with
-        | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
-        | _ -> invalidArg "token" "Token must be valid base64 data"
+type Credentials = Challenge
 
-    [<Extension;CompiledName("TryGetData")>]
-    let tryGetData(this:Challenge, data : byref<string>) = 
-        match this.DataOrParameters with
-        | Choice1Of2 d ->
-            data <- d
-            true
-        | _ ->
-            data <- null
-            false
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Challenge =
+    let internal parser = ChallengeHelper.Parser
 
-    [<Extension;CompiledName("TryGetParameters")>]
-    let tryGetParameters(this:Challenge, parameters : byref<IDictionary<string, string>>) = 
-        match this.DataOrParameters with
-        | Choice2Of2 p ->
-            parameters <- p :> IDictionary<string, string>
-            true
-        | _ ->
-            parameters <- null
-            false
+[<AutoOpen>]
+module ChallengeExtensions =
+    type Challenge with 
+
+        [<Extension>]
+        member this.TryGetData(data : byref<string>) = 
+            match this.DataOrParameters with
+            | Choice1Of2 d ->
+                data <- d
+                true
+            | _ ->
+                data <- null
+                false
+
+        [<Extension>]
+        member this.TryGetParameters(parameters : byref<IDictionary<string, string>>) = 
+            match this.DataOrParameters with
+            | Choice2Of2 p ->
+                parameters <- p :> IDictionary<string, string>
+                true
+            | _ ->
+                parameters <- null
+                false

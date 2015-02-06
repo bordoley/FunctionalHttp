@@ -14,7 +14,15 @@ type Status =
 
     override this.ToString() = sprintf "%u %s" this.Code this.Message
 
-    static member private StandardHeaders =
+    static member Create (code) = Status.Create(code, "Undefined")
+
+    static member Create (code, msg) = 
+        match StatusHelper.StandardHeaders.TryFind code with
+        | Some status -> status
+        | _ -> { code = code; msg = msg }
+
+and [<AbstractClass; Sealed;>] internal StatusHelper () =
+    static member val StandardHeaders : Map<uint16, Status> =
         [   (100, "Contine");
             (101, "Switching Protocols");
             (102, "Processing");
@@ -86,13 +94,6 @@ type Status =
         |> Seq.map (fun (k,v) -> (uint16 k, { code = uint16 k; msg = v }))
         |> Map.ofSeq
 
-    static member Create (code) = Status.Create(code, "Undefined")
-
-    static member Create (code, msg) = 
-        match Status.StandardHeaders.TryFind code with
-        | Some status -> status
-        | _ -> { code = code; msg = msg }
-
 type StatusClass =    
     | Informational = 100us
     | Success = 200us
@@ -102,7 +103,7 @@ type StatusClass =
     | SystemHttpClientError = 1000us // FIXME: blah
 
 [<AutoOpen>]  
-module StatusMixins =
+module StatusExtensions =
     type Status with 
         [<Extension>]
         member this.Class 

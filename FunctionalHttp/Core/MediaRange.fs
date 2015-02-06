@@ -20,8 +20,8 @@ type MediaRange =
     member this.Parameters with get() = this.parameters
 
     override this.ToString() =
-        let _type = match this.Type with | Choice1Of2 t -> t | _ -> Any.instance.ToString()
-        let subType = match this.SubType with | Choice1Of2 t -> t | _ -> Any.instance.ToString()
+        let _type = match this.Type with | Choice1Of2 t -> t | _ -> Any.Instance.ToString()
+        let subType = match this.SubType with | Choice1Of2 t -> t | _ -> Any.Instance.ToString()
         let parameters = this.Parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";"
         _type + "/" + subType + ";" + parameters
 

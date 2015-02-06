@@ -9,13 +9,13 @@ open System
 module IPAddress = 
     [<Test>]
     let testIPv4Parse () =
-        let result = parse IPv4Address.Parser "0.2.23.245"
+        let result = parse IPv4Address.parser "0.2.23.245"
         ()
 
     [<Test>]
     let testIPv6Parse () =
         let testIPv6Parse test expected =
-            match parse IPv6Address.Parser test with
+            match parse IPv6Address.parser test with
             | Success (result, next) ->
                 result |> should equal expected
             | _ -> failwith ("parsing failed for " + test)
@@ -147,7 +147,7 @@ module IPAddress =
 
         testIPv6Parse "1:22:333:4444:1:22:33:4444"                    (IPv6Address(0x00010022u, 0x03334444u, 0x00010022u, 0x03334444u))
 
-        match parse IPv4Address.Parser "0000:1111:2222:3333:4444:5555::255.255.255.255" with
+        match parse IPv4Address.parser "0000:1111:2222:3333:4444:5555::255.255.255.255" with
         | Success (result, next) ->
                 result |> should equal (IPv6Address(0x00001111u, 0x22223333u, 0x44445555u, 0x00000255u))
                 next |> should equal 35

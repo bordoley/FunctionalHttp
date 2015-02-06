@@ -26,7 +26,7 @@ type RequestPreconditions =
 
         string builder
     
-    static member None = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }
+    static member None = RequestPreconditionsHelper.None
 
     static member internal CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange) =
         match (ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)  with
@@ -74,3 +74,6 @@ type RequestPreconditions =
             | (header, Some (Choice1Of2 etag)) -> (header, etag) |> Header.writeObject f
             | (header, Some (Choice2Of2 date)) -> (header, Some date) |> Header.writeDateTime f
             | _ -> ()
+
+and [<AbstractClass; Sealed;>] internal RequestPreconditionsHelper () =
+    static member val None : RequestPreconditions = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }

@@ -20,7 +20,7 @@ type Preference<'T> =
     override this.ToString() =
         (match this.Value with
         | Choice1Of2 v -> v.ToString()
-        | _ -> Any.instance.ToString()) + 
+        | _ -> Any.Instance.ToString()) + 
 
         // FIXME: Make this print pretty
         if this.Quality < 1000us then ";q=0." + string this.Quality else ""
@@ -47,7 +47,7 @@ module internal Preference =
         (Any.parser <^> p) .>>. weight
         |>> fun (value, quality) -> 
             match value with
-            | Choice1Of2 any -> { value = Choice2Of2 Any.instance; quality = quality } 
+            | Choice1Of2 any -> { value = Choice2Of2 Any.Instance; quality = quality } 
             | Choice2Of2 v -> { value = Choice1Of2 v; quality = quality } 
 
 type AcceptPreference =

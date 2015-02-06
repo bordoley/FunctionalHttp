@@ -25,13 +25,7 @@ type RequestPreferences =
 
         string builder
 
-    static member None = { 
-            acceptedCharsets = Set.empty
-            acceptedEncodings = Set.empty 
-            acceptedLanguages = Set.empty
-            acceptedMediaRanges = Set.empty 
-            ranges = None
-        }
+    static member None = RequestPreferencesHelper.None
 
     static member internal Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) =
         match (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) with
@@ -73,3 +67,12 @@ type RequestPreferences =
                                 | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
                                 | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
                                 | _ -> "") |> Header.writeObject f
+
+and [<AbstractClass; Sealed;>] internal RequestPreferencesHelper () =
+    static member val None : RequestPreferences = { 
+            acceptedCharsets = Set.empty
+            acceptedEncodings = Set.empty 
+            acceptedLanguages = Set.empty
+            acceptedMediaRanges = Set.empty 
+            ranges = None
+        }

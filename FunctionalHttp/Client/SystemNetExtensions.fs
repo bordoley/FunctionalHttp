@@ -94,10 +94,10 @@ type internal HttpRequestExtensions private () =
         message.RequestUri <- this.Uri
         message.Method <- 
             match this.Method with
-            | m when m.Equals(Method.get) -> HttpMethod.Get
-            | m when m.Equals(Method.post) -> HttpMethod.Post
-            | m when m.Equals(Method.put) -> HttpMethod.Put
-            | m when m.Equals(Method.delete) -> HttpMethod.Delete
+            | m when m.Equals(Method.Get) -> HttpMethod.Get
+            | m when m.Equals(Method.Post) -> HttpMethod.Post
+            | m when m.Equals(Method.Put) -> HttpMethod.Put
+            | m when m.Equals(Method.Delete) -> HttpMethod.Delete
             | _ -> failwith "unsupported method"
 
         match this.Authorization with
@@ -105,6 +105,6 @@ type internal HttpRequestExtensions private () =
         | _ -> ()         
 
         // HTTP Client likes to crash when you set the content on a GET request
-        if this.Method <> Method.get then message.Content <- new StreamContent(this.Entity)
+        if this.Method <> Method.Get then message.Content <- new StreamContent(this.Entity)
 
         message

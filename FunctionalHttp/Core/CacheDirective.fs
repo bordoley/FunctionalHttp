@@ -23,65 +23,66 @@ type CacheDirective =
             then this.Directive
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module CacheDirective =
-    [<CompiledName("NoStore")>]
-    let noStore = { directive = "no-store"; value  = "" }
-
-    [<CompiledName("NoTransform")>]
-    let noTransform = { directive = "no-transform"; value = "" }
-
-    [<CompiledName("OnlyIfCached")>]
-    let onlyIfCached = { directive = "only-if-cached"; value = "" }
-
-    [<CompiledName("MustRevalidate")>]
-    let mustRevalidate = { directive = "must-revalidate"; value = "" }
-
-    [<CompiledName("Public")>]
-    let public_ = { directive = "public"; value = "" }
-
-    [<CompiledName("ProxyRevalidate")>]
-    let proxyRevalidate = { directive = "proxy-revalidate"; value = "" }
-
-    let internal parser =
-        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
-            match (key.ToLowerInvariant(), value) with
-            | ("no-store", None) -> noStore
-            | ("no-transform", None) -> noTransform
-            | ("only-if-cached", None) -> onlyIfCached
-            | ("must-revalidate", None) -> mustRevalidate
-            | ("public", None) -> public_
-            | ("proxy-revalidate", None) -> proxyRevalidate
-            | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }
-
-    [<CompiledName("MaxAge")>]
-    let maxAge (value:TimeSpan) =
+    static member MaxAge (value:TimeSpan) =
         { directive = "max-age"; value = (int value.TotalSeconds).ToString() }
 
-    [<CompiledName("MaxStale")>]
-    let maxStale (value:TimeSpan) =
+    static member MaxStale (value:TimeSpan) =
         { directive = "max-stale"; value = (int value.TotalSeconds).ToString() }
 
-    [<CompiledName("MinFresh")>]
-    let minFresh (value:TimeSpan) =
+    static member MinFresh (value:TimeSpan) =
         { directive = "min-fresh"; value = (int value.TotalSeconds).ToString() }
 
-    [<CompiledName("SharedMaxAge")>]
-    let sharedMaxAge (value:TimeSpan) =
+    static member SharedMaxAge (value:TimeSpan) =
         { directive = "s-maxage"; value = (int value.TotalSeconds).ToString() }
      
-    [<CompiledName("NoCache")>]
-    let noCache (value: seq<Header>) =
+    static member NoCache (value: seq<Header>) =
         let headers = Set.ofSeq value
         { directive = "no-cache"; value = String.Join(", ", headers) }
 
-    [<CompiledName("Private")>]
-    let private_ (value: seq<Header>) =
+    static member Private (value: seq<Header>) =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
+    static member NoStore = CacheDirectiveHelper.NoStore
+
+    static member NoTransform = CacheDirectiveHelper.NoTransform
+
+    static member OnlyIfCached = CacheDirectiveHelper.OnlyIfCached
+
+    static member MustRevalidate = CacheDirectiveHelper.MustRevalidate
+
+    static member Public = CacheDirectiveHelper.Public
+
+    static member ProxyRevalidate = CacheDirectiveHelper.ProxyRevalidate
+
+and [<AbstractClass; Sealed;>] internal CacheDirectiveHelper () =
+    static member val NoStore = { directive = "no-store"; value  = "" }
+
+    static member val NoTransform = { directive = "no-transform"; value = "" }
+
+    static member val OnlyIfCached = { directive = "only-if-cached"; value = "" }
+
+    static member val MustRevalidate = { directive = "must-revalidate"; value = "" }
+
+    static member val Public = { directive = "public"; value = "" }
+
+    static member val ProxyRevalidate = { directive = "proxy-revalidate"; value = "" }
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module CacheDirective =
     [<Extension;CompiledName("ValueAsDeltaSeconds")>]
     let valueAsDeltaSeconds (directive:CacheDirective) =
         match UInt32.TryParse(directive.Value) with
             | (true, int) -> Some (TimeSpan(10000000L * int64 int))
             | _ -> None
+
+    let internal parser =
+        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
+            match (key.ToLowerInvariant(), value) with
+            | ("no-store", None) -> CacheDirective.NoStore
+            | ("no-transform", None) -> CacheDirective.NoTransform
+            | ("only-if-cached", None) -> CacheDirective.OnlyIfCached
+            | ("must-revalidate", None) -> CacheDirective.MustRevalidate
+            | ("public", None) -> CacheDirective.Public
+            | ("proxy-revalidate", None) -> CacheDirective.ProxyRevalidate
+            | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }

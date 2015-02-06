@@ -12,15 +12,17 @@ type RangeUnit =
 
     override this.ToString() = this.unit
 
+    static member Bytes = RangeUnitHelper.Bytes
+
+and [<AbstractClass; Sealed;>] internal RangeUnitHelper () =
+    static member val Bytes = { unit = "bytes" }
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal RangeUnit =
-    [<CompiledName("Bytes")>]
-    let bytes = { unit = "bytes" }
-
     let internal parser =
         token |>> fun x -> 
-            if x = string bytes
-            then bytes
+            if x = string RangeUnit.Bytes
+            then RangeUnit.Bytes
             else { unit = x }
 
 type AcceptsNone = 

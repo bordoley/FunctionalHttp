@@ -21,7 +21,7 @@ module ChallengeTests =
         let tests = [("Basic   dfjskdlfhjshflkjhfdslhd434543sdfsfsgdfdf=====", "dfjskdlfhjshflkjhfdslhd434543sdfsfsgdfdf=====") ]
 
         for (test, expected) in tests do
-            match parse Challenge.Parser test with
+            match parse Challenge.parser test with
             | Success (result, _) -> 
                 match result.DataOrParameters with
                 | Choice1Of2 data-> data |> should equal expected
@@ -46,7 +46,7 @@ module ChallengeTests =
                      ("Basic nottherealm=\"nottherealm\", realm=\"basic\"", "Basic",   [("nottherealm", "nottherealm"); ("realm", "basic")]);]
                      
         for (test, expectedScheme, expectedParams) in tests do
-            match parse Challenge.Parser test with
+            match parse Challenge.parser test with
             | Success (result, _) -> 
                 result.Scheme |> should equal expectedScheme
                 match result.DataOrParameters with

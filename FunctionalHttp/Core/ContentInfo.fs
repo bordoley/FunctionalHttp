@@ -80,10 +80,10 @@ type ContentInfo =
 
 // F# doesn't allow for static member val variables on record types so hack around it.
 and [<AbstractClass; Sealed;>] internal ContentInfoHelper () =
-        static member val None = { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
+    static member val None = { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module ContentInfo =
+module internal ContentInfo =
     [<CompiledName("With")>]
     let internal with_ (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
         ContentInfo.Create(
@@ -104,20 +104,8 @@ module ContentInfo =
             (if mediaType then None else contentInfo.MediaType),
             (if range then None else contentInfo.Range))
 
-    [<Extension;CompiledName("TryGetLength")>]
-    let tryGetLength(this:ContentInfo, length : byref<uint64>) = 
-        Option.tryGetValue this.Length &length
-
-    [<Extension;CompiledName("TryGetLocation")>]
-    let tryGetLocation(this:ContentInfo, uri : byref<Uri>) = 
-        Option.tryGetValue this.Location &uri
-
-    [<Extension;CompiledName("TryGetMediaType")>]
-    let tryGetMediaType(this:ContentInfo, mediaType : byref<MediaType>) = 
-        Option.tryGetValue this.MediaType &mediaType
-
 [<AutoOpen>]
-module ContentInfoMixins =
+module ContentInfoExtensions =
     type ContentInfo with
         member this.With(?encodings, ?languages, ?length:uint64, ?location:Uri, ?mediaType:MediaType, ?range:Choice<ByteContentRange, OtherContentRange>) =
             this |> ContentInfo.with_  (encodings, languages, length, location, mediaType, range)
@@ -129,3 +117,15 @@ module ContentInfoMixins =
                                             Option.isSome location, 
                                             Option.isSome mediaType,
                                             Option.isSome range)
+
+        [<Extension>]
+        member this.TryGetLength(length : byref<uint64>) = 
+            Option.tryGetValue this.Length &length
+
+        [<Extension>]
+        member this.TryGetLocation(uri : byref<Uri>) = 
+            Option.tryGetValue this.Location &uri
+
+        [<Extension>]
+        member this.TryGetMediaType(mediaType : byref<MediaType>) = 
+            Option.tryGetValue this.MediaType &mediaType

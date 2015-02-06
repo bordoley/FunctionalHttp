@@ -318,7 +318,7 @@ module internal HttpResponseInternal =
             (if warning then [] else resp.Warning))
 
 [<AutoOpen>]
-module HttpResponseMixins =
+module HttpResponseExtensions =
     type HttpResponse<'TResp> with
         member this.With (  ?acceptedRanges:Choice<Set<RangeUnit>, AcceptsNone>,
                             ?age:TimeSpan, 
@@ -440,6 +440,47 @@ module HttpResponseMixins =
                                                     defaultArg vary false,
                                                     defaultArg warning false) 
 
+         // FIXME: Prefer not to expose FSharpChoice in an interop API.
+        [<Extension>]
+        member this.TryGetAcceptedRange(acceptedRanges : byref<Choice<Set<RangeUnit>, AcceptsNone>>) = 
+            Option.tryGetValue this.AcceptedRanges &acceptedRanges
+
+        [<Extension>]
+        member this.TryGetAge(age : byref<TimeSpan>) = 
+            Option.tryGetValue this.Age &age
+
+        [<Extension>]
+        member this.TryGetDate(date : byref<DateTime>) = 
+            Option.tryGetValue this.Date &date
+
+        [<Extension>]
+        member this.TryGetETag(etag : byref<EntityTag>) = 
+            Option.tryGetValue this.ETag &etag
+
+        [<Extension>]
+        member this.TryGetExpires(expires : byref<DateTime>) = 
+            Option.tryGetValue this.Expires &expires
+
+        [<Extension>]
+        member this.TryGetLastModified(lastModified : byref<DateTime>) = 
+            Option.tryGetValue this.Expires &lastModified
+             
+        [<Extension>]
+        member this.TryGetLocation(location : byref<Uri>) = 
+            Option.tryGetValue this.Location &location
+
+        [<Extension>]
+        member this.TryGetRetryAfter(retryAfter : byref<DateTime>) = 
+            Option.tryGetValue this.RetryAfter &retryAfter
+
+        [<Extension>]
+        member this.TryGetServer(server : byref<Server>) = 
+            Option.tryGetValue this.Server &server
+               
+        [<Extension>]
+        member this.TryGetVary(vary : byref<Choice<Set<Header>, Any>>) = 
+            Option.tryGetValue this.Vary &vary     
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
     [<CompiledName("Convert")>]
@@ -462,44 +503,3 @@ module HttpResponse =
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (resp:HttpResponse<'TResp>) =
         resp.With(entity)
-
-     // FIXME: Prefer not to expose FSharpChoice in an interop API.
-    [<Extension; CompiledName("TryGetAcceptedRange")>]
-    let tryGetAcceptedRange(this:HttpResponse<'TResp>, acceptedRanges : byref<Choice<Set<RangeUnit>, AcceptsNone>>) = 
-        Option.tryGetValue this.AcceptedRanges &acceptedRanges
-
-    [<Extension; CompiledName("TryGetAge")>]
-    let tryGetAge(this:HttpResponse<'TResp>, age : byref<TimeSpan>) = 
-        Option.tryGetValue this.Age &age
-
-    [<Extension; CompiledName("TryGetDate")>]
-    let tryGetDate(this:HttpResponse<'TResp>, date : byref<DateTime>) = 
-        Option.tryGetValue this.Date &date
-
-    [<Extension; CompiledName("TryGetETag")>]
-    let tryGetETag(this:HttpResponse<'TResp>, etag : byref<EntityTag>) = 
-        Option.tryGetValue this.ETag &etag
-
-    [<Extension; CompiledName("TryGetExpires")>]
-    let tryGetExpires(this:HttpResponse<'TResp>, expires : byref<DateTime>) = 
-        Option.tryGetValue this.Expires &expires
-
-    [<Extension; CompiledName("TryGetLastModified")>]
-    let tryGetLastModified(this:HttpResponse<'TResp>, lastModified : byref<DateTime>) = 
-        Option.tryGetValue this.Expires &lastModified
-         
-    [<Extension; CompiledName("TryGetLocation")>]
-    let tryGetLocation(this:HttpResponse<'TResp>, location : byref<Uri>) = 
-        Option.tryGetValue this.Location &location
-
-    [<Extension; CompiledName("TryGetRetryAfter")>]
-    let tryGetRetryAfter(this:HttpResponse<'TResp>, retryAfter : byref<DateTime>) = 
-        Option.tryGetValue this.RetryAfter &retryAfter
-
-    [<Extension; CompiledName("TryGetServer")>]
-    let tryGetServer(this:HttpResponse<'TResp>, server : byref<Server>) = 
-        Option.tryGetValue this.Server &server
-           
-    [<Extension; CompiledName("TryGetVary")>]
-    let tryGetVary(this:HttpResponse<'TResp>, vary : byref<Choice<Set<Header>, Any>>) = 
-        Option.tryGetValue this.Vary &vary       

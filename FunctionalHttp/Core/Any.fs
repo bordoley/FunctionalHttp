@@ -7,9 +7,9 @@ type Any =
 
     override this.ToString() = "*"
 
+    static member Instance = Any
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal Any =
-    let instance = Any
-
-    let parser =
+    let internal parser =
         pAsterisk |>> fun _ -> Any
