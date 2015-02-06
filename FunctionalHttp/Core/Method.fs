@@ -10,9 +10,16 @@ type Method =
 
     override this.ToString() = this.meth
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module Method = 
-    let private methods =
+    static member Create m =
+        match MethodHelper.Methods.TryFind m with
+        | Some m -> m
+        | _ -> 
+            match parse MethodHelper.Parser m with 
+            | Success (m, _) -> m
+            | _ -> invalidArg "m" "not a method"
+
+and [<AbstractClass; Sealed;>] internal MethodHelper () =
+    static member val Methods : Map<string, Method> =
         [   "DELETE";
             "GET";
             "HEAD";
@@ -23,36 +30,31 @@ module Method =
         |> Seq.map (fun x -> (x, { meth = x }))
         |> Map.ofSeq
 
-    let internal parser = 
+    static member val Parser = 
         HttpParsers.token |>> (fun token -> 
-            token |> methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
+            token |> MethodHelper.Methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
 
-    [<CompiledName("Create")>]
-    let create m =
-        match methods.TryFind m with
-        | Some m -> m
-        | _ -> 
-            match parse parser m with 
-            | Success (m, _) -> m
-            | _ -> invalidArg "m" "not a method"
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Method = 
+    let internal parser = MethodHelper.Parser
 
     [<CompiledName("Delete")>]
-    let delete = create "DELETE"
+    let delete = Method.Create "DELETE"
 
     [<CompiledName("Get")>]
-    let get = create "GET" 
+    let get = Method.Create "GET" 
 
     [<CompiledName("Head")>]
-    let head = create "HEAD"
+    let head = Method.Create "HEAD"
 
     [<CompiledName("Options")>]
-    let options = create "OPTIONS"
+    let options = Method.Create "OPTIONS"
 
     [<CompiledName("Patch")>]
-    let patch = create "PATCH"
+    let patch = Method.Create "PATCH"
 
     [<CompiledName("Post")>]
-    let post = create "POST"
+    let post = Method.Create "POST"
 
     [<CompiledName("Put")>]
-    let put = create "PUT"   
+    let put = Method.Create "PUT"   

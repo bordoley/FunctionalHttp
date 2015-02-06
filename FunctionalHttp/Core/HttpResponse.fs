@@ -196,37 +196,37 @@ type HttpResponse<'TResp> =
             warning) 
 
     static member internal WriteHeaders (f:string*string -> unit) (resp:HttpResponse<'TResp>) =
-        (Header.acceptRanges,      resp.AcceptedRanges    ) 
+        (HttpHeaders.acceptRanges,      resp.AcceptedRanges    ) 
         |> function
             | (header, Some (Choice1Of2 rangeUnits)) -> (header, rangeUnits :> obj)
             | (header, Some (Choice2Of2 none)) -> (header, none :> obj)
             | (header, _) -> (header, "" :> obj)
         |> Header.writeObject f
 
-        (Header.age,               resp.Age               ) |> Header.writeDeltaSecond f
-        (Header.allow,             resp.Allowed           ) |> Header.writeSeq f 
-        (Header.wwwAuthenticate,   resp.Authenticate      ) |> Header.writeSeq f 
-        (Header.cacheControl,      resp.CacheControl      ) |> Header.writeSeq f 
+        (HttpHeaders.age,               resp.Age               ) |> Header.writeDeltaSecond f
+        (HttpHeaders.allow,             resp.Allowed           ) |> Header.writeSeq f 
+        (HttpHeaders.wwwAuthenticate,   resp.Authenticate      ) |> Header.writeSeq f 
+        (HttpHeaders.cacheControl,      resp.CacheControl      ) |> Header.writeSeq f 
 
         resp.ContentInfo |> ContentInfo.WriteHeaders f
 
-        (Header.date,              resp.Date              ) |> Header.writeDateTime f  
-        (Header.etag,              resp.ETag              ) |> Header.writeOption f 
-        (Header.date,              resp.Expires           ) |> Header.writeDateTime f
-        (Header.lastModified,      resp.LastModified      ) |> Header.writeDateTime f
-        (Header.location,          resp.Location          ) |> Header.writeOption f
-        (Header.proxyAuthenticate, resp.ProxyAuthenticate ) |> Header.writeSeq f 
-        (Header.retryAfter,        resp.RetryAfter        ) |> Header.writeDateTime f
-        (Header.server,            resp.Server            ) |> Header.writeOption f
+        (HttpHeaders.date,              resp.Date              ) |> Header.writeDateTime f  
+        (HttpHeaders.etag,              resp.ETag              ) |> Header.writeOption f 
+        (HttpHeaders.date,              resp.Expires           ) |> Header.writeDateTime f
+        (HttpHeaders.lastModified,      resp.LastModified      ) |> Header.writeDateTime f
+        (HttpHeaders.location,          resp.Location          ) |> Header.writeOption f
+        (HttpHeaders.proxyAuthenticate, resp.ProxyAuthenticate ) |> Header.writeSeq f 
+        (HttpHeaders.retryAfter,        resp.RetryAfter        ) |> Header.writeDateTime f
+        (HttpHeaders.server,            resp.Server            ) |> Header.writeOption f
 
-        (Header.vary,              resp.Vary              ) 
+        (HttpHeaders.vary,              resp.Vary              ) 
         |> function
             | (header, Some (Choice1Of2 headers)) -> (header, headers :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
         |> Header.writeObject f
 
-        (Header.warning,           resp.Warning           ) |> Header.writeSeq f 
+        (HttpHeaders.warning,           resp.Warning           ) |> Header.writeSeq f 
 
         resp.Headers |> Map.toSeq |> Header.writeAll f
 

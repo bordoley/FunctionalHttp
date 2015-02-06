@@ -4,6 +4,7 @@ open FunctionalHttp.Collections
 open Sparse
 open System
 open System.Collections.Generic
+open System.Runtime.CompilerServices
 
 open HttpParsers
 
@@ -79,7 +80,7 @@ module CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-    [<CompiledName("ValueAsDeltaSeconds")>]
+    [<Extension;CompiledName("ValueAsDeltaSeconds")>]
     let valueAsDeltaSeconds (directive:CacheDirective) =
         match UInt32.TryParse(directive.Value) with
             | (true, int) -> Some (TimeSpan(10000000L * int64 int))

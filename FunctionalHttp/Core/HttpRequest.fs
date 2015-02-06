@@ -159,21 +159,21 @@ type HttpRequest<'TReq> =
             version)
 
     static member internal WriteHeaders (f:string*string -> unit) (req:HttpRequest<'TReq>) =
-        (Header.host,               req.Uri.Authority)      |> Header.writeObject f
-        (Header.authorization,      req.Authorization)      |> Header.writeOption f
-        (Header.cacheControl,       req.CacheControl )      |> Header.writeSeq f 
+        (HttpHeaders.host,               req.Uri.Authority)      |> Header.writeObject f
+        (HttpHeaders.authorization,      req.Authorization)      |> Header.writeOption f
+        (HttpHeaders.cacheControl,       req.CacheControl )      |> Header.writeSeq f 
        
         req.ContentInfo |> ContentInfo.WriteHeaders f
 
-        (Header.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then (x |> Header.writeObject f)
-        (Header.pragma,             req.Pragma       )      |> Header.writeSeq f
+        (HttpHeaders.expect,             "100-continue"   )      |> fun x -> if req.ExpectContinue then (x |> Header.writeObject f)
+        (HttpHeaders.pragma,             req.Pragma       )      |> Header.writeSeq f
 
         req.Preconditions |> RequestPreconditions.WriteHeaders f
         req.preferences |> RequestPreferences.WriteHeaders f
 
-        (Header.proxyAuthorization, req.ProxyAuthorization) |> Header.writeOption f
-        (Header.referer,            req.Referer           ) |> Header.writeOption f
-        (Header.userAgent,          req.UserAgent         ) |> Header.writeOption f
+        (HttpHeaders.proxyAuthorization, req.ProxyAuthorization) |> Header.writeOption f
+        (HttpHeaders.referer,            req.Referer           ) |> Header.writeOption f
+        (HttpHeaders.userAgent,          req.UserAgent         ) |> Header.writeOption f
 
         req.Headers |> Map.toSeq |> Header.writeAll f
 

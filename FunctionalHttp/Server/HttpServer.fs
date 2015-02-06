@@ -58,7 +58,7 @@ module HttpServer =
     [<CompiledName("AsListenerConnector"); Extension>]
     let asListenerConnector (server:HttpRequest<Stream> -> Async<HttpResponse<Stream>>) =
         let parseRequest (req:HttpListenerRequest) =
-            let meth = Method.create req.HttpMethod
+            let meth = Method.Create req.HttpMethod
             let version = HttpVersion.Create(uint32 req.ProtocolVersion.Major, uint32 req.ProtocolVersion.Minor)
             let headers = 
                 (req.Headers.AllKeys :> seq<string>) 

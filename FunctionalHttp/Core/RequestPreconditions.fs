@@ -51,25 +51,25 @@ type RequestPreconditions =
         RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
 
     static member internal WriteHeaders (f:string*string -> unit) (preconditions:RequestPreconditions) = 
-        (Header.ifMatch, preconditions.ifMatch) 
+        (HttpHeaders.ifMatch, preconditions.ifMatch) 
         |> function
             | (header, Some (Choice1Of2 etags)) -> (header, etags :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
         |> Header.writeObject f
 
-        (Header.ifModifiedSince, preconditions.ifModifiedSince) |> Header.writeDateTime f
+        (HttpHeaders.ifModifiedSince, preconditions.ifModifiedSince) |> Header.writeDateTime f
 
-        (Header.ifMatch, preconditions.ifNoneMatch) 
+        (HttpHeaders.ifMatch, preconditions.ifNoneMatch) 
         |> function
             | (header, Some (Choice1Of2 etags)) -> (header, etags :> obj)
             | (header, Some (Choice2Of2 any)) -> (header, any :> obj)
             | (header, _) -> (header, "" :> obj)
         |> Header.writeObject f
 
-        (Header.ifUnmodifiedSince, preconditions.ifUnmodifiedSince) |> Header.writeDateTime f
+        (HttpHeaders.ifUnmodifiedSince, preconditions.ifUnmodifiedSince) |> Header.writeDateTime f
 
-        (Header.ifRange, preconditions.ifRange)
+        (HttpHeaders.ifRange, preconditions.ifRange)
         |> function
             | (header, Some (Choice1Of2 etag)) -> (header, etag) |> Header.writeObject f
             | (header, Some (Choice2Of2 date)) -> (header, Some date) |> Header.writeDateTime f

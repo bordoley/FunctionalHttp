@@ -34,7 +34,6 @@ module internal IPv4Address =
 
 [<StructAttribute>]
 type IPv6Address internal (x0:uint32, x1:uint32, x2:uint32, x3:uint32) = 
-
     override this.ToString() = 
         let writeBytes x = 
             let h160 = x &&& 0xFFFF0000ul >>> 16

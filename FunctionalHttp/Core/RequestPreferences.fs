@@ -65,11 +65,11 @@ type RequestPreferences =
         RequestPreferences.Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
 
     static member internal WriteHeaders (f:string*string -> unit) (preferences:RequestPreferences) = 
-        (Header.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
-        (Header.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
-        (Header.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f
-        (Header.acceptLanguage, preferences.AcceptedLanguages) |> Header.writeSeq f
-        (Header.range, preferences.ranges |> function
+        (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
+        (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
+        (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f
+        (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> Header.writeSeq f
+        (HttpHeaders.range, preferences.ranges |> function
                                 | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
                                 | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
                                 | _ -> "") |> Header.writeObject f

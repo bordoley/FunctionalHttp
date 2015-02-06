@@ -7,8 +7,6 @@ open System.Globalization
 open System.Text
 open System.Runtime.CompilerServices
 
-// FIXME: ContentRange
-
 type ContentInfo =
     private {
         encodings:ContentCoding seq
@@ -34,7 +32,7 @@ type ContentInfo =
 
         string builder
 
-    static member None = { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
+    static member None = ContentInfoHelper.None
 
     static member internal Create(encodings, languages, length, location, mediaType, range) =
         match (encodings, languages, length, location, mediaType, range)  with
@@ -69,16 +67,20 @@ type ContentInfo =
             range)
 
     static member internal WriteHeaders (f:string*string -> unit) (contentInfo:ContentInfo)  =
-        (Header.contentEncoding, contentInfo.Encodings) |> Header.writeSeq f 
-        (Header.contentLanguage, contentInfo.Languages) |> Header.writeSeq f
-        (Header.contentLength,   contentInfo.Length   ) |> Header.writeOption f
-        (Header.contentLocation, contentInfo.Location ) |> Header.writeOption f
-        (Header.contentRange,    None                 ) |> Header.writeOption f // FIXME
-        (Header.contentType,     contentInfo.MediaType) |> Header.writeOption f
-        (Header.contentRange,    contentInfo.Range |> function
+        (HttpHeaders.contentEncoding, contentInfo.Encodings) |> Header.writeSeq f 
+        (HttpHeaders.contentLanguage, contentInfo.Languages) |> Header.writeSeq f
+        (HttpHeaders.contentLength,   contentInfo.Length   ) |> Header.writeOption f
+        (HttpHeaders.contentLocation, contentInfo.Location ) |> Header.writeOption f
+        (HttpHeaders.contentRange,    None                 ) |> Header.writeOption f // FIXME
+        (HttpHeaders.contentType,     contentInfo.MediaType) |> Header.writeOption f
+        (HttpHeaders.contentRange,    contentInfo.Range |> function
                                         | Some (Choice1Of2 byteContentRange) -> string byteContentRange
                                         | Some (Choice2Of2 otherContentRange) -> string otherContentRange
                                         | _ -> "") |> Header.writeObject f
+
+// F# doesn't allow for static member val variables on record types so hack around it.
+and [<AbstractClass; Sealed;>] internal ContentInfoHelper () =
+        static member val None = { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module ContentInfo =
