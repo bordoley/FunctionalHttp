@@ -13,9 +13,9 @@ type internal Router =
         | head::tail ->                       
             let rec globMatch (path: string list) (router: Router) =
                 match path with
-                | [] | _::[]-> router.resource
+                | [] -> router.resource
                 | head::tail ->
-                    router.children.TryFind tail.Head
+                    router.children.TryFind head
                     |> Option.bind (fun childRouter -> childRouter.Item tail)
                     |> Option.orElseLazy (lazy globMatch tail router) 
 

@@ -24,7 +24,10 @@ module main =
                     |> HttpClient.usingConverters (Converters.fromStringToStream, Converters.fromStreamToString)
 
                 let handleAndAccept (req:HttpRequest<_>) = 
+                    let kvp = Route.getParametersFromUri route req.Uri
+
                     Console.WriteLine req
+
                     let age = TimeSpan(0,0,2)
                     let server = "FunctionalHttp/0.0.1" |> Server.Create
                     let acceptedRanges = Choice1Of2 ([RangeUnit.Bytes] |> Set.ofSeq)
@@ -42,7 +45,7 @@ module main =
                     Console.WriteLine result
 
                     async {
-                        let uri = Uri("http://www.google.com")
+                        let uri = Uri("http://www.google.com/" + kvp.["glob"])
                         let request = HttpRequest.Create(Method.Get, uri, "")
                         let! resp = httpClient request
                         return match resp.Entity with
