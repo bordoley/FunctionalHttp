@@ -19,30 +19,17 @@ type internal Router =
                     |> Option.bind (fun childRouter -> childRouter.Item tail)
                     |> Option.orElseLazy (lazy globMatch tail router) 
 
-            let exactMatchResult = 
-                this.children.TryFind head 
-                |> Option.orElseLazy (lazy (this.children.TryFind ":"))
-                |> Option.bind (fun router -> router.Item tail)
-
-            exactMatchResult
+            this.children.TryFind head 
+            |> Option.orElseLazy (lazy (this.children.TryFind ":"))
+            |> Option.bind (fun router -> router.Item tail)
             |> Option.orElseLazy (lazy 
                 (
-                    this.children.TryFind ("*" + head)
-                    |> Option.orElseLazy (lazy (this.children.TryFind "*"))
+                    this.children.TryFind ("*")
                     |> Option.bind(fun router -> globMatch tail router)
                 ))
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal Router =
-    type private RouteSegment with
-        member this.RouterKey =
-            match this with
-            | Glob -> "*"
-            | GlobParameter v -> "*" + v
-            | Parameter v -> ":"
-            | Segment v -> v
-            | EmptySegment -> ""
-
     let empty = { resource = Option.None; children = Map.empty }
 
     let rec private doAdd (route:RouteSegment list) (resource:IStreamResource) (router: Router) =

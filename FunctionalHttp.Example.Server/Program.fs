@@ -20,7 +20,7 @@ module main =
                 |> HttpClient.fromNetHttpClient
                 |> HttpClient.usingConverters (Converters.fromStringToStream, Converters.fromStreamToString)
 
-            let route = Route.Create "/example"
+            let route = Route.Create "/example/:bob/*/jklj/*"
 
             let handleAndAccept (req:HttpRequest<_>) = 
                 Console.WriteLine req

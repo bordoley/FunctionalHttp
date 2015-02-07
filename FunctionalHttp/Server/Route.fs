@@ -4,16 +4,14 @@ open System
 open FunctionalHttp.Core
 
 type internal RouteSegment = 
-    | Glob
-    | GlobParameter of String
+    | Glob of String
     | Parameter of String
     | Segment of String
     | EmptySegment
 
     override this.ToString() =
         match this with
-        | Glob -> "*"
-        | GlobParameter v -> "*" + v
+        | Glob v -> "*" + v
         | Parameter v -> ":" + v
         | Segment v -> v
         | EmptySegment -> ""
@@ -27,6 +25,16 @@ type Route =
 
     override this.ToString() = String.Join("/", this.segments)
 
+[<AutoOpen>]
+module internal RouteExtensions =
+    type private RouteSegment with
+        member this.RouterKey =
+            match this with
+            | Glob v -> "*"
+            | Parameter v -> ":"
+            | Segment v -> v
+            | EmptySegment -> ""
+
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal Route =
     let parser = 
@@ -34,8 +42,8 @@ module internal Route =
 
         let pNonEmptySegment =
             let pGlob = 
-                pAsterisk >>. regex (UriGrammar.pchar + "*") 
-                |>> (fun v -> if  v.Length = 0 then Glob else GlobParameter v)
+                pAsterisk >>. many1Satisfy (fun c -> c <> '/')
+                |>> (fun v -> Glob v)
 
             let pParameter =
                 pColon >>. many1Satisfy (fun c -> c <> '/')
@@ -47,16 +55,42 @@ module internal Route =
             
             pGlob <|> pParameter <|> pSegment
 
-        pEmpty >>. pForwardSlash >>. sepBy1 pNonEmptySegment pForwardSlash .>> eof >>= (fun result ->
-            let segments = Seq.append [EmptySegment] result |> List.ofSeq
+        pEmpty >>. pForwardSlash >>. sepBy1 pNonEmptySegment pForwardSlash .>> eof
+        |>> (fun segments -> { segments = Seq.append [EmptySegment] segments |> List.ofSeq })
 
-            preturn segments)
-       |>> (fun segments -> { segments = segments })
+    let rec validate (segments: RouteSegment list) (keys: Set<String>) = 
+        match segments with
+        | [] -> ()
+        | head::tail ->
+            let keys =
+                match head with
+                | Glob v ->
+                    if keys.Contains "*" 
+                        then failwith "Route contains multiple adjacent glob segments."
+
+                    if keys.Contains v
+                        then failwith "Route contains duplicate keys"
+
+                    keys |> Set.add "*" |> Set.add v
+                | Parameter v  -> 
+                    if keys.Contains "*" 
+                        then failwith "Glob segment cannot be terminated by a parameter segment."
+
+                    if keys.Contains v
+                        then failwith "Route contains duplicate keys"
+
+                    keys.Add v
+                | Segment _ | EmptySegment -> 
+                    keys.Remove "*"
+
+            validate tail keys
 
     let create route =
         match parse parser route with
-        | Success (result, _) -> result
-
+        | Success (result, _) -> 
+            let segments = result.ToList()
+            validate segments Set.empty
+            result
         | _ -> failwith "Not a route"
 
 type Route with
