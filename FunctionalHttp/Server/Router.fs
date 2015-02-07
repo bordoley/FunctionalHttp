@@ -1,23 +1,16 @@
 ﻿namespace FunctionalHttp.Server
 open FunctionalHttp.Collections
 
-type internal Router = 
+type internal Router =
     private {
         resource: IStreamResource option
         children: Map<string,Router>
     }
 
-    static member Empty = { resource = Option.None; children = Map.empty }
-
     member this.Item (path: string list) =
         match path with
         | [] -> this.resource
-        | head::tail -> 
-            let exactMatchResult = 
-                this.children.TryFind head 
-                |> Option.orElseLazy (lazy (this.children.TryFind ":"))
-                |> Option.bind (fun router -> router.Item tail)
-            
+        | head::tail ->                       
             let rec globMatch (path: string list) (router: Router) =
                 match path with
                 | [] | _::[]-> router.resource
@@ -25,6 +18,11 @@ type internal Router =
                     router.children.TryFind tail.Head
                     |> Option.bind (fun childRouter -> childRouter.Item tail)
                     |> Option.orElseLazy (lazy globMatch tail router) 
+
+            let exactMatchResult = 
+                this.children.TryFind head 
+                |> Option.orElseLazy (lazy (this.children.TryFind ":"))
+                |> Option.bind (fun router -> router.Item tail)
 
             exactMatchResult
             |> Option.orElseLazy (lazy 
@@ -34,21 +32,39 @@ type internal Router =
                     |> Option.bind(fun router -> globMatch tail router)
                 ))
 
-    member private this.DoAdd (route:string list) (resource:IStreamResource) =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Router =
+    type private RouteSegment with
+        member this.RouterKey =
+            match this with
+            | Glob -> "*"
+            | GlobParameter v -> "*" + v
+            | Parameter v -> ":"
+            | Segment v -> v
+            | EmptySegment -> ""
+
+    let empty = { resource = Option.None; children = Map.empty }
+
+    let rec private doAdd (route:RouteSegment list) (resource:IStreamResource) (router: Router) =
         match route with
-        | [] -> { resource = Some resource; children = this.children }
+        | [] -> { resource = Some resource; children = router.children }
         | head::tail -> 
-            let key = Router.routeSegmentToKey head
+            let key = head.RouterKey
             let newChild = 
-                this.children.TryFind key
-                |> Option.map (fun router -> router.DoAdd tail resource)
-                |> Option.getOrElseLazy (lazy Router.Empty.DoAdd tail resource)
-            { resource = this.resource; children = this.children.Add (key, newChild) }
+                router.children.TryFind key
+                |> Option.map (fun router -> router |> doAdd tail resource)
+                |> Option.getOrElseLazy (lazy (empty |> doAdd tail resource))
+            { resource = router.resource; children = router.children.Add (key, newChild) }
 
-    member this.Add (resource:IStreamResource) = this.DoAdd (resource.Route.ToList()) resource
+    let add (resource:IStreamResource) (router: Router) =
+        router |> doAdd (resource.Route.ToList()) resource
 
-    member this.AddAll (resources:IStreamResource seq) =
-        resources |> Seq.fold (fun (router:Router) resource -> router.Add resource) this  
+    let addAll (resources:IStreamResource seq) (router: Router) =
+        resources |> Seq.fold (fun (router:Router) resource -> router |> add resource) router  
 
-    static member private routeSegmentToKey (segment:string) =
-        if segment.StartsWith(":") then ":" else segment         
+type Router with
+    member this.Add (resource:IStreamResource) = 
+        this |> Router.add resource
+
+    member this.AddAll (resources:IStreamResource seq) = 
+        this |> Router.addAll resources     

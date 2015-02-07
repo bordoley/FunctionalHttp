@@ -21,7 +21,7 @@ module HttpApplication =
 
     [<CompiledName("Routing")>]
     let routing (resources, defaultResource)  =
-        let router = Router.Empty.AddAll resources
+        let router = Router.empty.AddAll resources
 
         { new IHttpApplication with
             member this.FilterRequest (req:HttpRequest<Stream>)= req

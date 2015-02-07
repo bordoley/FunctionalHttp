@@ -39,6 +39,13 @@ type HostPort =
 module internal HostPort =
     let parser : Parser<HostPort> = pzero
 
+module internal UriGrammar =
+    let unreserved = "[a-zA-Z0-9\-\._~]"
+    let pct_encoded = "(%[0-9A-Fa-f]{2})"
+    let sub_delims = "[!\$&'\(\)\*\+,;=]"
+
+    let pchar = "(" + unreserved + "|" + sub_delims + "|" + "[:@]" + "|" + pct_encoded + ")"
+
 (*
 type Authority =
     private {
@@ -55,3 +62,5 @@ type Uri =
         fragment:string
     }
 *)
+
+
