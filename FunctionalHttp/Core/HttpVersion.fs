@@ -11,9 +11,9 @@ type HttpVersion private (major:uint32, minor:uint32) =
 
     override this.ToString() = sprintf "HTTP/%u.%u" this.Major this.Minor
  
-    static member Http1_1 = HttpVersion(1u, 1u)
-    static member Http1_0 = HttpVersion(1u, 0u)
-    static member Http0_9 = HttpVersion(0u, 9u)
+    static member val Http1_1 = HttpVersion(1u, 1u)
+    static member val Http1_0 = HttpVersion(1u, 0u)
+    static member val Http0_9 = HttpVersion(0u, 9u)
 
     static member Create (major, minor) =
         if (major > 9u) then ArgumentOutOfRangeException "major" |> raise

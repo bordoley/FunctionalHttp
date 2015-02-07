@@ -25,30 +25,6 @@ type RequestPreconditions =
         this |> RequestPreconditions.WriteHeaders writeHeaderLine
 
         string builder
-    
-    static member None = RequestPreconditionsHelper.None
-
-    static member internal CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange) =
-        match (ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)  with
-        | (None, None, None, None, None) -> RequestPreconditions.None
-        | (ifMatch, ifModifiedSincel, ifNoneMatch, ifUnmodifiedSince, ifRange) ->
-            {   ifMatch = ifMatch; 
-                ifModifiedSince = ifModifiedSince; 
-                ifNoneMatch = ifNoneMatch;
-                ifUnmodifiedSince = ifUnmodifiedSince;
-                ifRange = ifRange }
-
-    static member Create(?ifMatch, ?ifModifiedSince, ?ifNoneMatch, ?ifUnmodifiedSince, ?ifRange) =
-        RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
-
-    static member Create(headers:Map<Header, obj>) = 
-        let ifMatch = HeaderParsers.ifMatch headers
-        let ifModifiedSince = HeaderParsers.ifModifiedSince headers
-        let ifNoneMatch = HeaderParsers.ifNoneMatch headers
-        let ifUnmodifiedSince = HeaderParsers.ifUnmodifiedSince headers
-        let ifRange = HeaderParsers.ifRange headers
-
-        RequestPreconditions.CreateInternal(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
 
     static member internal WriteHeaders (f:Header*string -> unit) (preconditions:RequestPreconditions) = 
         (HttpHeaders.ifMatch, preconditions.ifMatch) 
@@ -75,5 +51,31 @@ type RequestPreconditions =
             | (header, Some (Choice2Of2 date)) -> (header, Some date) |> Header.writeDateTime f
             | _ -> ()
 
-and [<AbstractClass; Sealed;>] internal RequestPreconditionsHelper () =
-    static member val None : RequestPreconditions = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal RequestPreconditions =
+    let none : RequestPreconditions = { ifMatch = None; ifModifiedSince = None; ifNoneMatch = None; ifUnmodifiedSince = None; ifRange = None }
+
+    let create(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange) =
+        match (ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)  with
+        | (None, None, None, None, None) -> none
+        | (ifMatch, ifModifiedSincel, ifNoneMatch, ifUnmodifiedSince, ifRange) ->
+            {   ifMatch = ifMatch; 
+                ifModifiedSince = ifModifiedSince; 
+                ifNoneMatch = ifNoneMatch;
+                ifUnmodifiedSince = ifUnmodifiedSince;
+                ifRange = ifRange }
+
+type RequestPreconditions with
+    static member None = RequestPreconditions.none
+
+    static member Create(?ifMatch, ?ifModifiedSince, ?ifNoneMatch, ?ifUnmodifiedSince, ?ifRange) =
+        RequestPreconditions.create(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)
+
+    static member internal Create(headers:Map<Header, obj>) = 
+        let ifMatch = HeaderParsers.ifMatch headers
+        let ifModifiedSince = HeaderParsers.ifModifiedSince headers
+        let ifNoneMatch = HeaderParsers.ifNoneMatch headers
+        let ifUnmodifiedSince = HeaderParsers.ifUnmodifiedSince headers
+        let ifRange = HeaderParsers.ifRange headers
+
+        RequestPreconditions.create(ifMatch, ifModifiedSince, ifNoneMatch, ifUnmodifiedSince, ifRange)

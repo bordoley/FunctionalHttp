@@ -30,13 +30,11 @@ type Challenge =
                     key + "=" + HttpEncoding.asTokenOrQuotedString value)
             |> String.concat ", "
 
-    static member OAuthToken token = 
-        match token |> parse token68 with
-        | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
-        | _ -> invalidArg "token" "Token must be valid base64 data"
+type Credentials = Challenge
 
-and [<AbstractClass; Sealed;>] internal ChallengeHelper () =
-    static member Parser : Parser<Challenge> =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Challenge =
+    let parser : Parser<Challenge> =
         let auth_scheme = token
         let auth_param = 
             token .>> (BWS .>>. pEquals .>>. BWS) .>>. (token <|> quoted_string)
@@ -54,11 +52,11 @@ and [<AbstractClass; Sealed;>] internal ChallengeHelper () =
         |>> fun (scheme, dataOrParameters) -> 
             { scheme = scheme; dataOrParameters = dataOrParameters; }
 
-type Credentials = Challenge
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal Challenge =
-    let internal parser = ChallengeHelper.Parser
+type Challenge with
+    static member OAuthToken token = 
+        match token |> parse token68 with
+        | Success (x, _)-> {scheme = "OAuth"; dataOrParameters = Choice1Of2 token }
+        | _ -> invalidArg "token" "Token must be valid base64 data"
 
 [<AutoOpen>]
 module ChallengeExtensions =

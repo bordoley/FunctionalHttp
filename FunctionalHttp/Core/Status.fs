@@ -14,15 +14,9 @@ type Status =
 
     override this.ToString() = sprintf "%u %s" this.Code this.Message
 
-    static member Create (code) = Status.Create(code, "Undefined")
-
-    static member Create (code, msg) = 
-        match StatusHelper.StandardHeaders.TryFind code with
-        | Some status -> status
-        | _ -> { code = code; msg = msg }
-
-and [<AbstractClass; Sealed;>] internal StatusHelper () =
-    static member val StandardHeaders : Map<uint16, Status> =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Status =
+    let standardHeaders : Map<uint16, Status> =
         [   (100, "Contine");
             (101, "Switching Protocols");
             (102, "Processing");
@@ -93,6 +87,14 @@ and [<AbstractClass; Sealed;>] internal StatusHelper () =
             (1021, "UnknownError")]
         |> Seq.map (fun (k,v) -> (uint16 k, { code = uint16 k; msg = v }))
         |> Map.ofSeq
+
+type Status with
+    static member Create (code, msg) = 
+        match Status.standardHeaders.TryFind code with
+        | Some status -> status
+        | _ -> { code = code; msg = msg }
+
+    static member Create (code) = Status.Create(code, "Undefined")
 
 type StatusClass =    
     | Informational = 100us

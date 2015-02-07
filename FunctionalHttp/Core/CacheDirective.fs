@@ -23,6 +23,38 @@ type CacheDirective =
             then this.Directive
         else this.directive + "=" + (HttpEncoding.asTokenOrQuotedString this.value)
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module CacheDirective =
+    let noStore = { directive = "no-store"; value  = "" }
+
+    let noTransform = { directive = "no-transform"; value = "" }
+
+    let onlyIfCached = { directive = "only-if-cached"; value = "" }
+
+    let mustRevalidate = { directive = "must-revalidate"; value = "" }
+
+    let public_ = { directive = "public"; value = "" }
+
+    let proxyRevalidate = { directive = "proxy-revalidate"; value = "" }
+
+    [<Extension;CompiledName("ValueAsDeltaSeconds")>]
+    let valueAsDeltaSeconds (directive:CacheDirective) =
+        match UInt32.TryParse(directive.Value) with
+            | (true, int) -> Some (TimeSpan(10000000L * int64 int))
+            | _ -> None
+
+    let internal parser =
+        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
+            match (key.ToLowerInvariant(), value) with
+            | ("no-store", None) -> noStore
+            | ("no-transform", None) -> noTransform
+            | ("only-if-cached", None) -> onlyIfCached
+            | ("must-revalidate", None) -> mustRevalidate
+            | ("public", None) -> public_
+            | ("proxy-revalidate", None) -> proxyRevalidate
+            | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }
+
+type CacheDirective with
     static member MaxAge (value:TimeSpan) =
         { directive = "max-age"; value = (int value.TotalSeconds).ToString() }
 
@@ -43,46 +75,15 @@ type CacheDirective =
         let headers = Set.ofSeq value
         { directive = "private"; value = String.Join(", ", headers) }  
 
-    static member NoStore = CacheDirectiveHelper.NoStore
+    static member NoStore = CacheDirective.noStore
 
-    static member NoTransform = CacheDirectiveHelper.NoTransform
+    static member NoTransform = CacheDirective.noTransform
 
-    static member OnlyIfCached = CacheDirectiveHelper.OnlyIfCached
+    static member OnlyIfCached = CacheDirective.onlyIfCached
 
-    static member MustRevalidate = CacheDirectiveHelper.MustRevalidate
+    static member MustRevalidate = CacheDirective.mustRevalidate
 
-    static member Public = CacheDirectiveHelper.Public
+    static member Public = CacheDirective.public_
 
-    static member ProxyRevalidate = CacheDirectiveHelper.ProxyRevalidate
-
-and [<AbstractClass; Sealed;>] internal CacheDirectiveHelper () =
-    static member val NoStore = { directive = "no-store"; value  = "" }
-
-    static member val NoTransform = { directive = "no-transform"; value = "" }
-
-    static member val OnlyIfCached = { directive = "only-if-cached"; value = "" }
-
-    static member val MustRevalidate = { directive = "must-revalidate"; value = "" }
-
-    static member val Public = { directive = "public"; value = "" }
-
-    static member val ProxyRevalidate = { directive = "proxy-revalidate"; value = "" }
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module CacheDirective =
-    [<Extension;CompiledName("ValueAsDeltaSeconds")>]
-    let valueAsDeltaSeconds (directive:CacheDirective) =
-        match UInt32.TryParse(directive.Value) with
-            | (true, int) -> Some (TimeSpan(10000000L * int64 int))
-            | _ -> None
-
-    let internal parser =
-        token .>>. opt ((pEquals) >>. (token <|> quoted_string)) |>> fun (key, value) ->
-            match (key.ToLowerInvariant(), value) with
-            | ("no-store", None) -> CacheDirective.NoStore
-            | ("no-transform", None) -> CacheDirective.NoTransform
-            | ("only-if-cached", None) -> CacheDirective.OnlyIfCached
-            | ("must-revalidate", None) -> CacheDirective.MustRevalidate
-            | ("public", None) -> CacheDirective.Public
-            | ("proxy-revalidate", None) -> CacheDirective.ProxyRevalidate
-            | (key, value) -> { directive = key; value = value |> Option.getOrElse "" }
+    static member ProxyRevalidate = CacheDirective.proxyRevalidate
+    

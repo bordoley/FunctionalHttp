@@ -8,15 +8,15 @@ type ContentCoding =
 
     override this.ToString () = this.contentCoding
 
-    static member Identity = ContentCodingHelper.Identity
-
-and [<AbstractClass; Sealed;>] internal ContentCodingHelper () =
-    static member val Identity = { contentCoding = "identity" }
-
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal ContentCoding =
-    let internal parser =
+    let identity = { contentCoding = "identity" }
+
+    let parser =
         token |>> (fun x ->
-            if x = string ContentCoding.Identity 
-                then ContentCoding.Identity
+            if x = string identity 
+                then identity
             else { contentCoding = x })
+
+type ContentCoding with
+    static member Identity = ContentCoding.identity

@@ -25,13 +25,31 @@ type RequestPreferences =
 
         string builder
 
-    static member None = RequestPreferencesHelper.None
+    static member internal WriteHeaders (f:Header*string -> unit) (preferences:RequestPreferences) = 
+        (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
+        (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
+        (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f
+        (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> Header.writeSeq f
+        (HttpHeaders.range, preferences.ranges |> function
+                                | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
+                                | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
+                                | _ -> "") |> Header.writeObject f
 
-    static member internal Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal RequestPreferences =
+    let none : RequestPreferences = { 
+        acceptedCharsets = Set.empty
+        acceptedEncodings = Set.empty 
+        acceptedLanguages = Set.empty
+        acceptedMediaRanges = Set.empty 
+        ranges = None
+    }
+
+    let create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) =
         match (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges) with
         | (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, None) 
             when Seq.isEmpty acceptedCharsets && Seq.isEmpty acceptedEncodings && Seq.isEmpty acceptedLanguages && Seq.isEmpty acceptedMediaRanges ->
-                RequestPreferences.None
+                none
         | _ -> 
             {
                 acceptedCharsets = Set.ofSeq acceptedCharsets
@@ -41,8 +59,11 @@ type RequestPreferences =
                 ranges = ranges
             }
 
+type RequestPreferences with
+    static member None = RequestPreferences.none
+
     static member Create (?acceptedCharsets, ?acceptedEncodings, ?acceptedLanguages, ?acceptedMediaRanges, ?ranges) =
-        RequestPreferences.Create (
+        RequestPreferences.create (
             defaultArg acceptedCharsets Seq.empty, 
             defaultArg acceptedEncodings Seq.empty, 
             defaultArg acceptedLanguages Seq.empty, 
@@ -56,23 +77,5 @@ type RequestPreferences =
         let acceptedMediaRanges = HeaderParsers.accept headers
         let ranges = HeaderParsers.range headers
 
-        RequestPreferences.Create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
+        RequestPreferences.create (acceptedCharsets, acceptedEncodings, acceptedLanguages, acceptedMediaRanges, ranges)
 
-    static member internal WriteHeaders (f:Header*string -> unit) (preferences:RequestPreferences) = 
-        (HttpHeaders.accept, preferences.AcceptedMediaRanges) |> Header.writeSeq f
-        (HttpHeaders.acceptCharset, preferences.AcceptedCharset) |> Header.writeSeq f
-        (HttpHeaders.acceptEncoding, preferences.AcceptedEncodings) |> Header.writeSeq f
-        (HttpHeaders.acceptLanguage, preferences.AcceptedLanguages) |> Header.writeSeq f
-        (HttpHeaders.range, preferences.ranges |> function
-                                | Some (Choice1Of2 byteRangesSpecifier) -> string byteRangesSpecifier
-                                | Some (Choice2Of2 otherRangesSpecifier) -> string otherRangesSpecifier
-                                | _ -> "") |> Header.writeObject f
-
-and [<AbstractClass; Sealed;>] internal RequestPreferencesHelper () =
-    static member val None : RequestPreferences = { 
-            acceptedCharsets = Set.empty
-            acceptedEncodings = Set.empty 
-            acceptedLanguages = Set.empty
-            acceptedMediaRanges = Set.empty 
-            ranges = None
-        }

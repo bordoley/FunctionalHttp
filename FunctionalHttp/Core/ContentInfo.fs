@@ -32,40 +32,6 @@ type ContentInfo =
 
         string builder
 
-    static member None = ContentInfoHelper.None
-
-    static member internal Create(encodings, languages, length, location, mediaType, range) =
-        match (encodings, languages, length, location, mediaType, range)  with
-        | (encodings, languages, None, None, None, None) when Seq.isEmpty encodings && Seq.isEmpty languages -> 
-            ContentInfo.None
-        | _ -> { 
-                encodings = List.ofSeq encodings; 
-                languages = List.ofSeq languages; 
-                length = length; 
-                location = location; 
-                mediaType = mediaType; 
-                range = range
-            }
-         
-    static member Create(headers:Map<Header, obj>) = 
-        let encodings = HeaderParsers.contentEncoding headers
-        let languages:LanguageTag seq = HeaderParsers.contentLanguages headers
-        let length = HeaderParsers.contentLength headers
-        let location = HeaderParsers.contentLocation headers
-        let mediaType = HeaderParsers.contentType headers
-        let range = HeaderParsers.contentRange headers
-
-        ContentInfo.Create(encodings, languages, length, location, mediaType, range)
-
-    static member Create(?encodings, ?languages, ?length, ?location, ?mediaType, ?range) =
-        ContentInfo.Create(
-            defaultArg encodings [], 
-            defaultArg languages [], 
-            length, 
-            location, 
-            mediaType,
-            range)
-
     static member internal WriteHeaders (f:Header*string -> unit) (contentInfo:ContentInfo)  =
         (HttpHeaders.contentEncoding, contentInfo.Encodings) |> Header.writeSeq f 
         (HttpHeaders.contentLanguage, contentInfo.Languages) |> Header.writeSeq f
@@ -78,15 +44,26 @@ type ContentInfo =
                                         | Some (Choice2Of2 otherContentRange) -> string otherContentRange
                                         | _ -> "") |> Header.writeObject f
 
-// F# doesn't allow for static member val variables on record types so hack around it.
-and [<AbstractClass; Sealed;>] internal ContentInfoHelper () =
-    static member val None = { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
-
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal ContentInfo =
+    let none =  { encodings = []; languages = []; length = None; location = None; mediaType = None; range = None }
+
+    let create (encodings, languages, length, location, mediaType, range) =
+        match (encodings, languages, length, location, mediaType, range)  with
+        | (encodings, languages, None, None, None, None) when Seq.isEmpty encodings && Seq.isEmpty languages -> 
+            none
+        | _ -> { 
+                encodings = List.ofSeq encodings; 
+                languages = List.ofSeq languages; 
+                length = length; 
+                location = location; 
+                mediaType = mediaType; 
+                range = range
+            }
+
     [<CompiledName("With")>]
     let internal with_ (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
-        ContentInfo.Create(
+        create(
             defaultArg encodings contentInfo.Encodings,
             defaultArg languages contentInfo.Languages,
             Option.orElse contentInfo.Length length,
@@ -96,13 +73,35 @@ module internal ContentInfo =
 
     [<CompiledName("Without")>]
     let internal without (encodings, languages, length, location, mediaType, range) (contentInfo:ContentInfo) =
-        ContentInfo.Create(
+        create(
             (if encodings then Seq.empty else contentInfo.Encodings),
             (if languages then Seq.empty else contentInfo.Languages),
             (if length then  None else contentInfo.Length),
             (if location then None else contentInfo.Location),
             (if mediaType then None else contentInfo.MediaType),
             (if range then None else contentInfo.Range))
+
+type ContentInfo with
+    static member None = ContentInfo.none
+
+    static member Create(headers:Map<Header, obj>) = 
+        let encodings = HeaderParsers.contentEncoding headers
+        let languages:LanguageTag seq = HeaderParsers.contentLanguages headers
+        let length = HeaderParsers.contentLength headers
+        let location = HeaderParsers.contentLocation headers
+        let mediaType = HeaderParsers.contentType headers
+        let range = HeaderParsers.contentRange headers
+
+        ContentInfo.create(encodings, languages, length, location, mediaType, range)
+
+    static member Create(?encodings, ?languages, ?length, ?location, ?mediaType, ?range) =
+        ContentInfo.create(
+            defaultArg encodings [], 
+            defaultArg languages [], 
+            length, 
+            location, 
+            mediaType,
+            range)
 
 [<AutoOpen>]
 module ContentInfoExtensions =

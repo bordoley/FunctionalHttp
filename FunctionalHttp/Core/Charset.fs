@@ -15,55 +15,54 @@ type Charset =
 
     override this.ToString() = this.charset  
 
-    static member Create (charset:string) = 
-        match charset.ToUpperInvariant() |> CharsetHelper.Charsets.TryFind  with
-        | Some charset -> charset
-        | None -> 
-            match parse CharsetHelper.Parser charset with 
-            | Success (charset, _) -> charset
-
-            | _ -> invalidArg "charset" "not a charset"
-
-    static member ISO_8859_1 = CharsetHelper.ISO_8859_1
-
-    static member US_ASCII = CharsetHelper.US_ASCII
-
-    static member UTF_16 = CharsetHelper.UTF_16 
-
-    static member UTF_16BE = CharsetHelper.UTF_16BE
-
-    static member UTF_16LE = CharsetHelper.UTF_16LE
-
-    static member UTF_8 = CharsetHelper.UTF_8 
-
-and [<AbstractClass; Sealed;>] internal CharsetHelper () = 
-    static member val Charsets : Map<string, Charset> =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Charset = 
+    let charsets : Map<string, Charset> =
         ["ISO-8859-1"; "US-ASCII"; "UTF-16"; "UTF-16BE"; "UTF-16LE"; "UTF-8"]
         |> Seq.map (fun x -> (x, { charset = x }))
         |> Map.ofSeq
 
-    static member val Parser : Parser<Charset> = 
+    let parser : Parser<Charset> = 
         token |>> (fun parsed -> 
             let parsed = parsed.ToUpperInvariant()
-            match CharsetHelper.Charsets.TryFind parsed with
+            match charsets.TryFind parsed with
             | Some charset -> charset
             | None -> { charset = parsed })
 
-    static member val ISO_8859_1 = Charset.Create "ISO-8859-1"
+    let create (charset:string) = 
+        match charset.ToUpperInvariant() |> charsets.TryFind  with
+        | Some charset -> charset
+        | None -> 
+            match parse parser charset with 
+            | Success (charset, _) -> charset
+            | _ -> invalidArg "charset" "not a charset"
 
-    static member val US_ASCII  = Charset.Create "US-ASCII"
+    let iso_8859_1 = create "ISO-8859-1"
 
-    static member val UTF_16 = Charset.Create "UTF-16" 
+    let us_ascii = create "US-ASCII"
 
-    static member val UTF_16BE = Charset.Create "UTF-16BE" 
+    let utf_16 = create "UTF-16" 
 
-    static member val UTF_16LE = Charset.Create "UTF-16LE" 
+    let utf_16be = create "UTF-16BE" 
 
-    static member val UTF_8 = Charset.Create "UTF-8" 
+    let utf_16le = create "UTF-16LE" 
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal Charset = 
-    let internal parser = CharsetHelper.Parser
+    let utf_8 = create "UTF-8"
+
+type Charset with
+    static member Create (charset:string) = Charset.create charset
+
+    static member ISO_8859_1 = Charset.iso_8859_1
+
+    static member US_ASCII = Charset.us_ascii
+
+    static member UTF_16 = Charset.utf_16
+
+    static member UTF_16BE = Charset.utf_16be
+
+    static member UTF_16LE = Charset.utf_16le
+
+    static member UTF_8 = Charset.utf_8
 
 [<AutoOpen>]
 module CharsetExtensions =

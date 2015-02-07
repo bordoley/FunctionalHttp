@@ -10,30 +10,9 @@ type Method =
 
     override this.ToString() = this.meth
 
-    static member Create m =
-        match MethodHelper.Methods.TryFind m with
-        | Some m -> m
-        | _ -> 
-            match parse MethodHelper.Parser m with 
-            | Success (m, _) -> m
-            | _ -> invalidArg "m" "not a method"
-
-    static member Delete = MethodHelper.Delete
-
-    static member Get = MethodHelper.Get
-
-    static member Head = MethodHelper.Head
-
-    static member Options = MethodHelper.Options
-
-    static member Patch = MethodHelper.Patch
-
-    static member Post = MethodHelper.Post
-
-    static member Put = MethodHelper.Put
-
-and [<AbstractClass; Sealed;>] internal MethodHelper () =
-    static member val Methods : Map<string, Method> =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Method = 
+    let methods : Map<string, Method> =
         [   "DELETE";
             "GET";
             "HEAD";
@@ -44,24 +23,45 @@ and [<AbstractClass; Sealed;>] internal MethodHelper () =
         |> Seq.map (fun x -> (x, { meth = x }))
         |> Map.ofSeq
 
-    static member val Parser = 
+    let parser = 
         HttpParsers.token |>> (fun token -> 
-            token |> MethodHelper.Methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
+            token |> methods.TryFind |> Option.getOrElseLazy (lazy { meth = token}))
     
-    static member val Delete = Method.Create "DELETE"
+    let create m =
+        match methods.TryFind m with
+        | Some m -> m
+        | _ -> 
+            match parse parser m with 
+            | Success (m, _) -> m
+            | _ -> invalidArg "m" "not a method"
 
-    static member val Get = Method.Create "GET" 
+    let delete = create "DELETE"
 
-    static member val Head = Method.Create "HEAD"
+    let get = create "GET" 
 
-    static member val Options = Method.Create "OPTIONS"
+    let head = create "HEAD"
 
-    static member val Patch = Method.Create "PATCH"
+    let options = create "OPTIONS"
 
-    static member val Post = Method.Create "POST"
+    let patch = create "PATCH"
 
-    static member val Put = Method.Create "PUT"   
+    let post = create "POST"
 
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal Method = 
-    let internal parser = MethodHelper.Parser
+    let put = create "PUT"   
+
+type Method with
+    static member Create m = Method.create m
+
+    static member Delete = Method.delete
+
+    static member Get = Method.get
+
+    static member Head = Method.head
+
+    static member Options = Method.options
+
+    static member Patch = Method.patch
+
+    static member Post = Method.post
+
+    static member Put = Method.put

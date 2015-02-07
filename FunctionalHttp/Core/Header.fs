@@ -32,17 +32,9 @@ type Header internal (header:string) =
 
     override this.ToString () = header
 
-    static member Create (header: string) = 
-        let parser : Parser<Header> = HeaderHelper.Parser
-        match (header.ToLowerInvariant()) |> HeaderHelper.CachedHeaders.TryFind with
-        | Some header -> header
-        | None ->
-            match parse parser header with 
-            | Success (header, _) -> header
-            | _ -> invalidArg "header" "not a header"
-
-and [<AbstractClass; Sealed;>] internal HeaderHelper () =
-    static member val StandardHeaders : Set<Header> =
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module internal Header =
+    let standardHeaders : Set<Header> =
         [ Header("Accept") ;
           Header("Accept-Charset");
           Header("Accept-Encoding");
@@ -93,20 +85,80 @@ and [<AbstractClass; Sealed;>] internal HeaderHelper () =
           Header("Warning");
           Header("WWW-Authenticate")] |> Set.ofList
 
-    static member val CachedHeaders : Map<string, Header> =
+    let cachedHeaders : Map<string, Header> =
         let additionalHeaders =   
             [   Header("X-HTTP-Method");
                 Header("X-HTTP-Method-Override");
                 Header("X-Method-Override")] 
-        Seq.concat [HeaderHelper.StandardHeaders :> seq<Header>; additionalHeaders :> seq<Header>] 
+        Seq.concat [standardHeaders :> seq<Header>; additionalHeaders :> seq<Header>] 
         |> Seq.map (fun x -> (x.Normalized, x)) 
         |> Map.ofSeq
 
-    static member val Parser : Parser<Header> = 
+    let parser : Parser<Header> = 
         HttpParsers.token |>> (fun header -> 
-            match (header.ToLowerInvariant()) |> HeaderHelper.CachedHeaders.TryFind with
+            match (header.ToLowerInvariant()) |> cachedHeaders.TryFind with
             | Some header -> header
             | _ ->  Header(header))
+
+    let create (header: string) = 
+        let parser : Parser<Header> = parser
+        match (header.ToLowerInvariant()) |> cachedHeaders.TryFind with
+        | Some header -> header
+        | None ->
+            match parse parser header with 
+            | Success (header, _) -> header
+            | _ -> invalidArg "header" "not a header"  
+
+    let filterStandardHeaders (headers:Map<Header,obj>) =
+        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> standardHeaders.Contains k |> not) |> Map.ofSeq
+
+    let private setCookieHeader = create "Set-Cookie"
+
+    let headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
+        // FIXME: Special case cookies
+        headers 
+        |> Seq.map(fun (k,v) -> 
+            let header = create k
+            if header = setCookieHeader then (header, v :> obj)
+            else (header, String.Join (",", v) :> obj)) 
+        |> Map.ofSeq
+
+    let inline writeOption (f:Header*string->unit) (k:Header, v:^T option) =
+        v |> Option.map(fun v -> f (k, string v)) |> ignore
+
+    let writeSeq (f:Header*string->unit) (k:Header, seq:IEnumerable) =
+        let v = String.Join (", ", seq.Cast<obj>()) 
+
+        if String.IsNullOrEmpty v then ()
+        else f (k, v)
+    
+    let writeDateTime (f:Header*string->unit) (k:Header, v:DateTime option) =
+        match v with 
+        | None -> ()
+        | Some date ->
+            f (k, HttpEncoding.dateToHttpDate date)
+
+    let writeDeltaSecond (f:Header*string->unit) (k:Header, v:TimeSpan option) =
+        v |> Option.map(fun v -> f (k, v.Ticks / 10000000L |> string)) |> ignore
+
+    let writeObject (f:Header*string->unit) (k:Header, v:obj) =
+        match v with
+        // String implements IEnumerable in some profiles and not others
+        | :?String as v when v.Length > 0 -> f (k, string v) 
+        | :?DateTime as v -> writeDateTime f (k, Some v)
+        | :?IEnumerable as v -> writeSeq f (k, v)
+        | _ -> 
+            let v = string v
+            if v.Length > 0 then f (k, v)
+
+    let writeAll (f:Header*string->unit) (pairs:seq<Header*obj>) =
+        pairs |> Seq.map (writeObject f) |> ignore
+
+    let headerLineFunc builder (k:Header, v:string) =
+        Printf.bprintf builder "%O: %s\r\n" (string k) v
+
+type Header with
+    static member Create (header: string) = Header.create header
 
 module HttpHeaders =
     [<CompiledName("Accept")>]
@@ -265,53 +317,3 @@ module HttpHeaders =
 
     [<CompiledName("XMethodOverride")>]
     let xMethodOverride = Header.Create("X-Method-Override")
-
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal Header =
-    let internal parser = HeaderHelper.Parser
-
-    let internal filterStandardHeaders (headers:Map<Header,obj>) =
-        headers |> Map.toSeq |> (Seq.filter <| fun (k,v) -> HeaderHelper.StandardHeaders.Contains k |> not) |> Map.ofSeq
-
-    let internal headerMapFromRawHeaders (headers:seq<string*(string seq)>) =
-        // FIXME: Special case cookies
-        headers 
-        |> Seq.map(fun (k,v) -> 
-            let header = Header.Create k
-            if header = HttpHeaders.setCookie then (header, v :> obj)
-            else (header, String.Join (",", v) :> obj)) 
-        |> Map.ofSeq
-
-    let inline internal writeOption (f:Header*string->unit) (k:Header, v:^T option) =
-        v |> Option.map(fun v -> f (k, string v)) |> ignore
-
-    let internal writeSeq (f:Header*string->unit) (k:Header, seq:IEnumerable) =
-        let v = String.Join (", ", seq.Cast<obj>()) 
-
-        if String.IsNullOrEmpty v then ()
-        else f (k, v)
-    
-    let internal writeDateTime (f:Header*string->unit) (k:Header, v:DateTime option) =
-        match v with 
-        | None -> ()
-        | Some date ->
-            f (k, HttpEncoding.dateToHttpDate date)
-
-    let internal writeDeltaSecond (f:Header*string->unit) (k:Header, v:TimeSpan option) =
-        v |> Option.map(fun v -> f (k, v.Ticks / 10000000L |> string)) |> ignore
-
-    let internal writeObject (f:Header*string->unit) (k:Header, v:obj) =
-        match v with
-        // String implements IEnumerable in some profiles and not others
-        | :?String as v when v.Length > 0 -> f (k, string v) 
-        | :?DateTime as v -> writeDateTime f (k, Some v)
-        | :?IEnumerable as v -> writeSeq f (k, v)
-        | _ -> 
-            let v = string v
-            if v.Length > 0 then f (k, v)
-
-    let internal writeAll (f:Header*string->unit) (pairs:seq<Header*obj>) =
-        pairs |> Seq.map (writeObject f) |> ignore
-
-    let internal headerLineFunc builder (k:Header, v:string) =
-        Printf.bprintf builder "%O: %s\r\n" (string k) v
