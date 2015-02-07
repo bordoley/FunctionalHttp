@@ -3,6 +3,7 @@
 open FunctionalHttp.Collections
 open FunctionalHttp.Core
 
+open System
 open System.IO
 
 type IHttpApplication =
@@ -27,7 +28,8 @@ module HttpApplication =
             member this.FilterRequest (req:HttpRequest<Stream>)= req
             member this.FilterResponse (resp:HttpResponse<Stream>) = resp
             member this.Route (req:HttpRequest<Stream>) = 
-                let path = List.ofArray req.Uri.Segments
+                // FIXME: Add uri extensions Uri.ToPath()
+                let path = req.Uri.AbsolutePath.Split ([|'/'|], StringSplitOptions.None) |> Seq.toList
                 (router.Item path) |> Option.getOrElse defaultResource
         }
 

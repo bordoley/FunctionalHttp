@@ -137,6 +137,7 @@ module Route =
 
     [<Extension;CompiledName("GetParameters")>]
     let getParametersFromUri (route:Route) (uri:Uri) =
+        // FIXME: Add uri extensions Uri.ToPath()
         let path = uri.AbsolutePath.Split ([|'/'|], StringSplitOptions.None) |> Seq.toList
         getParametersFromPath route path
 
