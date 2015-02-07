@@ -2,6 +2,7 @@
 open Sparse
 open System
 open FunctionalHttp.Core
+open System.Runtime.CompilerServices
 
 type internal RouteSegment = 
     | Glob of String
@@ -36,8 +37,8 @@ module internal RouteSegmentExtensions =
             | EmptySegment -> ""
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal Route =
-    let parser = 
+module Route =
+    let private parser = 
         let pEmpty = Primitives.preturn ""
 
         let pNonEmptySegment =
@@ -58,7 +59,7 @@ module internal Route =
         pEmpty >>. pForwardSlash >>. sepBy1 pNonEmptySegment pForwardSlash .>> eof
         |>> (fun segments -> { segments = Seq.append [EmptySegment] segments |> List.ofSeq })
 
-    let rec validate (segments: RouteSegment list) (keys: Set<String>) = 
+    let rec private validate (segments: RouteSegment list) (keys: Set<String>) = 
         match segments with
         | [] -> ()
         | head::tail ->
@@ -85,7 +86,7 @@ module internal Route =
 
             validate tail keys
 
-    let create route =
+    let internal create route =
         match parse parser route with
         | Success (result, _) -> 
             let segments = result.ToList()
@@ -93,7 +94,7 @@ module internal Route =
             result
         | _ -> failwith "Not a route"
 
-    let getParametersFromPath (route:Route) (path:string list) =
+    let private getParametersFromPath (route:Route) (path:string list) =
         let rec getParams (segments: RouteSegment list) (path:string list) (acc:Map<string, string>) =
             match (segments, path) with
             | ([],[]) -> acc
@@ -134,5 +135,14 @@ module internal Route =
 
         getParams (route.ToList()) path Map.empty
 
+    [<Extension;CompiledName("GetParameters")>]
+    let getParametersFromUri (route:Route) (uri:Uri) =
+        let path = uri.AbsolutePath.Split ([|'/'|], StringSplitOptions.None) |> Seq.toList
+        getParametersFromPath route path
+
+    let empty = { segments =[] }
+
 type Route with
+    static member Empty = Route.empty
+
     static member Create route = Route.create route

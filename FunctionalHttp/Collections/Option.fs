@@ -24,7 +24,7 @@ module internal Option =
     let getOrElseLazy (b: Lazy<_>) a =
         match a with
         | Some x -> x
-        | None -> a.Value
+        | None -> b.Value
 
     [<CompiledName("OrElse")>]
     let orElse b a =
