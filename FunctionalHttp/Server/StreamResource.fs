@@ -59,27 +59,43 @@ module StreamResource =
                         | (status, Some (Choice1Of2 range)) when status = HttpStatus.successOk && resp.Entity.CanSeek ->
                             match range.ByteRangeSet with
                             | Choice1Of2 byteRangeSpec::[] -> 
-                                match byteRangeSpec.LastBytePos with
-                                | None -> 
-                                    let firstBytePos = Math.Min(byteRangeSpec.FirstBytePos, uint64 Int64.MaxValue) |> int64
-                                    let lastBytePos = resp.Entity.Length - 1L
-                                    resp.Entity.Position <- firstBytePos
+                                let firstBytePos = Math.Min(byteRangeSpec.FirstBytePos, uint64 Int64.MaxValue) |> int64
 
-                                    let contentInfo = 
+                                let lastBytePos = 
+                                    match byteRangeSpec.LastBytePos with
+                                    | Some length -> Math.Min(length, uint64 Int64.MaxValue) |> int64
+                                    | None -> resp.Entity.Length - 1L
+
+                                let length = lastBytePos - firstBytePos
+
+                                if length >= resp.Entity.Length then resp
+                                else
+                                    let contentInfo =
                                         let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
-                                        let contentLength = (uint64 lastBytePos) - (uint64 firstBytePos)
-                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = contentLength)
-                                    resp.With(status = HttpStatus.successPartialContent, contentInfo = contentInfo)      
-                                | Some lastBytePos ->
-                                    let length = lastBytePos - byteRangeSpec.FirstBytePos
-                                    resp      
+                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
+                                    let entity = 
+                                        match byteRangeSpec.LastBytePos with
+                                        | Some _ -> resp.Entity |> Stream.subStream firstBytePos (int64 length)
+                                        | None ->
+                                            resp.Entity.Position <- firstBytePos
+                                            resp.Entity
+                                    resp.With(entity, status = HttpStatus.successPartialContent, contentInfo = contentInfo)
                             | Choice2Of2 suffixByteRangeSpec::[] ->
-                                //suffixByteRangeSpec
-                                resp      
+                                let length =  Math.Min(suffixByteRangeSpec.ToUInt64(), uint64 Int64.MaxValue) |> int64
+                                if length >= resp.Entity.Length then resp
+                                else
+                                    let lastBytePos = resp.Entity.Length - 1L
+                                    let firstBytePos = lastBytePos - length
+
+                                    let contentInfo =
+                                        let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
+                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
+
+                                    resp.Entity.Position <- firstBytePos
+                                    resp.With(status = HttpStatus.successPartialContent, contentInfo = contentInfo)
                             | _::_ -> 
-                                // Multipart
-                                resp      
-                            | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                                           
+                                resp
+                            | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                
                         | _ -> resp.With(acceptedRanges = acceptedRanges)
                 }
         }

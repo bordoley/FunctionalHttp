@@ -10,9 +10,7 @@ module internal Stream =
         inherit Stream()
 
         let disposed = ref false
-
-        do
-            stream.Position <- start
+        let started = ref false
 
         override this.Dispose(disposing) =
             match (!disposed, disposing) with
@@ -57,6 +55,9 @@ module internal Stream =
 
         override this.Read(buffer, offset, count) =
             if !disposed then ObjectDisposedException(this.GetType().FullName) |> raise
+
+            if not !started then stream.Position <- start
+
             if this.Position >= length then 0
             else
                 let count = 
@@ -66,6 +67,9 @@ module internal Stream =
 
         override this.ReadAsync(buffer, offset, count, cancellationToken) =
             if !disposed then ObjectDisposedException(this.GetType().FullName) |> raise
+
+            if not !started then stream.Position <- start
+
             if this.Position >= length then Task.FromResult 0
             else
                 let count = 
@@ -168,7 +172,8 @@ module internal Stream =
     let fromString (encoding:Encoding) (str:string) =
         str |> encoding.GetBytes |> (fun bytes -> new MemoryStream (bytes)) :> Stream
 
-    let subStream (start:int64) (length:int64) stream =
+    let subStream (start:int64) (length:int64) (stream:Stream) =
+        if (not stream.CanSeek) && (not stream.CanRead) then ArgumentException() |> raise
         new SubStream(stream, start, length) :> Stream
 
     let asciiStreamFromString =
