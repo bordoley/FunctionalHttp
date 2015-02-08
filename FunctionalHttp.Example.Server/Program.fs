@@ -64,6 +64,7 @@ module main =
                 |> Resource.create 
                 |> Resource.authorizing [Authorizer.basic "test" (fun _ -> async.Return true)]
                 |> StreamResource.create (parse, serialize)
+                |> StreamResource.byteRange
 
     
             let notFoundResource =

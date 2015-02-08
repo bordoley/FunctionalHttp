@@ -46,6 +46,8 @@ module StreamResource =
 
     [<CompiledName("ByteRange")>]
     let byteRange (resource:IStreamResource) =
+        let acceptedRanges = Choice1Of2 (Set.empty.Add RangeUnit.Bytes)
+
         { new IStreamResource with
             member this.Route = resource.Route
 
@@ -54,10 +56,12 @@ module StreamResource =
                     let! resp = resource.Process req
                     return! 
                         match (resp.Status, req.Preferences.Ranges) with
-                        | (status, Some range) when status = HttpStatus.successOk ->
+                        | (status, Some (Choice1Of2 range)) when status = HttpStatus.successOk && resp.Entity.CanSeek ->
+                            //range.ByteRangeSet
+                       
                             // FIXME:
                             async.Return resp                    
-                        | _ -> async.Return resp
+                        | _ -> resp.With(acceptedRanges = acceptedRanges) |> async.Return 
                 }
         }
 
