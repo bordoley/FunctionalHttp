@@ -64,6 +64,7 @@
     <Compile Include="Core\RequestPreconditions.fs" />
     <Compile Include="Core\RequestPreferences.fs" />
     <Compile Include="Core\Status.fs" />
+    <Compile Include="Core\MultipartContent.fs" />
     <Compile Include="Core\Converters.fs" />
     <Compile Include="Core\HttpRequest.fs" />
     <Compile Include="Core\HttpResponse.fs" />

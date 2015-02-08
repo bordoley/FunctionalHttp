@@ -54,14 +54,33 @@ module StreamResource =
             member this.Process req = 
                 async {
                     let! resp = resource.Process req
-                    return! 
+                    return 
                         match (resp.Status, req.Preferences.Ranges) with
                         | (status, Some (Choice1Of2 range)) when status = HttpStatus.successOk && resp.Entity.CanSeek ->
-                            //range.ByteRangeSet
-                       
-                            // FIXME:
-                            async.Return resp                    
-                        | _ -> resp.With(acceptedRanges = acceptedRanges) |> async.Return 
+                            match range.ByteRangeSet with
+                            | Choice1Of2 byteRangeSpec::[] -> 
+                                match byteRangeSpec.LastBytePos with
+                                | None -> 
+                                    let firstBytePos = Math.Min(byteRangeSpec.FirstBytePos, uint64 Int64.MaxValue) |> int64
+                                    let lastBytePos = resp.Entity.Length - 1L
+                                    resp.Entity.Position <- firstBytePos
+
+                                    let contentInfo = 
+                                        let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
+                                        let contentLength = (uint64 lastBytePos) - (uint64 firstBytePos)
+                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = contentLength)
+                                    resp.With(status = HttpStatus.successPartialContent, contentInfo = contentInfo)      
+                                | Some lastBytePos ->
+                                    let length = lastBytePos - byteRangeSpec.FirstBytePos
+                                    resp      
+                            | Choice2Of2 suffixByteRangeSpec::[] ->
+                                //suffixByteRangeSpec
+                                resp      
+                            | _::_ -> 
+                                // Multipart
+                                resp      
+                            | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                                           
+                        | _ -> resp.With(acceptedRanges = acceptedRanges)
                 }
         }
 

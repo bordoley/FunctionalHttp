@@ -74,7 +74,7 @@ module internal SuffixByteRangeSpec =
         pDash >>. digit |>> fun x -> { suffixLength = x }
 
 type ByteRangesSpecifier = 
-    private { byteRangeSet: Choice<ByteRangeSpec, SuffixByteRangeSpec> Set }
+    private { byteRangeSet: Choice<ByteRangeSpec, SuffixByteRangeSpec> List }
 
     member this.ByteRangeSet with get() = this.byteRangeSet
 
@@ -90,7 +90,7 @@ type ByteRangesSpecifier =
 module internal ByteRangesSpecifier = 
     let parser =
         pstring "bytes=" >>. sepBy1 (ByteRangeSpec.parser <^> SuffixByteRangeSpec.parser) OWS_COMMA_OWS
-        |>> fun x -> { byteRangeSet = Set.ofSeq x }
+        |>> fun x -> { byteRangeSet = List.ofSeq x }
 
 type OtherRangesSpecifier = 
     private { unit:RangeUnit; rangeSet:string }
@@ -159,6 +159,10 @@ type ByteContentRange =
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module internal ByteContentRange = 
     let parser = ByteRangeResp.parser <^> UnsatisfiedRange.parser |>> fun x -> { range = x }
+
+    let byteRangeResp (firstBytePos:uint64) (lastBytePos:uint64) (length:uint64 option) =
+        let byteRangeResp = { firstBytePos = firstBytePos; lastBytePos = lastBytePos; length = length }
+        { range = Choice1Of2 byteRangeResp }
 
 type OtherContentRange =
     private { unit:RangeUnit; rangeResp:string }
