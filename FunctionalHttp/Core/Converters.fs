@@ -8,6 +8,7 @@ open System.Text
 type Converter<'TIn, 'TOut> = ContentInfo*'TIn -> Async<ContentInfo*'TOut>
 
 module Converters =
+    [<CompiledName("Bind")>]
     let bind (b:Converter<'TIntermediate, 'TOut>) (a:Converter<'TIn, 'TIntermediate>) =
         let composed (contentInfo, input) = (contentInfo, input) |> a |> Async.bind b
         composed
