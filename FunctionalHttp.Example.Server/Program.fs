@@ -37,41 +37,31 @@ module main =
             builder.Route <- route
             builder.Get <- get
 
-            let parse = Converters.fromStreamToString |> HttpRequest.convert
-            let serialize (req, resp:HttpResponse<Option<string>>) = 
-                match resp.Entity with
-                | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
-                | None -> resp.With(Stream.Null) |> async.Return
+            let serialize (req, resp:HttpResponse<Option<string>>) = Converters.fromStringToStream 
 
             builder.Build()
             |> Resource.authorizing [Authorizer.basic "test" (fun _ -> async.Return true)]
-            |> StreamResource.create (parse, serialize)
+            |> StreamResource.create (Converters.fromStreamToString, serialize)
              
         let notFoundResource =
-            let parse = Converters.fromStreamToUnit |> HttpRequest.convert
-
-            let serialize (req, resp:HttpResponse<Option<string>>) = 
-                match resp.Entity with
-                | Some str -> resp.With(str)|> HttpResponse.convertOrThrow Converters.fromStringToStream 
-                | None -> resp.With(Stream.Null) |> async.Return
+            let serialize (req, resp:HttpResponse<Option<string>>) = Converters.fromStringToStream 
 
             let handleAndAccept (req:HttpRequest<_>) = 
                 HttpResponse<Option<String>>.Create(HttpStatus.clientErrorNotFound, Some (string HttpStatus.clientErrorNotFound)) |> async.Return
 
             (Route.Empty, handleAndAccept, handleAndAccept) 
             |> Resource.create 
-            |> StreamResource.create (parse, serialize)
+            |> StreamResource.create (Converters.fromStreamToUnit, serialize)
 
         let fileServerResource =
             let route = Route.Create "/files/*path"
 
-            let parse = Converters.fromStreamToUnit |> HttpRequest.convert
-            let serialize (req, resp:HttpResponse<Option<FileInfo>>) = 
-                match resp.Entity with
-                | Some fileInfo -> 
+            let serialize (req, resp:HttpResponse<Option<FileInfo>>) : Converter<FileInfo,Stream> =
+                let convert (contentInfo:ContentInfo, fileInfo:FileInfo) =
                     let stream = fileInfo.OpenRead() :> Stream
-                    resp.With(stream)|> async.Return
-                | None -> resp.With(Stream.Null)  |> async.Return
+                    let contentInfo = ContentInfo.Create(length = (uint64 fileInfo.Length))
+                    (contentInfo, stream) |> async.Return
+                convert
 
             let get (req:HttpRequest<_>) = async {
                 let path =
@@ -82,12 +72,14 @@ module main =
                     Path.Combine(home, relativePath)
 
                 let resp =
-                    let fileAttr = File.GetAttributes(path)
                     let fileInfo = FileInfo(path)
-                    if fileInfo.Exists && fileAttr = FileAttributes.Normal
+                    if fileInfo.Exists 
                     then 
-                        let contentInfo = ContentInfo.Create(length = (uint64 fileInfo.Length))
-                        HttpResponse<FileInfo>.Create(HttpStatus.successOk, Some fileInfo, contentInfo = contentInfo)
+                        let fileAttr = File.GetAttributes(path)
+                        if fileAttr = FileAttributes.Normal
+                        then HttpResponse<FileInfo>.Create(HttpStatus.successOk, Some fileInfo)
+                        else HttpResponse<FileInfo>.Create(HttpStatus.clientErrorNotFound, None)
+
                     else HttpResponse<FileInfo>.Create(HttpStatus.clientErrorNotFound, None)
                 return resp
             }
@@ -97,7 +89,7 @@ module main =
             builder.Get <- get
 
             builder.Build()
-            |> StreamResource.create (parse, serialize)
+            |> StreamResource.create (Converters.fromStreamToUnit, serialize)
             |> StreamResource.byteRange
 
         HttpApplication.routing ([googleProxyResource; fileServerResource], notFoundResource)

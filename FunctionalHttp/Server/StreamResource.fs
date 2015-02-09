@@ -1,12 +1,13 @@
 ﻿namespace FunctionalHttp.Server
 
 open FunctionalHttp.Collections
-open FunctionalHttp.Core
 open System
 open System.IO
+open FunctionalHttp.Core
 
-type RequestParser<'TReq> = HttpRequest<Stream> -> Async<HttpRequest<Choice<'TReq,exn>>>
-type ResponseSerializer<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>> -> Async<HttpResponse<Stream>>
+// FIXME: I'm not actually convinced the HttpResponse is needed to choose the converter
+// might only need the request.
+type ResponseConverterProvider<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>> -> Converter<'TResp,Stream>
 
 type IStreamResource =
     abstract member Route:Route with get
@@ -15,8 +16,19 @@ type IStreamResource =
 
 module StreamResource =
     [<CompiledName("Create")>]
-    let create (parse:RequestParser<'TReq>, serialize:ResponseSerializer<'TResp>) (resource:IResource<'TReq,'TResp>) = 
+    let create (parser:Converter<Stream,'TReq>, serializer:ResponseConverterProvider<'TResp>) (resource:IResource<'TReq,'TResp>) = 
+
+        // Fixme: The only reason with response entity is an option is the bad request handler. I feel like there is a better way,
+        // since ideally servers could return different entity type for different responses as either Choice or a DU type 'TResp
         let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> async.Return
+
+        let parse = parser |> HttpRequest.convert
+
+        let serialize (req, resp:HttpResponse<Option<'TResp>>) = 
+            let converter = serializer (req, resp)
+            match resp.Entity with
+            | Some str -> resp.With(str)|> HttpResponse.convertOrThrow converter 
+            | None -> resp.With(Stream.Null) |> async.Return
 
         {new IStreamResource with
             member this.Route = resource.Route
@@ -99,9 +111,9 @@ module StreamResource =
                         | _ -> resp.With(acceptedRanges = acceptedRanges)
                 }
         }
-
+(*
     [<CompiledName("ContentTypeNegotiating")>]
-    let contentTypeNegotiating (parsers: seq<MediaType*RequestParser<'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
+    let contentTypeNegotiating (parsers: seq<MediaType*Converter<Stream,'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
         let parsers = Map.ofSeq parsers
         let serializers = Map.ofSeq serializers
 
@@ -133,3 +145,4 @@ module StreamResource =
             }
 
         create (parse, serialize) connegResource
+*)
