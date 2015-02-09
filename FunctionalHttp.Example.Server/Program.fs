@@ -20,13 +20,10 @@ module main =
                 (new HttpClient()) 
                 |> HttpClient.fromNetHttpClient
                 |> HttpClient.usingConverters (Converters.fromStringToStream, Converters.fromStreamToString)
-
-            let builder = UniformResourceBuilder()
-            builder.Route <- route
-            builder.Get <- fun (req:HttpRequest<_>) ->
-                let kvp = Route.getParametersFromUri route req.Uri
-
+            
+            let get (req:HttpRequest<_>) =
                 async {
+                    let kvp = Route.getParametersFromUri route req.Uri
                     let uri = Uri("http://www.google.com/" + kvp.["glob"])
                     let request = HttpRequest.Create(Method.Get, uri, "")
                     let! resp = httpClient request
@@ -35,6 +32,10 @@ module main =
                         | Choice1Of2 entity -> resp.With(Some(entity))
                         | _ -> resp.With(None)
                 }
+
+            let builder = UniformResourceBuilder()
+            builder.Route <- route
+            builder.Get <- get
 
             let parse = Converters.fromStreamToString |> HttpRequest.convert
             let serialize (req, resp:HttpResponse<Option<string>>) = 

@@ -106,13 +106,13 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
 
         let allowedMethods = 
             [ 
-        delete |> Option.map (fun _ -> Method.Delete);
+                delete |> Option.map (fun _ -> Method.Delete);
                 patch  |> Option.map (fun _ -> Method.Patch);
                 post   |> Option.map (fun _ -> Method.Post);
                 put    |> Option.map (fun _ -> Method.Put);
 
                 Some Method.Get;
-                Some Method.Head
+                Some Method.Head;
                 Some Method.Options;
             ] |> Seq.choose (fun x -> x) |> Set.ofSeq
 
