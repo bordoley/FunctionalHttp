@@ -37,17 +37,17 @@ module main =
             builder.Route <- route
             builder.Get <- get
 
-            let serialize (req, resp:HttpResponse<Option<string>>) = Converters.fromStringToStream 
+            let serialize req = Converters.fromStringToStream 
 
             builder.Build()
             |> Resource.authorizing [Authorizer.basic "test" (fun _ -> async.Return true)]
             |> StreamResource.create (Converters.fromStreamToString, serialize)
              
         let notFoundResource =
-            let serialize (req, resp:HttpResponse<Option<string>>) = Converters.fromStringToStream 
+            let serialize req = Converters.fromUnitToStream 
 
             let handleAndAccept (req:HttpRequest<_>) = 
-                HttpResponse<Option<String>>.Create(HttpStatus.clientErrorNotFound, Some (string HttpStatus.clientErrorNotFound)) |> async.Return
+                HttpResponse<Option<unit>>.Create(HttpStatus.clientErrorNotFound, None) |> async.Return
 
             (Route.Empty, handleAndAccept, handleAndAccept) 
             |> Resource.create 
@@ -56,7 +56,7 @@ module main =
         let fileServerResource =
             let route = Route.Create "/files/*path"
 
-            let serialize (req, resp:HttpResponse<Option<FileInfo>>) : Converter<FileInfo,Stream> =
+            let serialize req : Converter<FileInfo,Stream> =
                 let convert (contentInfo:ContentInfo, fileInfo:FileInfo) =
                     let stream = fileInfo.OpenRead() :> Stream
                     let contentInfo = ContentInfo.Create(length = (uint64 fileInfo.Length))

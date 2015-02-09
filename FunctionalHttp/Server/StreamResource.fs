@@ -5,9 +5,7 @@ open System
 open System.IO
 open FunctionalHttp.Core
 
-// FIXME: I'm not actually convinced the HttpResponse is needed to choose the converter
-// might only need the request.
-type ResponseConverterProvider<'TResp> = HttpRequest<unit>*HttpResponse<Option<'TResp>> -> Converter<'TResp,Stream>
+type ResponseConverterProvider<'TResp> = HttpRequest<unit> -> Converter<'TResp,Stream>
 
 type IStreamResource =
     abstract member Route:Route with get
@@ -25,7 +23,7 @@ module StreamResource =
         let parse = parser |> HttpRequest.convert
 
         let serialize (req, resp:HttpResponse<Option<'TResp>>) = 
-            let converter = serializer (req, resp)
+            let converter = serializer req
             match resp.Entity with
             | Some str -> resp.With(str)|> HttpResponse.convertOrThrow converter 
             | None -> resp.With(Stream.Null) |> async.Return
@@ -33,26 +31,24 @@ module StreamResource =
         {new IStreamResource with
             member this.Route = resource.Route
 
-            member this.Process req = 
-                async {
-                    let req =  resource.FilterRequest req
+            member this.Process req = async {
+                let req = resource.FilterRequest req
 
-                    let reqWithoutEntity = req.With(())
-                    let! resp = resource.Handle reqWithoutEntity
+                let reqWithoutEntity = req.With(())
+                let! resp = resource.Handle reqWithoutEntity
 
-                    let! resp = 
-                        if resp.Status <> HttpStatus.informationalContinue
-                        then resp |> async.Return
-                        else 
-                            async {
-                                let! req = parse req
-                                return! 
-                                    match req.Entity with
-                                    | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
-                                    | Choice2Of2 ex -> badRequestResponse
-                            }
+                let! resp = 
+                    if resp.Status <> HttpStatus.informationalContinue
+                    then resp |> async.Return
+                    else async {
+                        let! req = parse req
+                        return! 
+                            match req.Entity with
+                            | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
+                            | Choice2Of2 ex -> badRequestResponse
+                    }
 
-                    return! serialize(reqWithoutEntity, resp) |> Async.map resource.FilterResponse
+                return! serialize(reqWithoutEntity, resp) |> Async.map resource.FilterResponse
             }
         }
 
@@ -63,53 +59,52 @@ module StreamResource =
         { new IStreamResource with
             member this.Route = resource.Route
 
-            member this.Process req = 
-                async {
-                    let! resp = resource.Process req
-                    return 
-                        match (resp.Status, req.Preferences.Ranges) with
-                        | (status, Some (Choice1Of2 range)) when status = HttpStatus.successOk && resp.Entity.CanSeek ->
-                            match range.ByteRangeSet with
-                            | Choice1Of2 byteRangeSpec::[] -> 
-                                let firstBytePos = Math.Min(byteRangeSpec.FirstBytePos, uint64 Int64.MaxValue) |> int64
+            member this.Process req = async {
+                let! resp = resource.Process req
+                return 
+                    match (resp.Status, req.Preferences.Ranges) with
+                    | (status, Some (Choice1Of2 range)) when status = HttpStatus.successOk && resp.Entity.CanSeek ->
+                        match range.ByteRangeSet with
+                        | Choice1Of2 byteRangeSpec::[] -> 
+                            let firstBytePos = Math.Min(byteRangeSpec.FirstBytePos, uint64 Int64.MaxValue) |> int64
 
-                                let lastBytePos = 
+                            let lastBytePos = 
+                                match byteRangeSpec.LastBytePos with
+                                | Some length -> Math.Min(length, uint64 Int64.MaxValue) |> int64
+                                | None -> resp.Entity.Length - 1L
+
+                            let length = lastBytePos - firstBytePos
+
+                            if length >= resp.Entity.Length then resp
+                            else
+                                let contentInfo =
+                                    let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
+                                    resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
+                                let entity = 
                                     match byteRangeSpec.LastBytePos with
-                                    | Some length -> Math.Min(length, uint64 Int64.MaxValue) |> int64
-                                    | None -> resp.Entity.Length - 1L
+                                    | Some _ -> resp.Entity |> Stream.subStream firstBytePos (int64 length)
+                                    | None ->
+                                        resp.Entity.Position <- firstBytePos
+                                        resp.Entity
+                                resp.With(entity, status = HttpStatus.successPartialContent, contentInfo = contentInfo)
+                        | Choice2Of2 suffixByteRangeSpec::[] ->
+                            let length =  Math.Min(suffixByteRangeSpec.ToUInt64(), uint64 Int64.MaxValue) |> int64
+                            if length >= resp.Entity.Length then resp
+                            else
+                                let lastBytePos = resp.Entity.Length - 1L
+                                let firstBytePos = lastBytePos - length
 
-                                let length = lastBytePos - firstBytePos
+                                let contentInfo =
+                                    let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
+                                    resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
 
-                                if length >= resp.Entity.Length then resp
-                                else
-                                    let contentInfo =
-                                        let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
-                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
-                                    let entity = 
-                                        match byteRangeSpec.LastBytePos with
-                                        | Some _ -> resp.Entity |> Stream.subStream firstBytePos (int64 length)
-                                        | None ->
-                                            resp.Entity.Position <- firstBytePos
-                                            resp.Entity
-                                    resp.With(entity, status = HttpStatus.successPartialContent, contentInfo = contentInfo)
-                            | Choice2Of2 suffixByteRangeSpec::[] ->
-                                let length =  Math.Min(suffixByteRangeSpec.ToUInt64(), uint64 Int64.MaxValue) |> int64
-                                if length >= resp.Entity.Length then resp
-                                else
-                                    let lastBytePos = resp.Entity.Length - 1L
-                                    let firstBytePos = lastBytePos - length
-
-                                    let contentInfo =
-                                        let contentRange = ByteContentRange.byteRangeResp (uint64 firstBytePos) (uint64 lastBytePos) resp.ContentInfo.Length
-                                        resp.ContentInfo.With(range = Choice1Of2 contentRange, length = (uint64 length))
-
-                                    resp.Entity.Position <- firstBytePos
-                                    resp.With(status = HttpStatus.successPartialContent, contentInfo = contentInfo)
-                            | _::_ -> 
-                                resp
-                            | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                
-                        | _ -> resp.With(acceptedRanges = acceptedRanges)
-                }
+                                resp.Entity.Position <- firstBytePos
+                                resp.With(status = HttpStatus.successPartialContent, contentInfo = contentInfo)
+                        | _::_ -> 
+                            resp
+                        | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                
+                    | _ -> resp.With(acceptedRanges = acceptedRanges)
+            }
         }
 (*
     [<CompiledName("ContentTypeNegotiating")>]
