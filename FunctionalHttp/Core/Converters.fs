@@ -58,6 +58,12 @@ module Converters =
             return (contentInfo, stream)
         }
 
+    [<CompiledName("FromUnitToStream")>] 
+    let fromUnitToStream (contentInfo:ContentInfo, unit:unit) =
+        async {
+            return (ContentInfo.None, Stream.Null)
+        }
+
     [<CompiledName("FromAnyToString")>]
     let fromAnyToString (contentInfo:ContentInfo, obj:_) =
         (contentInfo, obj.ToString()) |> async.Return

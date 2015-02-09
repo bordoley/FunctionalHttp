@@ -19,13 +19,13 @@ module main =
             let httpClient = 
                 (new HttpClient()) 
                 |> HttpClient.fromNetHttpClient
-                |> HttpClient.usingConverters (Converters.fromStringToStream, Converters.fromStreamToString)
+                |> HttpClient.usingConverters (Converters.fromUnitToStream, Converters.fromStreamToString)
             
             let get (req:HttpRequest<_>) =
                 async {
                     let kvp = Route.getParametersFromUri route req.Uri
                     let uri = Uri("http://www.google.com/" + kvp.["glob"])
-                    let request = HttpRequest.Create(Method.Get, uri, "")
+                    let request = HttpRequest.Create(Method.Get, uri, ())
                     let! resp = httpClient request
                     return 
                         match resp.Entity with
