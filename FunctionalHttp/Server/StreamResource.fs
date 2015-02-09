@@ -106,22 +106,19 @@ module StreamResource =
                     | _ -> resp.With(acceptedRanges = acceptedRanges)
             }
         }
-(*
+
     [<CompiledName("ContentTypeNegotiating")>]
-    let contentTypeNegotiating (parsers: seq<MediaType*Converter<Stream,'TReq>>, serializers: seq<MediaType*ResponseSerializer<'TResp>> ) (resource:IResource<'TReq,'TResp>) =
+    let contentTypeNegotiating (parsers: seq<MediaType*Converter<Stream,'TReq>>, serializers: seq<MediaType*Converter<'TResp,Stream>> ) (resource:IResource<'TReq,'TResp>) =
         let parsers = Map.ofSeq parsers
         let serializers = Map.ofSeq serializers
 
-        let parse (req:HttpRequest<Stream>) = 
-            match req.ContentInfo.MediaType with
-            | Some mediaType -> 
-                let parser = parsers.Item mediaType
-                parser req
+        let parse (contentInfo:ContentInfo, stream:Stream) = 
+            match contentInfo.MediaType with
+            | Some mediaType -> (parsers.Item mediaType) (contentInfo, stream)
             | _ -> InvalidOperationException() |> raise
 
-        let serialize (req:HttpRequest<unit>, resp:HttpResponse<Option<'TResp>>) =
-            // FIXME
-            resp.With(Stream.Null) |> async.Return
+        let serialize (req:HttpRequest<unit>) =
+            serializers |> Seq.map (fun kvp -> kvp.Value) |> Seq.head
 
         let connegResource = 
             { new IResource<'TReq,'TResp> with 
@@ -140,4 +137,3 @@ module StreamResource =
             }
 
         create (parse, serialize) connegResource
-*)
