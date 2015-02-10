@@ -5,7 +5,8 @@ open System
 open System.IO
 open FunctionalHttp.Core
 
-type ResponseConverterProvider<'TResp> = HttpRequest<unit> -> Converter<'TResp,Stream>
+type RequestConverterProvider<'TReq> = ContentInfo -> Option<Converter<Stream,'TReq>>
+type ResponseConverterProvider<'TResp> = RequestPreferences -> Option<Converter<'TResp,Stream>>
 
 type IStreamResource =
     abstract member Route:Route with get
@@ -14,41 +15,46 @@ type IStreamResource =
 
 module StreamResource =
     [<CompiledName("Create")>]
-    let create (parser:Converter<Stream,'TReq>, serializer:ResponseConverterProvider<'TResp>) (resource:IResource<'TReq,'TResp>) = 
-
-        // Fixme: The only reason with response entity is an option is the bad request handler. I feel like there is a better way,
-        // since ideally servers could return different entity type for different responses as either Choice or a DU type 'TResp
+    let create (getRequestConverter:RequestConverterProvider<'TReq>) (getResponseConverter:ResponseConverterProvider<'TResp>) (vary:Option<Choice<Set<Header>, Any>>) (resource:IResource<'TReq,'TResp>) = 
         let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> async.Return
+        let unsupportedMediaTypeResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnsupportedMediaType, None) |> async.Return
+        let notAcceptableResponse = HttpResponse<Stream>.Create(HttpStatus.clientErrorNotAcceptable, Stream.Null) |> async.Return
 
-        let parse = parser |> HttpRequest.convert
-
-        let serialize (req, resp:HttpResponse<Option<'TResp>>) = 
-            let converter = serializer req
-            match resp.Entity with
-            | Some str -> resp.With(str)|> HttpResponse.convertOrThrow converter 
-            | None -> resp.With(Stream.Null) |> async.Return
-
-        {new IStreamResource with
+        { new IStreamResource with
             member this.Route = resource.Route
 
             member this.Process req = async {
                 let req = resource.FilterRequest req
-
-                let reqWithoutEntity = req.With(())
-                let! resp = resource.Handle reqWithoutEntity
+  
+                let! resp = 
+                    let reqWithoutEntity = req.With(())
+                    resource.Handle reqWithoutEntity
 
                 let! resp = 
-                    if resp.Status <> HttpStatus.informationalContinue
+                    if resp.Status <> HttpStatus.informationalContinue 
                     then resp |> async.Return
-                    else async {
-                        let! req = parse req
-                        return! 
-                            match req.Entity with
-                            | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
-                            | Choice2Of2 ex -> badRequestResponse
-                    }
+                    else 
+                        match getRequestConverter req.ContentInfo with
+                        | None -> unsupportedMediaTypeResponse
+                        | Some converter -> async {
+                            let! req = req |> HttpRequest.convert converter
+                            return! 
+                                match req.Entity with
+                                | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
+                                | Choice2Of2 ex -> badRequestResponse
+                        }
+                let resp =
+                    match vary with
+                    | None -> resp
+                    | Some vary -> resp.With(vary = vary)
 
-                return! serialize(reqWithoutEntity, resp) |> Async.map resource.FilterResponse
+                return! 
+                    match (resp.Entity, getResponseConverter req.Preferences) with
+                    | (Some entity, Some responseConverter)-> 
+                        resp.With(entity) |> HttpResponse.convertOrThrow responseConverter
+                    | (Some entity, None) ->
+                        notAcceptableResponse
+                    | (None, _) -> resp.With(Stream.Null) |> async.Return
             }
         }
 
@@ -108,32 +114,27 @@ module StreamResource =
         }
 
     [<CompiledName("ContentTypeNegotiating")>]
-    let contentTypeNegotiating (parsers: seq<MediaType*Converter<Stream,'TReq>>, serializers: seq<MediaType*Converter<'TResp,Stream>> ) (resource:IResource<'TReq,'TResp>) =
-        let parsers = Map.ofSeq parsers
-        let serializers = Map.ofSeq serializers
+    let contentTypeNegotiating (requestConverters:seq<MediaType*Converter<Stream,'TReq>>, responseConverters:seq<MediaType*Converter<'TResp,Stream>>) (resource:IResource<'TReq,'TResp>) =
+        let getRequestConverter : RequestConverterProvider<'TReq> =
+            let converters = Map.ofSeq requestConverters
 
-        let parse (contentInfo:ContentInfo, stream:Stream) = 
-            match contentInfo.MediaType with
-            | Some mediaType -> (parsers.Item mediaType) (contentInfo, stream)
-            | _ -> InvalidOperationException() |> raise
+            let getConverter (contentInfo:ContentInfo) =
+                match contentInfo.MediaType with
+                | None -> None
+                | Some mediaType -> converters |> Map.tryFind mediaType
 
-        let serialize (req:HttpRequest<unit>) =
-            serializers |> Seq.map (fun kvp -> kvp.Value) |> Seq.head
+            getConverter       
 
-        let connegResource = 
-            { new IResource<'TReq,'TResp> with 
-                member this.Route with get() = resource.Route
+        let getResponseConverter : ResponseConverterProvider<'TResp> =
+            let converters = Map.ofSeq responseConverters
+            let mediaTypes = converters |> Seq.map (fun kvp -> kvp.Key) |> List.ofSeq
 
-                member this.FilterRequest req = resource.FilterRequest req
-                member this.FilterResponse resp = resource.FilterResponse resp
-
-                member this.Handle req = 
-                    //FIXME:
-                    resource.Handle req
-
-                member this.Accept resp = 
-                    // FIXME:
-                    resource.Accept resp
-            }
-
-        create (parse, serialize) connegResource
+            let getConverter (preferences:RequestPreferences) =
+                match AcceptPreference.bestMatch mediaTypes preferences.AcceptedMediaRanges with
+                | None -> None
+                | Some mediaType -> converters |> Map.tryFind mediaType
+                    
+            getConverter
+         
+        let vary = Some (Choice1Of2 ([HttpHeaders.accept] |> Set.ofSeq))
+        create getRequestConverter getResponseConverter vary resource     

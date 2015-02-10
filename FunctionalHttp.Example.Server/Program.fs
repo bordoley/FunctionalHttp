@@ -37,31 +37,27 @@ module main =
             builder.Route <- route
             builder.Get <- get
 
-            let serialize req = Converters.fromStringToStream 
-
             builder.Build()
             |> Resource.authorizing [Authorizer.basic "test" (fun _ -> async.Return true)]
-            |> StreamResource.create (Converters.fromStreamToString, serialize)
+            |> StreamResource.create (fun _ -> Some Converters.fromStreamToString) (fun _ -> Some Converters.fromStringToStream) None
              
         let notFoundResource =
-            let serialize req = Converters.fromUnitToStream 
-
             let handleAndAccept (req:HttpRequest<_>) = 
                 HttpResponse<Option<unit>>.Create(HttpStatus.clientErrorNotFound, None) |> async.Return
 
             (Route.Empty, handleAndAccept, handleAndAccept) 
             |> Resource.create 
-            |> StreamResource.create (Converters.fromStreamToUnit, serialize)
+            |> StreamResource.create (fun _ -> Some Converters.fromStreamToUnit) (fun _ -> Some Converters.fromUnitToStream) None
 
         let fileServerResource =
             let route = Route.Create "/files/*path"
 
-            let serialize req : Converter<FileInfo,Stream> =
+            let serialize pref =
                 let convert (contentInfo:ContentInfo, fileInfo:FileInfo) =
                     let stream = fileInfo.OpenRead() :> Stream
                     let contentInfo = ContentInfo.Create(length = (uint64 fileInfo.Length))
                     (contentInfo, stream) |> async.Return
-                convert
+                Some convert
 
             let get (req:HttpRequest<_>) = async {
                 let path =
@@ -89,7 +85,7 @@ module main =
             builder.Get <- get
 
             builder.Build()
-            |> StreamResource.create (Converters.fromStreamToUnit, serialize)
+            |> StreamResource.create (fun _ -> Some Converters.fromStreamToUnit) serialize None
             |> StreamResource.byteRange
 
         HttpApplication.routing ([googleProxyResource; fileServerResource], notFoundResource)
