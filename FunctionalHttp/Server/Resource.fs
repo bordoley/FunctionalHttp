@@ -123,7 +123,7 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
             HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorMethodNotAllowed, None, allowed = allowedMethods) |> async.Return
 
         let continueResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.informationalContinue, None)
+            HttpResponse.create HttpStatus.informationalContinue None
 
         let continueIfSuccess (resp:HttpResponse<Option<'TResp>>) =
             if resp.Status.Class <> StatusClass.Success then resp else continueResponse
@@ -135,7 +135,7 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
             //        resp.ETag.
 
         let checkUpdateConditions (req:HttpRequest<unit>) = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None) |> async.Return
+            HttpResponse.create HttpStatus.successOk None |> async.Return
 
         let conditionalGet (req:HttpRequest<unit>) = 
             async { 
@@ -204,7 +204,7 @@ module Resource =
             HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnauthorized, None, authenticate = challenges) |> async.Return
 
         let forbiddenResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorForbidden , None) |> async.Return
+            HttpResponse.create HttpStatus.clientErrorForbidden None |> async.Return
 
         { new IResource<'TReq,'TResp> with
             member this.Route with get() = resource.Route

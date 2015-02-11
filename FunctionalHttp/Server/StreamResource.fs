@@ -16,9 +16,9 @@ type IStreamResource =
 module StreamResource =
     [<CompiledName("Create")>]
     let create (getRequestConverter:RequestConverterProvider<'TReq>) (getResponseConverter:ResponseConverterProvider<'TResp>) (vary:Option<Choice<Set<Header>, Any>>) (resource:IResource<'TReq,'TResp>) = 
-        let badRequestResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorBadRequest, None) |> async.Return
-        let unsupportedMediaTypeResponse = HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnsupportedMediaType, None) |> async.Return
-        let notAcceptableResponse = HttpResponse<Stream>.Create(HttpStatus.clientErrorNotAcceptable, Stream.Null) |> async.Return
+        let badRequestResponse = HttpResponse.create HttpStatus.clientErrorBadRequest None |> async.Return
+        let unsupportedMediaTypeResponse = HttpResponse.create HttpStatus.clientErrorUnsupportedMediaType None |> async.Return
+        let notAcceptableResponse = HttpResponse.create HttpStatus.clientErrorNotAcceptable Stream.Null |> async.Return
 
         { new IStreamResource with
             member this.Route = resource.Route

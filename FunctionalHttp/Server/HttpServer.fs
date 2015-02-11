@@ -8,7 +8,7 @@ open System.Text
 module HttpServer =
     [<CompiledName("DefaultInternalErrorResponse")>]
     let defaultInternalErrorResponse (exn: exn) = 
-        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, Stream.Null) |> async.Return
+        HttpResponse.create HttpStatus.serverErrorInternalServerError Stream.Null |> async.Return
 
     [<CompiledName("InternalErrorResponseWithStackTrace")>]
     let internalErrorResponseWithStackTrace (exn: exn) =

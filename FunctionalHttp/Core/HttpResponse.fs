@@ -483,6 +483,10 @@ module HttpResponseExtensions =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module HttpResponse =
+    [<CompiledName("Create")>]
+    let create (status:Status) (entity:'T) =
+        HttpResponse<'T>.Create(status, entity);
+
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
         async {
