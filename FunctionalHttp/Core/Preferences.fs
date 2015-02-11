@@ -101,10 +101,10 @@ module internal AcceptPreference =
             { mediaRange = mr; quality = quality; parameters = parameters |> Map.ofSeq }
 
     let bestMatch (mediaTypes:seq<MediaType>) (acceptPreferences:seq<AcceptPreference>) =
-        let mediaRanges = Enumerable.OrderBy(acceptPreferences, fun ap -> ap.Quality) |> Seq.map (fun ap -> ap.MediaRange) |> List.ofSeq
+        let mediaRanges = Enumerable.OrderByDescending(acceptPreferences, fun ap -> ap.Quality) |> Seq.map (fun ap -> ap.MediaRange) |> List.ofSeq
 
         let satisfies (mediaRanges:seq<MediaRange>) (mediaType:MediaType) =
-            let canSatisfy (mediaRange:MediaRange) (mediaType:MediaType) =
+            let satisfiedBy (mediaType:MediaType) (mediaRange:MediaRange)  =
                 match (mediaRange.Type, mediaRange.SubType, mediaRange.Parameters) with
                 | (Choice1Of2 type_, Choice1Of2 subType, parameters) when 
                     type_ = mediaType.Type && subType = mediaType.SubType -> true
@@ -112,6 +112,6 @@ module internal AcceptPreference =
                 | (Choice2Of2 _, Choice2Of2 _, _) -> true
                 | _ -> false
 
-            mediaRanges |> Seq.tryFind (fun mediaRange -> mediaType |> canSatisfy mediaRange) |> Option.isSome
+            mediaRanges |> Seq.tryFind (satisfiedBy mediaType) |> Option.isSome
 
         mediaTypes |> Seq.tryFind (satisfies mediaRanges)
