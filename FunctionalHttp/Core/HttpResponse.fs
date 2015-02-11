@@ -520,9 +520,9 @@ module HttpResponse =
     let withAllowed (allowed:seq<Method>) (resp:HttpResponse<_>) =
         resp.With(allowed = allowed)
        
-    [<CompiledName("WithAuthenticateChallenges")>]
-    let withAuthenticateChallenges (authenticate:seq<Challenge>) (resp:HttpResponse<_>) =
-        resp.With(authenticate = authenticate)
+    [<CompiledName("WithAuthenticationChallenges")>]
+    let withAuthenticationChallenges (challenges:seq<Challenge>) (resp:HttpResponse<_>) =
+        resp.With(authenticate = challenges)
 
     [<CompiledName("WithCacheControl")>]
     let withCacheControl (cacheControl: seq<CacheDirective>) (resp:HttpResponse<_>) =
@@ -564,9 +564,9 @@ module HttpResponse =
     let withLocation (location:Uri) (resp:HttpResponse<_>) =
         resp.With(location = location)
 
-    [<CompiledName("WithProxyAuthenticateChallenges")>]
-    let withProxyAuthenticateChallenges (proxyAuthenticate:Set<Challenge>) (resp:HttpResponse<_>) =
-        resp.With(proxyAuthenticate = proxyAuthenticate)
+    [<CompiledName("WithProxyAuthenticationChallenges")>]
+    let withProxyAuthenticationChallenges (authenticationChallenges:Set<Challenge>) (resp:HttpResponse<_>) =
+        resp.With(proxyAuthenticate = authenticationChallenges)
 
     [<CompiledName("WithRetryAfter")>]
     let withRetryAfter (retryAfter:DateTime) (resp:HttpResponse<_>) =

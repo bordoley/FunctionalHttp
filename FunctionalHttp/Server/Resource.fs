@@ -114,7 +114,7 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
                 Some Method.Get;
                 Some Method.Head;
                 Some Method.Options;
-            ] |> Seq.choose (fun x -> x)
+            ] |> Seq.choose (fun x -> x) |> Set.ofSeq
 
         let optionsResponse = 
             HttpResponse.create HttpStatus.successOk None |> HttpResponse.withAllowed allowedMethods |> async.Return
@@ -204,7 +204,7 @@ module Resource =
 
         let unauthorizedResponse = 
             let challenges = authorizers |> Map.toSeq |> Seq.map (fun (k,v) -> v.AuthenticationChallenge)
-            HttpResponse.create HttpStatus.clientErrorUnauthorized None |> HttpResponse.withAuthenticateChallenges challenges |> async.Return
+            HttpResponse.create HttpStatus.clientErrorUnauthorized None |> HttpResponse.withAuthenticationChallenges challenges |> async.Return
 
         let forbiddenResponse = 
             HttpResponse.create HttpStatus.clientErrorForbidden None |> async.Return

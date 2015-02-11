@@ -368,6 +368,66 @@ module HttpRequest =
             return req.With(out, contentInfo = contentInfo)
         }
 
+    [<CompiledName("WithAuthorization")>]
+    let withAuthorization (credentials:Credentials) (req:HttpRequest<_>) = 
+        req.With(authorization = credentials)
+
+    [<CompiledName("WithCacheControl")>]
+    let withCacheControl (cacheControl:Set<CacheDirective>) (req:HttpRequest<_>) = 
+        req.With(cacheControl = cacheControl)
+
+    [<CompiledName("WithContentInfo")>]
+    let withContentInfo (contentInfo:ContentInfo) (req:HttpRequest<_>) = 
+        req.With(contentInfo = contentInfo)
+ 
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (req:HttpRequest<'TReq>) =
         req.With(entity)
+
+    [<CompiledName("WithExpectContinue")>]
+    let withExpectContinue (expectContinue:bool) (req:HttpRequest<_>) =
+        req.With(expectContinue = expectContinue)
+
+    [<CompiledName("WithHeaders")>]
+    let withHeaders (headers:Map<Header,obj>) (req:HttpRequest<_>) =
+        req.With(headers = headers)
+
+    [<CompiledName("WithId")>]
+    let withId (id:Guid) (req:HttpRequest<_>) =
+        req.With(id = id)
+
+    [<CompiledName("WithMethod")>]
+    let withMethod (meth:Method) (req:HttpRequest<_>) =
+        req.With(meth = meth)
+  
+    [<CompiledName("WithPragma")>]
+    let withPragma (pragma:seq<CacheDirective>) (req:HttpRequest<_>) =
+        req.With(pragma = pragma)
+
+    [<CompiledName("WithPreconditions")>]
+    let withPreconditions (preconditions:RequestPreconditions) (req:HttpRequest<_>) =
+        req.With(preconditions = preconditions)
+
+    [<CompiledName("WithPreferences")>]
+    let withPreferences (preferences:RequestPreferences) (req:HttpRequest<_>) =
+        req.With(preferences = preferences)
+
+    [<CompiledName("WithProxyAuthorization")>]
+    let withProxyAuthorization (credentials:Credentials) (req:HttpRequest<_>) = 
+        req.With(proxyAuthorization = credentials)
+
+    [<CompiledName("WithReferer")>]
+    let withReferer (referer:Uri) (req:HttpRequest<_>) = 
+        req.With(referer = referer)
+
+    [<CompiledName("WithUri")>]
+    let withUri (uri:Uri) (req:HttpRequest<_>) = 
+        req.With(uri = uri)
+     
+    [<CompiledName("WithUserAgent")>]
+    let withUserAgent (userAgent:UserAgent) (req:HttpRequest<_>) =
+        req.With(userAgent = userAgent)
+
+    [<CompiledName("WithVersion")>]
+    let withVersion (version:HttpVersion) (req:HttpRequest<_>) =
+        req.With(version = version)
