@@ -114,16 +114,19 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
                 Some Method.Get;
                 Some Method.Head;
                 Some Method.Options;
-            ] |> Seq.choose (fun x -> x) |> Set.ofSeq
+            ] |> Seq.choose (fun x -> x)
 
         let optionsResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.successOk, None, allowed = allowedMethods) |> async.Return
+            HttpResponse.create HttpStatus.successOk None |> HttpResponse.withAllowed allowedMethods |> async.Return
         
         let methodNotAllowedResponse = 
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorMethodNotAllowed, None, allowed = allowedMethods) |> async.Return
+            HttpResponse.create HttpStatus.clientErrorMethodNotAllowed None |> HttpResponse.withAllowed allowedMethods |> async.Return
 
         let continueResponse = 
             HttpResponse.create HttpStatus.informationalContinue None
+
+        let redirectionNotModifiedResponse =
+            HttpResponse.create HttpStatus.redirectionNotModified None |> HttpResponse.withAllowed allowedMethods
 
         let continueIfSuccess (resp:HttpResponse<Option<'TResp>>) =
             if resp.Status.Class <> StatusClass.Success then resp else continueResponse
@@ -142,7 +145,7 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
                 let! resp = get req
                 return 
                     if resp.Status.Class <> StatusClass.Success then resp
-                    else if unmodified (req, resp) then HttpResponse<Option<'TResp>>.Create(HttpStatus.redirectionNotModified, None, allowed = allowedMethods)
+                    else if unmodified (req, resp) then redirectionNotModifiedResponse
                     else resp
             }
    
@@ -201,7 +204,7 @@ module Resource =
 
         let unauthorizedResponse = 
             let challenges = authorizers |> Map.toSeq |> Seq.map (fun (k,v) -> v.AuthenticationChallenge)
-            HttpResponse<Option<'TResp>>.Create(HttpStatus.clientErrorUnauthorized, None, authenticate = challenges) |> async.Return
+            HttpResponse.create HttpStatus.clientErrorUnauthorized None |> HttpResponse.withAuthenticateChallenges challenges |> async.Return
 
         let forbiddenResponse = 
             HttpResponse.create HttpStatus.clientErrorForbidden None |> async.Return

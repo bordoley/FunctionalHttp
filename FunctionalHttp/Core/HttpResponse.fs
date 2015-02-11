@@ -485,7 +485,7 @@ module HttpResponseExtensions =
 module HttpResponse =
     [<CompiledName("Create")>]
     let create (status:Status) (entity:'T) =
-        HttpResponse<'T>.Create(status, entity);
+        HttpResponse<'T>.Create(status, entity)
 
     [<CompiledName("Convert")>]
     let convert (converter:FunctionalHttp.Core.Converter<'TIn,'TOut>) (resp:HttpResponse<'TIn>) =
@@ -503,7 +503,95 @@ module HttpResponse =
             let! (contentInfo, out) = converter (resp.ContentInfo, resp.Entity)
             return resp.With(out, contentInfo = contentInfo)
         }
+       
+    [<CompiledName("WithAcceptedRanges")>]
+    let withAcceptedRanges (rangeUnits: seq<RangeUnit>) (resp:HttpResponse<_>) =
+        resp.With(acceptedRanges = Choice1Of2 (Set.ofSeq rangeUnits))
 
+    [<CompiledName("WithAcceptsNone")>]
+    let withAcceptsNone (resp:HttpResponse<_>) =
+        resp.With(acceptedRanges = Choice2Of2 AcceptsNone.instance)
+
+    [<CompiledName("WithAge")>]
+    let withAge (age:TimeSpan) (resp:HttpResponse<_>) =
+        resp.With(age = age)
+
+    [<CompiledName("WithAllowed")>]
+    let withAllowed (allowed:seq<Method>) (resp:HttpResponse<_>) =
+        resp.With(allowed = allowed)
+       
+    [<CompiledName("WithAuthenticateChallenges")>]
+    let withAuthenticateChallenges (authenticate:seq<Challenge>) (resp:HttpResponse<_>) =
+        resp.With(authenticate = authenticate)
+
+    [<CompiledName("WithCacheControl")>]
+    let withCacheControl (cacheControl: seq<CacheDirective>) (resp:HttpResponse<_>) =
+        resp.With(cacheControl = cacheControl)
+
+    [<CompiledName("WithContentInfo")>]
+    let withContentInfo (contentInfo:ContentInfo) (resp:HttpResponse<_>) =
+        resp.With(contentInfo = contentInfo)
+
+    [<CompiledName("WithDate")>]
+    let withDate (date:DateTime) (resp:HttpResponse<_>) =
+        resp.With(date = date)
+    
     [<CompiledName("WithEntity")>]
     let withEntity (entity:'TNew) (resp:HttpResponse<'TResp>) =
         resp.With(entity)
+
+    [<CompiledName("WithEtag")>]
+    let withEtag (etag:EntityTag) (resp:HttpResponse<_>) =
+        resp.With(etag = etag)
+
+    [<CompiledName("WithExpires")>]
+    let withExpires (expires:DateTime) (resp:HttpResponse<_>) =
+        resp.With(expires = expires)
+
+    [<CompiledName("WithHeaders")>]
+    let withHeaders (headers:Map<Header,obj>) (resp:HttpResponse<_>) =
+        resp.With(headers = headers)
+
+    [<CompiledName("WithId")>]
+    let withId (id:Guid) (resp:HttpResponse<_>) =
+        resp.With(id = id)
+
+    [<CompiledName("WithLastModified")>]
+    let withLastModified (lastModified:DateTime) (resp:HttpResponse<_>) =
+        resp.With(lastModified = lastModified)
+
+    [<CompiledName("WithLocation")>]
+    let withLocation (location:Uri) (resp:HttpResponse<_>) =
+        resp.With(location = location)
+
+    [<CompiledName("WithProxyAuthenticateChallenges")>]
+    let withProxyAuthenticateChallenges (proxyAuthenticate:Set<Challenge>) (resp:HttpResponse<_>) =
+        resp.With(proxyAuthenticate = proxyAuthenticate)
+
+    [<CompiledName("WithRetryAfter")>]
+    let withRetryAfter (retryAfter:DateTime) (resp:HttpResponse<_>) =
+        resp.With(retryAfter = retryAfter)
+
+    [<CompiledName("WithServer")>]
+    let withServer (server:Server) (resp:HttpResponse<_>) =
+        resp.With(server = server)
+
+    [<CompiledName("WithStatus")>]
+    let withStatus (status:Status) (resp:HttpResponse<_>) =
+        resp.With(status = status)
+
+    [<CompiledName("WithVaryHeaders")>]
+    let withVaryHeaders (headers: seq<Header>) (resp:HttpResponse<_>) =
+        resp.With(vary = Choice1Of2 (Set.ofSeq headers))
+
+    [<CompiledName("WithVaryAny")>]
+    let withVaryAny (resp:HttpResponse<_>) =
+        resp.With(vary = Choice2Of2 Any.Instance)
+
+    [<CompiledName("WithVersion")>]
+    let withVersion (version:HttpVersion) (resp:HttpResponse<_>) =
+        resp.With(version = version)
+
+    [<CompiledName("WithWarning")>]
+    let withWarning (warning:seq<Warning>) (resp:HttpResponse<_>) =
+        resp.With(warning = warning)

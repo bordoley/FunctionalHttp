@@ -19,7 +19,7 @@ module HttpServer =
         // both request and response serialization
         let contentInfo = ContentInfo.Create(length = uint64 bytes.Length)
         let stream = new MemoryStream(bytes) :> Stream
-        HttpResponse<Stream>.Create(HttpStatus.serverErrorInternalServerError, stream, contentInfo = contentInfo) |> async.Return
+        HttpResponse.create HttpStatus.serverErrorInternalServerError stream |> HttpResponse.withContentInfo contentInfo |> async.Return
 
     [<CompiledName("VirtualHostApplicationProvider")>]
     let virtualHostApplicationProvider (applications:seq<string*IHttpApplication>, defaultApplication:IHttpApplication) =
