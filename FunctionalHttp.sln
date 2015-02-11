@@ -9,8 +9,6 @@ Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp-Net45", "Fun
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp.Tests-Net45", "FunctionalHttp.Tests\FunctionalHttp.Tests-Net45.fsproj", "{D0B51276-953B-45F3-88D5-7B44AF114780}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpInterop-Net45", "FunctionalHttp.CSharpInterop\FunctionalHttp.CSharpInterop-Net45.csproj", "{22BDBE35-5348-4E27-B00E-EDAC5DE2401F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionalHttp.CSharpInterop-Portable", "FunctionalHttp.CSharpInterop\FunctionalHttp.CSharpInterop-Portable.csproj", "{0D017431-88A8-4234-B2F6-A0BE28E6BD47}"
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FunctionalHttp.Example.Server-Net45", "FunctionalHttp.Example.Server\FunctionalHttp.Example.Server-Net45.fsproj", "{5BA5B8A8-5FB6-468A-86BF-3C6D78A10440}"
