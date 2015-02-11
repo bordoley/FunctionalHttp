@@ -93,7 +93,7 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
                 let handle req =
                     async {
                         let! resp = get req
-                        return resp.With(())
+                        return resp |> HttpResponse.withEntity ()
                     }
                 Some handle
 
@@ -152,9 +152,9 @@ type UniformResourceBuilder<'TReq, 'TResp> () =
         { new IResource<'TReq, 'TResp> with
             member this.Route = route
 
-            member this.FilterRequest req = req.With(()) |> requestFilter |> (fun x -> x.With(req.Entity))
+            member this.FilterRequest req = req |> HttpRequest.withEntity () |> requestFilter |> HttpRequest.withEntity req.Entity
 
-            member this.FilterResponse resp = resp.With(()) |> responseFilter |> (fun x -> x.With(resp.Entity))
+            member this.FilterResponse resp = resp |> HttpResponse.withEntity () |> responseFilter |> HttpResponse.withEntity resp.Entity
 
             member this.Handle (req:HttpRequest<unit>) = 
                 match req.Method with
@@ -237,9 +237,9 @@ module Resource =
         { new IResource<'TReq, 'TResp> with
             member this.Route with get() = resource.Route
 
-            member this.FilterRequest req = req.With(()) |> requestFilter |> (fun x -> x.With(req.Entity))
+            member this.FilterRequest req = req |> HttpRequest.withEntity () |> requestFilter |> HttpRequest.withEntity req.Entity
 
-            member this.FilterResponse resp = resp.With(()) |> responseFilter |> (fun x -> x.With(resp.Entity))
+            member this.FilterResponse resp = resp |> HttpResponse.withEntity () |> responseFilter |> HttpResponse.withEntity resp.Entity
 
             member this.Handle req = resource.Handle req
         

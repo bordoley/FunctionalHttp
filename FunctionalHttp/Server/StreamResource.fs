@@ -27,7 +27,7 @@ module StreamResource =
                 let req = resource.FilterRequest req
   
                 let! resp = 
-                    let reqWithoutEntity = req.With(())
+                    let reqWithoutEntity = req |> HttpRequest.withEntity ()
                     resource.Handle reqWithoutEntity
 
                 let! resp = 
@@ -40,7 +40,7 @@ module StreamResource =
                             let! req = req |> HttpRequest.convert converter
                             return! 
                                 match req.Entity with
-                                | Choice1Of2 entity -> req.With(entity) |> resource.Accept 
+                                | Choice1Of2 entity -> req |> HttpRequest.withEntity entity |> resource.Accept 
                                 | Choice2Of2 ex -> badRequestResponse
                         }
                 let resp =
@@ -51,16 +51,16 @@ module StreamResource =
                 return! 
                     match (resp.Entity, getResponseConverter req.Preferences) with
                     | (Some entity, Some responseConverter)-> 
-                        resp.With(entity) |> HttpResponse.convertOrThrow responseConverter
+                        resp |> HttpResponse.withEntity entity |> HttpResponse.convertOrThrow responseConverter
                     | (Some entity, None) ->
                         notAcceptableResponse
-                    | (None, _) -> resp.With(Stream.Null) |> async.Return
+                    | (None, _) -> resp |> HttpResponse.withEntity Stream.Null |> async.Return
             }
         }
 
     [<CompiledName("ByteRange")>]
     let byteRange (resource:IStreamResource) =
-        let acceptedRanges = Choice1Of2 (Set.empty.Add RangeUnit.Bytes)
+        let acceptedRanges =  [RangeUnit.Bytes]
 
         { new IStreamResource with
             member this.Route = resource.Route
@@ -109,7 +109,7 @@ module StreamResource =
                         | _::_ -> 
                             resp
                         | _ -> failwith "Invalid BytesRangeSpecifier: ByteRangeSet is empty"                
-                    | _ -> resp.With(acceptedRanges = acceptedRanges)
+                    | _ -> resp |> HttpResponse.withAcceptedRanges acceptedRanges
             }
         }
 
