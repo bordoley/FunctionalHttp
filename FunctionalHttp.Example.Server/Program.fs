@@ -29,8 +29,8 @@ module main =
                 let! resp = httpClient request
                 return 
                     match resp.Entity with
-                    | Choice1Of2 entity -> resp.With(Some(entity))
-                    | _ -> resp.With(None)
+                    | Choice1Of2 entity -> resp |> HttpResponse.withEntity (Some entity)
+                    | _ -> resp |> HttpResponse.withEntity None
             }
 
             let builder = UniformResourceBuilder()
@@ -43,7 +43,7 @@ module main =
              
         let notFoundResource =
             let handleAndAccept (req:HttpRequest<_>) = 
-                HttpResponse<Option<unit>>.Create(HttpStatus.clientErrorNotFound, None) |> async.Return
+                HttpResponse.create HttpStatus.clientErrorNotFound None |> async.Return
 
             (Route.Empty, handleAndAccept, handleAndAccept) 
             |> Resource.create 
@@ -73,10 +73,10 @@ module main =
                     then 
                         let fileAttr = File.GetAttributes(path)
                         if fileAttr = FileAttributes.Normal
-                        then HttpResponse<FileInfo>.Create(HttpStatus.successOk, Some fileInfo)
-                        else HttpResponse<FileInfo>.Create(HttpStatus.clientErrorNotFound, None)
+                        then HttpResponse.create HttpStatus.successOk (Some fileInfo)
+                        else HttpResponse.create HttpStatus.clientErrorNotFound None
 
-                    else HttpResponse<FileInfo>.Create(HttpStatus.clientErrorNotFound, None)
+                    else HttpResponse.create HttpStatus.clientErrorNotFound None
                 return resp
             }
 
