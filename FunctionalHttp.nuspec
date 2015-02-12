@@ -25,6 +25,10 @@
     <file src="FunctionalHttp\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.dll" target="lib\Portable-net45+win+wpa81+wp80" />
     <file src="FunctionalHttp\bin\Release\monoandroid\FunctionalHttp.dll" target="lib\monoandroid" />
     <file src="FunctionalHttp\bin\Release\Xamarin.iOS10\FunctionalHttp.dll" target="lib\Xamarin.iOS10" />
+
+	<file src="FunctionalHttp.CSharpInterop\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.CSharpInterop.dll" target="lib\Net45" />
     <file src="FunctionalHttp.CSharpInterop\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.CSharpInterop.dll" target="lib\Portable-net45+win+wpa81+wp80" />
+    <file src="FunctionalHttp.CSharpInterop\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.CSharpInterop.dll" target="lib\monoandroid" />
+	<file src="FunctionalHttp.CSharpInterop\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.CSharpInterop.dll" target="lib\Xamarin.iOS10" /> 
   </files>
 </package>
