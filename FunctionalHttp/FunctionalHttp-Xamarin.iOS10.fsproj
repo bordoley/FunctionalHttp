@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{F2A71F9B-5D33-465A-A702-920D77279786}</ProjectTypeGuids>
+    <ProjectGuid>{19DB54B5-DC43-40D0-8EFA-F84D8F0B24F5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FunctionalHttp</RootNamespace>
+    <AssemblyName>FunctionalHttp</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\Xamarin.iOS10</OutputPath>
+    <IntermediateOutputPath>obj\Debug\Xamarin.iOS10</IntermediateOutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>false</Tailcalls>
+    <PlatformTarget>
+    </PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\Xamarin.iOS10</OutputPath>
+    <IntermediateOutputPath>obj\Release\Xamarin.iOS10</IntermediateOutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>
+    </PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+    <Tailcalls>true</Tailcalls>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Collections\Multimap.fs" />
+    <Compile Include="Collections\Option.fs" />
+    <Compile Include="Collections\Async.fs" />
+    <Compile Include="Core\UriGrammar.fs" />
+    <Compile Include="Core\IPAddress.fs" />
+    <Compile Include="Core\Uri.fs" />
+    <Compile Include="Core\HttpGrammar.fs" />
+    <Compile Include="Core\Header.fs" />
+    <Compile Include="Core\Any.fs" />
+    <Compile Include="Core\CacheDirective.fs" />
+    <Compile Include="Core\Challenge.fs" />
+    <Compile Include="Core\Charset.fs" />
+    <Compile Include="Core\ContentCoding.fs" />
+    <Compile Include="Core\EntityTag.fs" />
+    <Compile Include="Core\LanguageTag.fs" />
+    <Compile Include="Core\MediaType.fs" />
+    <Compile Include="Core\MediaRange.fs" />
+    <Compile Include="Core\Range.fs" />
+    <Compile Include="Core\Product.fs" />
+    <Compile Include="Core\Comment.fs" />
+    <Compile Include="Core\UserAgent.fs" />
+    <Compile Include="Core\Server.fs" />
+    <Compile Include="Core\Warning.fs" />
+    <Compile Include="Core\Method.fs" />
+    <Compile Include="Core\Preferences.fs" />
+    <Compile Include="Core\HeaderParsers.fs" />
+    <Compile Include="Core\ContentInfo.fs" />
+    <Compile Include="Core\HttpVersion.fs" />
+    <Compile Include="Core\RequestPreconditions.fs" />
+    <Compile Include="Core\RequestPreferences.fs" />
+    <Compile Include="Core\Status.fs" />
+    <Compile Include="Core\MultipartContent.fs" />
+    <Compile Include="Core\Converters.fs" />
+    <Compile Include="Core\HttpRequest.fs" />
+    <Compile Include="Core\HttpResponse.fs" />
+    <Compile Include="Client\ClientStatus.fs" />
+    <Compile Include="Client\SystemNetExtensions.fs" />
+    <Compile Include="Client\HttpClient.fs" />
+    <!---<Compile Include="Client.Interop\HttpClientExtensions.fs" />-->
+    <!---<Compile Include="Client.Interop\HttpClientConnectorExtensions.fs" />-->
+    <Compile Include="Server\Route.fs" />
+    <Compile Include="Server\Authorizer.fs" />
+    <Compile Include="Server\Resource.fs" />
+    <Compile Include="Server\StreamResource.fs" />
+    <Compile Include="Server\Router.fs" />
+    <Compile Include="Server\Application.fs" />
+    <Compile Include="Server\HttpServer.fs" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Sparse">
+      <HintPath>..\packages\Sparse.0.0.3\lib\portable-net45+netcore45+wpa81+wp8+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Sparse.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.FSharp.targets" />
+</Project>

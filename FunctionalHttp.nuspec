@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>FunctionalHttp</id>
+    <version>0.0.1-pre1</version>
+    <title>FunctionalHttp</title>
+    <authors>David Bordoley</authors>
+    <licenseUrl>https://github.com/bordoley/FunctionalHttp/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/bordoley/FunctionalHttp</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>An HTTP client/server library designed to enable the implementation and consumption of HTTP services in a purely functional asynchronous style.</summary>
+    <description>An HTTP client/server library designed to enable the implementation and consumption of HTTP services in a purely functional asynchronous style.
+    </description>
+    <tags>portable pcl http</tags>
+    <references>
+      <reference file="FunctionalHttp.dll" />
+      <reference file="FunctionalHttp.CSharpInterop.dll" />
+    </references>
+    <dependencies>
+      <dependency id="Sparse" version="0.0.3" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="FunctionalHttp\bin\Release\Net45\FunctionalHttp.dll“ target="lib\Net45” />
+    <file src="FunctionalHttp\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.dll“ target="lib\Portable-net45+win+wpa81+wp80” />
+    <file src="FunctionalHttp\bin\Release\monoandroid\FunctionalHttp.dll“ target="lib\monoandroid” />
+    <file src="FunctionalHttp\bin\Release\Xamarin.iOS10\FunctionalHttp.dll“ target="lib\Xamarin.iOS10” />
+    <file src=“FunctionalHttp.CSharpInterop\bin\Release\Portable-net45+win+wpa81+wp80\FunctionalHttp.CSharpInterop.dll” target="lib\Portable-net45+win+wpa81+wp80” />
+  </files>
+</package>
