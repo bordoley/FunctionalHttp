@@ -35,8 +35,8 @@ type MediaType =
             (this.Parameters |> Map.toSeq |> Seq.map (fun (k,v) -> k + "=" + (HttpEncoding.asTokenOrQuotedString v)) |> String.concat ";")
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module internal MediaType =
-    let parser = 
+module MediaType =
+    let internal parser = 
         let keyNotQ = (token >>= function | key when key <> "q" -> preturn key | _ -> pzero)
 
         let parameter = 
@@ -67,7 +67,12 @@ module internal MediaType =
                 // The type, subtype, and parameter name tokens are case-insensitive.
                 { _type = _type.ToLowerInvariant(); subType = subType.ToLowerInvariant(); charset = !charset; parameters = parameters}
         )
-    
+
+    let create (input:string) =
+        match (parse parser input) with
+        | Success (result, next) when next = input.Length -> result
+        | _ -> failwith "Not a valid media-type"
+
 [<AutoOpen>]
 module MediaTypeExtension =
     type MediaType with
